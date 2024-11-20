@@ -1,19 +1,17 @@
+import Link from 'next/link';
+
 const NotFoundPage = () => {
     return (
-        <div className="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
-            <div className="max-w-xl mx-auto sm:px-6 lg:px-8">
-                <div className="flex items-center pt-8 sm:justify-start sm:pt-0">
-                    <div className="px-4 text-lg text-gray-500 border-r border-gray-400 tracking-wider">
-                        404
-                    </div>
-
-                    <div className="ml-4 text-lg text-gray-500 uppercase tracking-wider">
-                        Not Found
-                    </div>
-                </div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+            <div className="text-center">
+                <h1 className="text-6xl font-bold text-gray-800 dark:text-gray-200 mb-4">404</h1>
+                <p className="text-2xl text-gray-600 dark:text-gray-400 mb-8">Halaman tidak ditemukan</p>
+                <Link href="/" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                    Kembali ke Beranda
+                </Link>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default NotFoundPage
+export default NotFoundPage;

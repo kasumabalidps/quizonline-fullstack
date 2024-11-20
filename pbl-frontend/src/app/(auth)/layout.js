@@ -1,24 +1,17 @@
-import Link from 'next/link'
-import AuthCard from '@/app/(auth)/AuthCard'
-import ApplicationLogo from '@/components/ApplicationLogo'
+'use client'
 
-export const metadata = {
-    title: 'Laravel',
-}
+import { useAuth } from '@/hooks/admin/auth'
 
 const Layout = ({ children }) => {
+    useAuth({ middleware: 'guest' })
+
     return (
-        <div>
-            <div className="text-gray-900 antialiased">
-                <AuthCard
-                    logo={
-                        <Link href="/">
-                            <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
-                        </Link>
-                    }>
-                    {children}
-                </AuthCard>
+        <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+            <div>
+                <h1 className="text-3xl font-bold">Admin Panel</h1>
             </div>
+
+            {children}
         </div>
     )
 }

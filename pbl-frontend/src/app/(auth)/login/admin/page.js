@@ -4,18 +4,13 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import InputError from '@/components/InputError'
 import Label from '@/components/Label'
-import Link from 'next/link'
-import { useAuth } from '@/hooks/auth'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus'
+import { useAuth } from '@/hooks/admin/auth'
+import { useState } from 'react'
 
-const Login = () => {
-    const router = useRouter()
-
+const AdminLogin = () => {
     const { login } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        redirectIfAuthenticated: '/dashboard/admin',
     })
 
     const [email, setEmail] = useState('')
@@ -23,14 +18,6 @@ const Login = () => {
     const [shouldRemember, setShouldRemember] = useState(false)
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
-
-    useEffect(() => {
-        if (router.reset?.length > 0 && errors.length === 0) {
-            setStatus(atob(router.reset))
-        } else {
-            setStatus(null)
-        }
-    })
 
     const submitForm = async event => {
         event.preventDefault()
@@ -45,10 +32,13 @@ const Login = () => {
     }
 
     return (
-        <>
-            <AuthSessionStatus className="mb-4" status={status} />
+        <div className="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
             <form onSubmit={submitForm}>
-                {/* Email Address */}
+                <div className="text-center mb-6">
+                    <h1 className="text-2xl font-bold">Admin Login</h1>
+                </div>
+
+                {/* Email */}
                 <div>
                     <Label htmlFor="email">Email</Label>
 
@@ -79,10 +69,7 @@ const Login = () => {
                         autoComplete="current-password"
                     />
 
-                    <InputError
-                        messages={errors.password}
-                        className="mt-2"
-                    />
+                    <InputError messages={errors.password} className="mt-2" />
                 </div>
 
                 {/* Remember Me */}
@@ -94,7 +81,7 @@ const Login = () => {
                             id="remember_me"
                             type="checkbox"
                             name="remember"
-                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                             onChange={event =>
                                 setShouldRemember(event.target.checked)
                             }
@@ -107,17 +94,11 @@ const Login = () => {
                 </div>
 
                 <div className="flex items-center justify-end mt-4">
-                    <Link
-                        href="/forgot-password"
-                        className="underline text-sm text-gray-600 hover:text-gray-900">
-                        Forgot your password?
-                    </Link>
-
                     <Button className="ml-3">Login</Button>
                 </div>
             </form>
-        </>
+        </div>
     )
 }
 
-export default Login
+export default AdminLogin
