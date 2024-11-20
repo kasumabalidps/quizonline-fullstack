@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/admin/auth'
 import Loading from '@/components/Loading'
 import Navbar from './components/Navbar'
@@ -6,6 +7,7 @@ import Sidebar from './components/Sidebar'
 
 const AdminDashboardLayout = ({ children }) => {
     const { user } = useAuth({ middleware: 'auth' })
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     if (!user) {
         return <Loading />
@@ -13,13 +15,17 @@ const AdminDashboardLayout = ({ children }) => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar user={user} />
-            <Sidebar />
-            <div className="p-4 sm:ml-64 pt-20">
-                <div className="p-4 border-2 border-gray-200 rounded-lg">
-                    {children}
-                </div>
-            </div>
+            <Navbar 
+                user={user} 
+                onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+            />
+            <Sidebar 
+                isOpen={isSidebarOpen} 
+                onClose={() => setIsSidebarOpen(false)} 
+            />
+            <main className="p-4 lg:ml-64 pt-20">
+                {children}
+            </main>
         </div>
     )
 }

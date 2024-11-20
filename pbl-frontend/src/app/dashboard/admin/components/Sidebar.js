@@ -1,72 +1,116 @@
 'use client'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { HiHome, HiAcademicCap, HiUserGroup, HiOfficeBuilding } from 'react-icons/hi'
+import { Home, GraduationCap, ChevronDown, X } from 'lucide-react'
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
+    const pathname = usePathname()
     const [isAkademikOpen, setIsAkademikOpen] = useState(false)
 
     return (
-        <aside className="fixed left-0 top-0 z-40 w-64 h-screen pt-16 bg-white border-r border-gray-200">
-            <div className="h-full px-3 py-4 overflow-y-auto bg-white">
-                <ul className="space-y-2">
-                    <li>
-                        <Link href="/dashboard/admin"
-                              className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-blue-100 group">
-                            <HiHome className="w-5 h-5 text-blue-600"/>
-                            <span className="ml-3">Beranda</span>
-                        </Link>
-                    </li>
+        <>
+            {/* Mobile Overlay */}
+            <div
+                className={`fixed inset-0 bg-gray-900/50 z-40 lg:hidden transition-opacity duration-300 ${
+                    isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={onClose}
+            />
 
-                    <li>
-                        <button onClick={() => setIsAkademikOpen(!isAkademikOpen)}
-                                className="flex items-center w-full p-2 text-gray-900 rounded-lg hover:bg-blue-100 group">
-                            <HiAcademicCap className="w-5 h-5 text-blue-600"/>
-                            <span className="flex-1 ml-3 text-left">Akademik</span>
-                            <svg className={`w-3 h-3 ${isAkademikOpen ? 'rotate-180' : ''}`}
-                                 fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                            </svg>
-                        </button>
+            {/* Sidebar */}
+            <aside
+                className={`fixed top-16 left-0 z-40 w-64 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out ${
+                    isOpen ? 'translate-x-0' : '-translate-x-full'
+                } lg:translate-x-0`}
+            >
+                <div className="h-full pt-4 overflow-y-auto">
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden absolute top-4 right-4 p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                    >
+                    </button>
 
-                        {isAkademikOpen && (
-                            <ul className="py-2 space-y-2">
-                                <li>
-                                    <Link href="/dashboard/admin/jurusan"
-                                          className="flex items-center p-2 pl-11 text-gray-900 rounded-lg hover:bg-blue-100">
-                                        Jurusan
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/dashboard/admin/prodi"
-                                          className="flex items-center p-2 pl-11 text-gray-900 rounded-lg hover:bg-blue-100">
-                                        Prodi
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/dashboard/admin/mahasiswa"
-                                          className="flex items-center p-2 pl-11 text-gray-900 rounded-lg hover:bg-blue-100">
-                                        Mahasiswa
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/dashboard/admin/dosen"
-                                          className="flex items-center p-2 pl-11 text-gray-900 rounded-lg hover:bg-blue-100">
-                                        Dosen
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href="/dashboard/admin/kelas"
-                                          className="flex items-center p-2 pl-11 text-gray-900 rounded-lg hover:bg-blue-100">
-                                        Kelas
-                                    </Link>
-                                </li>
-                            </ul>
-                        )}
-                    </li>
-                </ul>
-            </div>
-        </aside>
+                    {/* Navigation */}
+                    <nav className="px-3">
+                        <ul className="space-y-1.5">
+                            <li>
+                                <Link
+                                    href="/dashboard/admin"
+                                    className="flex items-center p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                    onClick={() => onClose()}
+                                >
+                                    <Home className="w-5 h-5" />
+                                    <span className="ml-3">Beranda</span>
+                                </Link>
+                            </li>
+
+                            <li>
+                                <button
+                                    onClick={() => setIsAkademikOpen(!isAkademikOpen)}
+                                    className={`flex items-center w-full p-2.5 text-gray-900 rounded-lg transition-all duration-200
+                                              ${isAkademikOpen ? 'bg-blue-50 text-blue-600' : 'hover:bg-blue-50 hover:text-blue-600'}`}
+                                >
+                                    <GraduationCap className="w-5 h-5" />
+                                    <span className="flex-1 ml-3 text-left">Akademik</span>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isAkademikOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isAkademikOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <ul className="pt-1 pb-1 space-y-1">
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/jurusan"
+                                                className="flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                                onClick={() => onClose()}
+                                            >
+                                                Jurusan
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/prodi"
+                                                className="flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                                onClick={() => onClose()}
+                                            >
+                                                Prodi
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/mahasiswa"
+                                                className="flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                                onClick={() => onClose()}
+                                            >
+                                                Mahasiswa
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/dosen"
+                                                className="flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                                onClick={() => onClose()}
+                                            >
+                                                Dosen
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/kelas"
+                                                className="flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                                onClick={() => onClose()}
+                                            >
+                                                Kelas
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+        </>
     )
 }
 
