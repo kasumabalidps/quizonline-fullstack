@@ -1,19 +1,7 @@
-'use client'
-
-import { useAuth } from '@/hooks/admin/auth'
-
-const Layout = ({ children }) => {
-    useAuth({ middleware: 'guest' })
-
+export default function AuthLayout({ children }) {
     return (
-        <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <h1 className="text-3xl font-bold">Admin Panel</h1>
-            </div>
-
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">
             {children}
         </div>
     )
 }
-
-export default Layout
