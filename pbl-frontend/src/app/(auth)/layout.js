@@ -1,26 +1,7 @@
-import Link from 'next/link'
-import AuthCard from '@/app/(auth)/AuthCard'
-import ApplicationLogo from '@/components/ApplicationLogo'
-
-export const metadata = {
-    title: 'Laravel',
-}
-
-const Layout = ({ children }) => {
+export default function AuthLayout({ children }) {
     return (
-        <div>
-            <div className="text-gray-900 antialiased">
-                <AuthCard
-                    logo={
-                        <Link href="/">
-                            <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
-                        </Link>
-                    }>
-                    {children}
-                </AuthCard>
-            </div>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">
+            {children}
         </div>
     )
 }
-
-export default Layout

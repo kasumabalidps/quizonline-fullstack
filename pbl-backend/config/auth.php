@@ -14,8 +14,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+        'guard' => env('AUTH_GUARD', 'mahasiswa'),
+        'passwords' => env('AUTH_PASSWORD_BROKER', 'mahasiswa'),
     ],
 
     /*
@@ -36,9 +36,17 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        'mahasiswa' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'mahasiswa',
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
+        'dosen' => [
+            'driver' => 'session',
+            'provider' => 'dosen',
         ],
     ],
 
@@ -60,15 +68,18 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'mahasiswa' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL_MAHASISWA', App\Models\Mahasiswa::class),
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL_ADMIN', App\Models\Admin::class),
+        ],
+        'dosen' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL_DOSEN', App\Models\Dosen::class),
+        ],
     ],
 
     /*
@@ -91,8 +102,8 @@ return [
     */
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
+        'mahasiswa' => [
+            'provider' => 'mahasiswa',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
