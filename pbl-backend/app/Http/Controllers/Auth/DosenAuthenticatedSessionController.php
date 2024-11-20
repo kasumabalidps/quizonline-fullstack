@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\AdminLoginRequest;
+use App\Http\Requests\Auth\DosenLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class AdminAuthenticatedSessionController extends Controller
+class DosenAuthenticatedSessionController extends Controller
 {
 
-    public function store(AdminLoginRequest $request): JsonResponse
+    public function store(DosenLoginRequest $request): JsonResponse
     {
         $request->authenticate();
 
@@ -25,7 +25,7 @@ class AdminAuthenticatedSessionController extends Controller
 
     public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('admin')->logout();
+        Auth::guard('dosen')->logout();
 
         if ($request->hasSession()) {
             $request->session()->invalidate();

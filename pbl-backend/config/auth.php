@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'admin',
         ],
+        'dosen' => [
+            'driver' => 'session',
+            'provider' => 'dosen',
+        ],
     ],
 
     /*
@@ -71,6 +75,10 @@ return [
         'admin' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL_ADMIN', App\Models\Admin::class),
+        ],
+        'dosen' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL_DOSEN', App\Models\Dosen::class),
         ],
     ],
 

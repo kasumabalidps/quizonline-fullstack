@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class AdminLoginRequest extends FormRequest
+class DosenLoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,7 +19,7 @@ class AdminLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'nidn' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -28,11 +28,11 @@ class AdminLoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::guard('admin')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (! Auth::guard('dosen')->attempt($this->only('nidn', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('Email atau password salah.'),
+                'nidn' => ['NIDN atau password salah.'],
             ]);
         }
 
@@ -50,7 +50,7 @@ class AdminLoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => [trans('Terlalu banyak percobaan login. Silakan coba lagi dalam :seconds detik.', [
+            'nidn' => [trans('Terlalu banyak percobaan login. Silakan coba lagi dalam :seconds detik.', [
                 'seconds' => $seconds,
             ])]
         ]);
@@ -58,6 +58,6 @@ class AdminLoginRequest extends FormRequest
 
     private function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('nidn')).'|'.$this->ip());
     }
 }

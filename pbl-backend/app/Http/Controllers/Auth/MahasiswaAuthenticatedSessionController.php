@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MahasiswaAuthenticatedSessionController extends Controller
 {
-    /**
-     * Handle an incoming authentication request.
-     */
+
     public function store(MahasiswaLoginRequest $request): JsonResponse
     {
         $request->authenticate();
@@ -20,13 +18,11 @@ class MahasiswaAuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         return response()->json([
-            'message' => 'Successfully logged in',
+            'message' => 'Berhasil logged in',
         ]);
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
+
     public function destroy(Request $request): JsonResponse
     {
         Auth::guard('mahasiswa')->logout();
@@ -36,7 +32,7 @@ class MahasiswaAuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return response()->json([
-            'message' => 'Successfully logged out',
+            'message' => 'Berhasil logged out',
         ]);
     }
 }

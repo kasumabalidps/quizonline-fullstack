@@ -13,7 +13,7 @@ const DosenLogin = () => {
         redirectIfAuthenticated: '/dashboard/dosen',
     })
 
-    const [nip, setNip] = useState('')
+    const [nidn, setNidn] = useState('')
     const [password, setPassword] = useState('')
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
@@ -22,7 +22,7 @@ const DosenLogin = () => {
         event.preventDefault()
 
         login({
-            nip,
+            nidn,
             password,
             setErrors,
             setStatus,
@@ -32,23 +32,23 @@ const DosenLogin = () => {
     return (
         <>
             <div className="mb-4 text-sm text-gray-600">
-                Silakan masuk menggunakan NIP dan password Anda.
+                Silakan masuk menggunakan NIDN dan password Anda.
             </div>
 
             <form onSubmit={submitForm}>
-                {/* NIP */}
+                {/* NIDN */}
                 <div>
-                    <Label htmlFor="nip">NIP</Label>
+                    <Label htmlFor="nidn">NIDN</Label>
                     <Input
-                        id="nip"
+                        id="nidn"
                         type="text"
-                        value={nip}
+                        value={nidn}
                         className="block mt-1 w-full"
-                        onChange={event => setNip(event.target.value)}
+                        onChange={event => setNidn(event.target.value)}
                         required
                         autoFocus
                     />
-                    <InputError messages={errors.nip} className="mt-2" />
+                    <InputError messages={errors.nidn} className="mt-2" />
                 </div>
 
                 {/* Password */}
