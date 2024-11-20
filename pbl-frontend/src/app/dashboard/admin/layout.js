@@ -1,8 +1,8 @@
 'use client'
-
 import { useAuth } from '@/hooks/admin/auth'
-import AdminNavigation from '@/components/navigation/AdminNavigation'
 import Loading from '@/components/Loading'
+import Navbar from './components/Navbar'
+import Sidebar from './components/Sidebar'
 
 const AdminDashboardLayout = ({ children }) => {
     const { user } = useAuth({ middleware: 'auth' })
@@ -12,9 +12,14 @@ const AdminDashboardLayout = ({ children }) => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <AdminNavigation user={user} />
-            <main>{children}</main>
+        <div className="min-h-screen bg-gray-50">
+            <Navbar user={user} />
+            <Sidebar />
+            <div className="p-4 sm:ml-64 pt-20">
+                <div className="p-4 border-2 border-gray-200 rounded-lg">
+                    {children}
+                </div>
+            </div>
         </div>
     )
 }
