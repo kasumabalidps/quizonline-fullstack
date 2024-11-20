@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/admin/auth'
 import AdminNavigation from '@/components/navigation/AdminNavigation'
 import Loading from '@/components/Loading'
 
-const DashboardLayout = ({ children }) => {
+const AdminDashboardLayout = ({ children }) => {
     const { user } = useAuth({ middleware: 'auth' })
 
     if (!user) {
@@ -19,4 +19,4 @@ const DashboardLayout = ({ children }) => {
     )
 }
 
-export default DashboardLayout
+export default AdminDashboardLayout

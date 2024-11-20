@@ -7,16 +7,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Admin extends Authenticatable
+class Mahasiswa extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'admin';
+    protected $table = 'mahasiswa';
 
     protected $fillable = [
-        'name',
+        'nim',
+        'nama',
         'email',
         'password',
+        'id_kelas',
     ];
 
     protected $hidden = [
@@ -27,4 +29,12 @@ class Admin extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the login username to be used by the controller.
+     */
+    public function username()
+    {
+        return 'nim';
+    }
 }

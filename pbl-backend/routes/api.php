@@ -14,3 +14,10 @@ Route::middleware(['auth:admin'])->group(function () {
         return $request->user();
     });
 });
+
+// Mahasiswa Routes
+Route::middleware(['auth:mahasiswa'])->group(function () {
+    Route::get('/mahasiswa/user', function (Request $request) {
+        return $request->user();
+    });
+});

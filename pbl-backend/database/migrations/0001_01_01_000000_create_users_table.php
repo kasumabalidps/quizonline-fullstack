@@ -11,11 +11,44 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        // Schema::create('users', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('name');
+        //     $table->string('email')->unique();
+        //     // $table->timestamp('email_verified_at')->nullable();
+        //     $table->string('password');
+        //     $table->rememberToken();
+        //     $table->timestamps();
+        // });
+
+        Schema::create('admin', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            // $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('mahasiswa', function (Blueprint $table) {
+            $table->id();
+            $table->string('nim');
+            $table->string('nama');
+            $table->string('email')->unique();
+            // $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('id_kelas');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('dosen', function (Blueprint $table) {
+            $table->id();
+            $table->string('nidn');
+            $table->string('nama');
+            $table->string('email')->unique();
+            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
@@ -44,6 +77,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('mahasiswa');
+        Schema::dropIfExists('admin');
     }
 };
