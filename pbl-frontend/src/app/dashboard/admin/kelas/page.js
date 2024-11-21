@@ -3,96 +3,112 @@ import { useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
 import FormModal from '../components/FormModal'
-import useTableData from '@/hooks/admin/tableData'
 
 const KelasPage = () => {
-    const { tableData, isLoading } = useTableData();
+    const [kelasList, setKelasList] = useState([
+        {
+            id: 1,
+            kode: 'TI-2A',
+            nama: 'Teknologi Informasi 2A',
+            prodi: 'Teknologi Informasi'
+        }
+        // Data will be fetched from API
+    ])
+
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false)
     const [selectedKelas, setSelectedKelas] = useState(null)
-    const [formData, setFormData] = useState({ kode: '', nama: '', prodi: '' })
+    const [formMode, setFormMode] = useState('add')
+
+    const handleAdd = () => {
+        setFormMode('add')
+        setSelectedKelas(null)
+        setIsFormModalOpen(true)
+    }
+
+    const handleEdit = (kelas) => {
+        setFormMode('edit')
+        setSelectedKelas(kelas)
+        setIsFormModalOpen(true)
+    }
 
     const handleDelete = (kelas) => {
         setSelectedKelas(kelas)
         setIsDeleteModalOpen(true)
     }
 
-    const handleDeleteConfirm = () => {
-        // TODO: Add API call to delete kelas
-        setIsDeleteModalOpen(false)
-    }
-
-    const handleEdit = (kelas) => {
-        setSelectedKelas(kelas)
-        setFormData({
-            kode: kelas.code_kelas,
-            nama: kelas.nama_kelas,
-            prodi: kelas.nama_prodi
-        })
-        setIsFormModalOpen(true)
-    }
-
-    const handleAdd = () => {
-        setSelectedKelas(null)
-        setFormData({ kode: '', nama: '', prodi: '' })
-        setIsFormModalOpen(true)
-    }
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        // TODO: Add API call to create/update kelas
+    const handleSubmit = (formData) => {
+        if (formMode === 'add') {
+            setKelasList([...kelasList, { id: Date.now(), ...formData }])
+        } else {
+            setKelasList(kelasList.map(item =>
+                item.id === selectedKelas.id ? { ...item, ...formData } : item
+            ))
+        }
         setIsFormModalOpen(false)
     }
 
-    if (isLoading) {
-        return <div>Loading...</div>
+    const handleConfirmDelete = () => {
+        setKelasList(kelasList.filter(item => item.id !== selectedKelas.id))
+        setIsDeleteModalOpen(false)
     }
 
+    const formFields = [
+        { name: 'kode', label: 'Kode Kelas', type: 'text', required: true },
+        { name: 'nama', label: 'Nama Kelas', type: 'text', required: true },
+        { name: 'prodi', label: 'Nama Prodi', type: 'text', required: true },
+    ]
+
     return (
-        <div className="container mx-auto p-4">
-            <div className="mb-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Daftar Kelas</h1>
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-semibold text-gray-900">Manajemen Kelas</h1>
                 <button
                     onClick={handleAdd}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600"
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                 >
                     <Plus className="w-4 h-4" />
                     Tambah Kelas
                 </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-x-auto">
-                <table className="min-w-full">
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Kelas</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program Studi</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Kode Kelas
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nama Kelas
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nama Prodi
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Aksi
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {tableData?.kelas.map((kelas, index) => (
+                        {kelasList.map((kelas) => (
                             <tr key={kelas.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kelas.code_kelas}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kelas.nama_kelas}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{kelas.nama_prodi}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kelas.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kelas.kode}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kelas.nama}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{kelas.prodi}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                     <button
                                         onClick={() => handleEdit(kelas)}
-                                        className="text-blue-600 hover:text-blue-900 inline-flex items-center"
+                                        className="text-blue-600 hover:text-blue-900"
                                     >
-                                        <Pencil className="w-4 h-4 mr-1" />
-                                        Edit
+                                        <Pencil className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(kelas)}
-                                        className="text-red-600 hover:text-red-900 inline-flex items-center"
+                                        className="text-red-600 hover:text-red-900"
                                     >
-                                        <Trash2 className="w-4 h-4 mr-1" />
-                                        Hapus
+                                        <Trash2 className="w-4 h-4" />
                                     </button>
                                 </td>
                             </tr>
@@ -104,53 +120,19 @@ const KelasPage = () => {
             <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={handleDeleteConfirm}
+                onConfirm={handleConfirmDelete}
                 title="Hapus Kelas"
-                message={`Apakah anda yakin ingin menghapus kelas ${selectedKelas?.nama_kelas}?`}
+                message={`Apakah Anda yakin ingin menghapus kelas ${selectedKelas?.nama}?`}
             />
 
             <FormModal
                 isOpen={isFormModalOpen}
                 onClose={() => setIsFormModalOpen(false)}
                 onSubmit={handleSubmit}
-                title={selectedKelas ? "Edit Kelas" : "Tambah Kelas"}
-            >
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Kode Kelas</label>
-                        <input
-                            type="text"
-                            value={formData.kode}
-                            onChange={(e) => setFormData({ ...formData, kode: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Nama Kelas</label>
-                        <input
-                            type="text"
-                            value={formData.nama}
-                            onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Program Studi</label>
-                        <select
-                            value={formData.prodi}
-                            onChange={(e) => setFormData({ ...formData, prodi: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        >
-                            <option value="">Pilih Program Studi</option>
-                            {tableData?.prodi.map((prodi) => (
-                                <option key={prodi.id} value={prodi.id}>
-                                    {prodi.nama_prodi}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            </FormModal>
+                title={formMode === 'add' ? 'Tambah Kelas' : 'Edit Kelas'}
+                fields={formFields}
+                initialData={selectedKelas}
+            />
         </div>
     )
 }

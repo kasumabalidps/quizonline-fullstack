@@ -3,10 +3,13 @@ import { useState } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
 import FormModal from '../components/FormModal'
-import useTableData from '@/hooks/admin/tableData'
 
 const JurusanPage = () => {
-    const { tableData, isLoading } = useTableData();
+    const [jurusanList, setJurusanList] = useState([
+        { id: 1, kode: 'JTI', nama: 'Jurusan Teknologi Informasi' }
+        // Data will be fetched from API
+    ])
+
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [isFormModalOpen, setIsFormModalOpen] = useState(false)
     const [selectedJurusan, setSelectedJurusan] = useState(null)
@@ -18,16 +21,13 @@ const JurusanPage = () => {
     }
 
     const handleDeleteConfirm = () => {
-        // TODO: Add API call to delete jurusan
+        setJurusanList(jurusanList.filter(item => item.id !== selectedJurusan.id))
         setIsDeleteModalOpen(false)
     }
 
     const handleEdit = (jurusan) => {
         setSelectedJurusan(jurusan)
-        setFormData({ 
-            kode: jurusan.code_jurusan, 
-            nama: jurusan.nama_jurusan 
-        })
+        setFormData({ kode: jurusan.kode, nama: jurusan.nama })
         setIsFormModalOpen(true)
     }
 
@@ -37,62 +37,52 @@ const JurusanPage = () => {
         setIsFormModalOpen(true)
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
-        // TODO: Add API call to create/update jurusan
+        if (selectedJurusan) {
+            setJurusanList(jurusanList.map(item =>
+                item.id === selectedJurusan.id ? { ...item, ...formData } : item
+            ))
+        } else {
+            setJurusanList([...jurusanList, { id: jurusanList.length + 1, ...formData }])
+        }
         setIsFormModalOpen(false)
     }
 
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
-
     return (
-        <div className="container mx-auto p-4">
-            <div className="mb-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Daftar Jurusan</h1>
-                <button
-                    onClick={handleAdd}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600"
-                >
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-semibold text-gray-900">Manajemen Jurusan</h1>
+                <button onClick={handleAdd} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     <Plus className="w-4 h-4" />
                     Tambah Jurusan
                 </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-x-auto">
-                <table className="min-w-full">
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Jurusan</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Jurusan</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program Studi</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {tableData?.jurusan.map((jurusan, index) => (
+                        {jurusanList.map((jurusan) => (
                             <tr key={jurusan.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{jurusan.code_jurusan}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{jurusan.nama_jurusan}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{jurusan.nama_prodi}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(jurusan)}
-                                        className="text-blue-600 hover:text-blue-900 inline-flex items-center"
-                                    >
-                                        <Pencil className="w-4 h-4 mr-1" />
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(jurusan)}
-                                        className="text-red-600 hover:text-red-900 inline-flex items-center"
-                                    >
-                                        <Trash2 className="w-4 h-4 mr-1" />
-                                        Hapus
-                                    </button>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{jurusan.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{jurusan.kode}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{jurusan.nama}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div className="flex gap-2">
+                                        <button onClick={() => handleEdit(jurusan)} className="text-blue-600 hover:text-blue-800">
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button onClick={() => handleDelete(jurusan)} className="text-red-600 hover:text-red-800">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -105,7 +95,7 @@ const JurusanPage = () => {
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleDeleteConfirm}
                 title="Hapus Jurusan"
-                message={`Apakah anda yakin ingin menghapus jurusan ${selectedJurusan?.nama_jurusan}?`}
+                message={`Apakah Anda yakin ingin menghapus jurusan ${selectedJurusan?.nama}? Tindakan ini tidak dapat dibatalkan.`}
             />
 
             <FormModal
@@ -116,21 +106,25 @@ const JurusanPage = () => {
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Kode Jurusan</label>
+                        <label htmlFor="kode" className="block text-sm font-medium text-gray-700">Kode Jurusan</label>
                         <input
                             type="text"
+                            id="kode"
                             value={formData.kode}
                             onChange={(e) => setFormData({ ...formData, kode: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Nama Jurusan</label>
+                        <label htmlFor="nama" className="block text-sm font-medium text-gray-700">Nama Jurusan</label>
                         <input
                             type="text"
+                            id="nama"
                             value={formData.nama}
                             onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            required
                         />
                     </div>
                 </div>
