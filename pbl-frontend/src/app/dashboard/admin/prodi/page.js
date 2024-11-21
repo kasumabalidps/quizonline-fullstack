@@ -124,15 +124,6 @@ const ProdiPage = () => {
         },
     ]
 
-    if (isLoading || isLoadingJurusan) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-                <p className="ml-3 text-gray-500">Loading...</p>
-            </div>
-        );
-    }
-
     if (error || errorJurusan) {
         return (
             <div className="flex justify-center items-center min-h-screen text-red-500">
@@ -181,14 +172,16 @@ const ProdiPage = () => {
                 </div>
 
                 {/* Table Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
-                        {isLoading ? (
-                            <div className="flex flex-col items-center justify-center py-20">
-                                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                                <p className="text-gray-500 text-sm">Loading data, mohon sabar...</p>
-                            </div>
-                        ) : prodiList.length === 0 ? (
+                {isLoading ? (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                            <p className="text-gray-500 text-sm">Loading data, mohon sabar...</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                        {prodiList.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20">
                                 <div className="bg-gray-50 rounded-full p-3 mb-4">
                                     <GraduationCap className="w-8 h-8 text-gray-400" />
@@ -199,110 +192,112 @@ const ProdiPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Kode Prodi
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Nama Prodi
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Jurusan
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Aksi
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {prodiList.map((prodi) => (
-                                            <tr key={prodi.id} className="hover:bg-gray-50/50 transition-colors duration-150">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    <span className="font-mono">{prodi.code_prodi}</span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    {prodi.nama_prodi}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    <span 
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 cursor-help transition-colors hover:bg-blue-100"
-                                                        title={`Jurusan ${prodi.jurusan?.nama_jurusan || 'Tidak tersedia'}`}
-                                                    >
-                                                        {prodi.jurusan?.nama_jurusan || '-'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                                                    <button
-                                                        onClick={() => handleEdit(prodi)}
-                                                        className="text-blue-600 hover:text-blue-900 transition-colors duration-150"
-                                                        title="Edit program studi"
-                                                    >
-                                                        <Pencil className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(prodi)}
-                                                        className="text-red-600 hover:text-red-900 transition-colors duration-150"
-                                                        title="Hapus program studi"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </td>
+                            <>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Kode Prodi
+                                                </th>
+                                                <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Nama Prodi
+                                                </th>
+                                                <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Jurusan
+                                                </th>
+                                                <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Aksi
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {prodiList.map((prodi) => (
+                                                <tr key={prodi.id} className="hover:bg-gray-50/50 transition-colors duration-150">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        <span className="font-mono">{prodi.code_prodi}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                        {prodi.nama_prodi}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                        <span 
+                                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 cursor-help transition-colors hover:bg-blue-100"
+                                                            title={`Jurusan ${prodi.jurusan?.nama_jurusan || 'Tidak tersedia'}`}
+                                                        >
+                                                            {prodi.jurusan?.nama_jurusan || '-'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                                                        <button
+                                                            onClick={() => handleEdit(prodi)}
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors duration-150"
+                                                            title="Edit program studi"
+                                                        >
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(prodi)}
+                                                            className="text-red-600 hover:text-red-900 transition-colors duration-150"
+                                                            title="Hapus program studi"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-center py-4 px-6 border-t border-gray-200 bg-white">
-                                <nav className="flex gap-1" aria-label="Pagination">
-                                    <button
-                                        onClick={() => handlePageChange(Math.max(1, page - 1))}
-                                        disabled={page === 1}
-                                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                            page === 1
-                                                ? 'text-gray-400 cursor-not-allowed'
-                                                : 'text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        Previous
-                                    </button>
-                                    
-                                    {[...Array(totalPages)].map((_, index) => (
-                                        <button
-                                            key={index + 1}
-                                            onClick={() => handlePageChange(index + 1)}
-                                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                                page === index + 1
-                                                    ? 'bg-blue-50 text-blue-600'
-                                                    : 'text-gray-700 hover:bg-gray-100'
-                                            }`}
-                                        >
-                                            {index + 1}
-                                        </button>
-                                    ))}
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center py-4 px-6 border-t border-gray-200 bg-white">
+                                        <nav className="flex gap-1" aria-label="Pagination">
+                                            <button
+                                                onClick={() => handlePageChange(Math.max(1, page - 1))}
+                                                disabled={page === 1}
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                                    page === 1
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                Previous
+                                            </button>
+                                            
+                                            {[...Array(totalPages)].map((_, index) => (
+                                                <button
+                                                    key={index + 1}
+                                                    onClick={() => handlePageChange(index + 1)}
+                                                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                                        page === index + 1
+                                                            ? 'bg-blue-50 text-blue-600'
+                                                            : 'text-gray-700 hover:bg-gray-100'
+                                                    }`}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            ))}
 
-                                    <button
-                                        onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
-                                        disabled={page === totalPages}
-                                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                            page === totalPages
-                                                ? 'text-gray-400 cursor-not-allowed'
-                                                : 'text-gray-700 hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        Next
-                                    </button>
-                                </nav>
-                            </div>
+                                            <button
+                                                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+                                                disabled={page === totalPages}
+                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                                    page === totalPages
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                Next
+                                            </button>
+                                        </nav>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Modals */}

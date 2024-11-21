@@ -37,7 +37,7 @@ const AdminDashboard = () => {
             description: 'tidak ada perubahan'
         },
         {
-            title: 'Kelas Aktif',
+            title: 'Kelas',
             value: countData?.kelas,
             icon: BookOpen,
             gradient: 'from-violet-500 to-violet-600',
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
                             <div className={`inline-flex items-center justify-center p-3 bg-gradient-to-br ${stat.gradient} rounded-lg shadow-sm`}>
                                 <stat.icon className="w-6 h-6 text-white" />
                             </div>
-                            <div className={`flex items-center gap-1 text-sm ${
+                            {/* <div className={`flex items-center gap-1 text-sm ${
                                 stat.trend === 'up' ? 'text-emerald-600' :
                                 stat.trend === 'down' ? 'text-red-600' :
                                 'text-gray-600'
@@ -92,12 +92,12 @@ const AdminDashboard = () => {
                                 {stat.trend === 'up' && <ArrowUp className="w-4 h-4" />}
                                 {stat.trend === 'down' && <ArrowDown className="w-4 h-4" />}
                                 <span>{stat.change}</span>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="mt-4 relative">
                             <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
                             <p className="text-gray-600 font-medium mt-1">{stat.title}</p>
-                            <p className="text-sm text-gray-500 mt-1">{stat.description}</p>
+                            {/* <p className="text-sm text-gray-500 mt-1">{stat.description}</p> */}
                         </div>
                     </div>
                 ))}
