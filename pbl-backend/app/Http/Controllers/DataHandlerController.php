@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
-use App\Models\Kelas;
-use App\Models\Jurusan;
-use App\Models\Prodi;
-use App\Models\Mahasiswa;
+use App\Http\Requests\Auth\DataEditRequest;
 use App\Models\Dosen;
-use App\Models\Admin;
+use App\Models\Jurusan;
+use App\Models\Kelas;
+use App\Models\Mahasiswa;
+use App\Models\Prodi;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class DataHandlerController extends Controller
 {
@@ -64,7 +65,7 @@ class DataHandlerController extends Controller
 
     public function getMahasiswaData(): JsonResponse
     {
-        $mahasiswa = Mahasiswa::select('id', 'nim', 'nama', 'id_kelas')
+        $mahasiswa = Mahasiswa::select('id', 'nim', 'nama', 'id_kelas', 'id_prodi')
             ->with([
                 'kelas' => function($query) {
                     $query->select('id', 'nama_kelas', 'id_prodi')
@@ -94,11 +95,7 @@ class DataHandlerController extends Controller
 
     public function getJurusanData(): JsonResponse
     {
-        $jurusan = Jurusan::select('id', 'code_jurusan', 'nama_jurusan')
-            ->with(['prodi' => function($query) {
-                $query->select('id', 'id_jurusan', 'code_prodi', 'nama_prodi');
-            }])
-            ->get();
+        $jurusan = Jurusan::select('id', 'code_jurusan', 'nama_jurusan')->get();
 
         return response()->json([
             'jurusan' => $jurusan
@@ -108,10 +105,7 @@ class DataHandlerController extends Controller
     public function getProdiData(): JsonResponse
     {
         $prodi = Prodi::select('id', 'code_prodi', 'nama_prodi', 'id_jurusan')
-            ->with([
-                'jurusan:id,nama_jurusan',
-                'kelas:id,nama_kelas,id_prodi'
-            ])
+            ->with('jurusan:id,nama_jurusan')
             ->get();
 
         return response()->json([
@@ -122,10 +116,7 @@ class DataHandlerController extends Controller
     public function getKelasData(): JsonResponse
     {
         $kelas = Kelas::select('id', 'code_kelas', 'nama_kelas', 'id_prodi')
-            ->with([
-                'prodi:id,nama_prodi',
-                'mahasiswa:id,nama,id_kelas'
-            ])
+            ->with('prodi:id,nama_prodi')
             ->get();
 
         return response()->json([

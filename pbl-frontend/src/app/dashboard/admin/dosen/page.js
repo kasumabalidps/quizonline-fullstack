@@ -1,170 +1,282 @@
 'use client'
+
 import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, UserSquare2 } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
 import FormModal from '../components/FormModal'
-import { useDosenData, useJurusanData } from '@/hooks/admin/tableData'
+import { useDosenManagement } from '@/hooks/admin/dosenManagement'
+import axios from '@/lib/axios'
 
 const DosenPage = () => {
-    const { dosenData, isLoading, error, fetchDosenData } = useDosenData();
-    const { jurusanData, fetchJurusanData } = useJurusanData();
-    const [dosenList, setDosenList] = useState([])
+    const [dosen, setDosen] = useState([]);
+    const [jurusan, setJurusan] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [selectedDosen, setSelectedDosen] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+    const [formMode, setFormMode] = useState('add');
+
+    const { 
+        isLoading, 
+        error, 
+        success, 
+        getAllDosen, 
+        createDosen, 
+        updateDosen, 
+        deleteDosen,
+        resetStates 
+    } = useDosenManagement();
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchText);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchText]);
 
     useEffect(() => {
-        fetchDosenData();
-        fetchJurusanData();
-    }, []);
+        fetchDosen();
+        fetchJurusan();
+    }, [debouncedSearch]);
 
     useEffect(() => {
-        if (dosenData) {
-            setDosenList(dosenData);
+        if (error) {
+            console.error(error);
+            resetStates();
         }
-    }, [dosenData]);
+        if (success) {
+            fetchDosen();
+            handleCloseModal();
+            resetStates();
+        }
+    }, [error, success]);
 
-    // Modal states
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-    const [isFormModalOpen, setIsFormModalOpen] = useState(false)
-    const [selectedDosen, setSelectedDosen] = useState(null)
-    const [formMode, setFormMode] = useState('add') // 'add' or 'edit'
+    const fetchDosen = async () => {
+        try {
+            const response = await getAllDosen();
+            if (response?.data) {
+                setDosen(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching dosen:', error);
+        }
+    };
 
-    // Modal handlers
+    const fetchJurusan = async () => {
+        try {
+            const response = await axios.get('/api/jurusan');
+            setJurusan(response.data.data);
+        } catch (error) {
+            console.error('Error fetching jurusan:', error);
+        }
+    };
+
     const handleAdd = () => {
-        setFormMode('add')
-        setSelectedDosen(null)
-        setIsFormModalOpen(true)
-    }
+        setFormMode('add');
+        setSelectedDosen(null);
+        setIsFormModalOpen(true);
+        resetStates();
+    };
 
     const handleEdit = (dosen) => {
-        setFormMode('edit')
-        setSelectedDosen(dosen)
-        setIsFormModalOpen(true)
-    }
+        setFormMode('edit');
+        setSelectedDosen({
+            id: dosen.id,
+            nidn: dosen.nidn,
+            nama: dosen.nama,
+            email: dosen.email,
+            id_jurusan: dosen.id_jurusan
+        });
+        setIsFormModalOpen(true);
+        resetStates();
+    };
 
     const handleDelete = (dosen) => {
-        setSelectedDosen(dosen)
-        setIsDeleteModalOpen(true)
-    }
+        setSelectedDosen(dosen);
+        setIsDeleteModalOpen(true);
+        resetStates();
+    };
 
-    const handleSubmit = (formData) => {
-        if (formMode === 'add') {
-            setDosenList([...dosenList, { id: Date.now(), ...formData }])
-        } else {
-            setDosenList(dosenList.map(item =>
-                item.id === selectedDosen.id ? { ...item, ...formData } : item
-            ))
+    const handleSubmit = async (formData) => {
+        try {
+            if (formMode === 'add') {
+                await createDosen(formData);
+            } else {
+                // Don't send password if it's empty in edit mode
+                const dataToSubmit = { ...formData };
+                if (!dataToSubmit.password) {
+                    delete dataToSubmit.password;
+                }
+                await updateDosen(selectedDosen.id, dataToSubmit);
+            }
+            setIsFormModalOpen(false);
+            fetchDosen();
+        } catch (error) {
+            console.error('Error submitting form:', error);
         }
-        setIsFormModalOpen(false)
-    }
+    };
 
-    const handleConfirmDelete = () => {
-        setDosenList(dosenList.filter(item => item.id !== selectedDosen.id))
-        setIsDeleteModalOpen(false)
-    }
+    const handleConfirmDelete = async () => {
+        try {
+            await deleteDosen(selectedDosen.id);
+            setIsDeleteModalOpen(false);
+            fetchDosen();
+        } catch (error) {
+            console.error('Error deleting dosen:', error);
+        }
+    };
 
-    const formFields = [
-        { name: 'nidn', label: 'NIDN', type: 'text', required: true },
-        { name: 'nama', label: 'Nama', type: 'text', required: true },
-        { name: 'email', label: 'Email', type: 'text', required: true },
-        { 
-            name: 'id_jurusan', 
-            label: 'Jurusan', 
-            type: 'select', 
-            required: true,
-            options: jurusanData ? jurusanData.map(jurusan => ({
-                value: jurusan.id,
-                label: jurusan.nama_jurusan
-            })) : []
-        },
-    ]
+    const handleCloseModal = () => {
+        setIsFormModalOpen(false);
+        setIsDeleteModalOpen(false);
+        setSelectedDosen(null);
+        resetStates();
+    };
+
+    const filteredDosen = dosen.filter(d => 
+        d.nidn?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        d.nama?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        d.email?.toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
 
     if (isLoading) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>
-    }
-
-    if (error) {
-        return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                <p className="ml-3 text-gray-500">Loading...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-semibold text-gray-900">Manajemen Dosen</h1>
-                <button
-                    onClick={handleAdd}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                >
-                    <Plus className="w-4 h-4" />
-                    Tambah Dosen
-                </button>
+        <div className="min-h-screen bg-gray-50/30">
+            <div className="p-8 space-y-6 max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-50 rounded-lg">
+                                <UserSquare2 className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-semibold text-gray-900">Manajemen Dosen</h1>
+                                <p className="text-sm text-gray-500 mt-1">Kelola data dosen dengan mudah</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleAdd}
+                            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Tambah Dosen
+                        </button>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="mt-6">
+                        <div className="relative max-w-md">
+                            <input
+                                type="text"
+                                placeholder="Cari dosen berdasarkan NIDN, nama, atau email..."
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                className="w-full px-4 py-2.5 pl-11 pr-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                            />
+                            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Table Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center py-20">
+                                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                <p className="text-gray-500 text-sm">Loading data, mohon sabar...</p>
+                            </div>
+                        ) : filteredDosen.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20">
+                                <div className="bg-gray-50 rounded-full p-3 mb-4">
+                                    <UserSquare2 className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <p className="text-gray-500 font-medium">Tidak ada data dosen</p>
+                                <p className="text-gray-400 text-sm mt-1">
+                                    {debouncedSearch ? 'Coba ubah kata kunci pencarian' : 'Silakan tambah data dosen baru'}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                NIDN
+                                            </th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Nama
+                                            </th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Email
+                                            </th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Jurusan
+                                            </th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Aksi
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {filteredDosen.map((dosen) => (
+                                            <tr key={dosen.id} className="hover:bg-gray-50/50 transition-colors duration-150">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {dosen.nidn}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    {dosen.nama}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    {dosen.email}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    <span 
+                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 cursor-help transition-colors hover:bg-blue-100"
+                                                        title={`Jurusan ${dosen.jurusan?.nama_jurusan || 'Tidak tersedia'}`}
+                                                    >
+                                                        {dosen.jurusan?.nama_jurusan || '-'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                                                    <button
+                                                        onClick={() => handleEdit(dosen)}
+                                                        className="text-blue-600 hover:text-blue-900 transition-colors duration-150"
+                                                        title="Edit dosen"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(dosen)}
+                                                        className="text-red-600 hover:text-red-900 transition-colors duration-150"
+                                                        title="Hapus dosen"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                NIDN
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Jurusan
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {dosenList.map((dosen) => (
-                            <tr key={dosen.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {dosen.id}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {dosen.nidn}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {dosen.nama}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {dosen.email}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {dosen.jurusan?.nama_jurusan || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleEdit(dosen)}
-                                            className="text-blue-600 hover:text-blue-900"
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(dosen)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Delete Modal */}
+            {/* Modals */}
             <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
@@ -173,17 +285,55 @@ const DosenPage = () => {
                 message={`Apakah Anda yakin ingin menghapus dosen ${selectedDosen?.nama}?`}
             />
 
-            {/* Form Modal */}
             <FormModal
                 isOpen={isFormModalOpen}
-                onClose={() => setIsFormModalOpen(false)}
+                onClose={() => {
+                    setIsFormModalOpen(false)
+                    resetStates()
+                }}
                 onSubmit={handleSubmit}
                 title={formMode === 'add' ? 'Tambah Dosen' : 'Edit Dosen'}
-                fields={formFields}
+                fields={[
+                    { 
+                        name: 'nidn', 
+                        label: 'NIDN', 
+                        type: 'text', 
+                        required: true 
+                    },
+                    { 
+                        name: 'nama', 
+                        label: 'Nama', 
+                        type: 'text', 
+                        required: true 
+                    },
+                    { 
+                        name: 'email', 
+                        label: 'Email', 
+                        type: 'email', 
+                        required: true 
+                    },
+                    { 
+                        name: 'password', 
+                        label: 'Password', 
+                        type: 'password',
+                        required: formMode === 'add',
+                        placeholder: formMode === 'add' ? 'Masukkan password' : 'Kosongkan jika tidak ingin mengubah password'
+                    },
+                    { 
+                        name: 'id_jurusan', 
+                        label: 'Jurusan', 
+                        type: 'select', 
+                        required: true,
+                        options: jurusan.map(j => ({
+                            value: j.id,
+                            label: j.nama_jurusan
+                        })) || []
+                    }
+                ]}
                 initialData={selectedDosen}
             />
         </div>
-    )
-}
+    );
+};
 
-export default DosenPage
+export default DosenPage;

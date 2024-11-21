@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios from '@/lib/axios';
 
 export const useKelasData = () => {
     const [kelasData, setKelasData] = useState([]);
@@ -10,7 +10,7 @@ export const useKelasData = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get('http://localhost:8000/api/kelas-data');
+            const response = await axios.get('/api/kelas-data');
             setKelasData(response.data.kelas);
         } catch (err) {
             setError(err.message);
@@ -36,7 +36,7 @@ export const useMahasiswaData = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get('http://localhost:8000/api/mahasiswa-data');
+            const response = await axios.get('/api/mahasiswa-data');
             setMahasiswaData(response.data.mahasiswa);
         } catch (err) {
             setError(err.message);
@@ -62,7 +62,7 @@ export const useDosenData = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get('http://localhost:8000/api/dosen-data');
+            const response = await axios.get('/api/dosen-data');
             setDosenData(response.data.dosen);
         } catch (err) {
             setError(err.message);
@@ -88,7 +88,7 @@ export const useJurusanData = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get('http://localhost:8000/api/jurusan-data');
+            const response = await axios.get('/api/jurusan-data');
             setJurusanData(response.data.jurusan);
         } catch (err) {
             setError(err.message);
@@ -114,7 +114,7 @@ export const useProdiData = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get('http://localhost:8000/api/prodi-data');
+            const response = await axios.get('/api/prodi-data');
             setProdiData(response.data.prodi);
         } catch (err) {
             setError(err.message);
