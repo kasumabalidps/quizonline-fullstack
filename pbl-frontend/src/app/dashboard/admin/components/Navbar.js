@@ -57,10 +57,10 @@ const Navbar = ({ user, onMenuClick }) => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="flex items-center text-sm bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all"
+                            className="flex items-center gap-2 text-sm bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all"
                         >
-                            <span className="mr-2">{user?.name}</span>
-                            <ChevronDown className="w-4 h-4" />
+                            <span className="text-gray-900">{user?.nama}</span>
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
                         </button>
                         {isDropdownOpen && (
                             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100">

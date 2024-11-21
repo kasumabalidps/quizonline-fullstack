@@ -6,26 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
-        // Schema::create('users', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->string('name');
-        //     $table->string('email')->unique();
-        //     // $table->timestamp('email_verified_at')->nullable();
-        //     $table->string('password');
-        //     $table->rememberToken();
-        //     $table->timestamps();
-        // });
 
         Schema::create('admin', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
             $table->string('email')->unique();
-            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
@@ -36,9 +24,12 @@ return new class extends Migration
             $table->string('nim');
             $table->string('nama');
             $table->string('email')->unique();
-            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('id_kelas');
+            $table->foreignId('id_kelas')
+                ->references('id')
+                ->on('kelas')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -48,8 +39,12 @@ return new class extends Migration
             $table->string('nidn');
             $table->string('nama');
             $table->string('email')->unique();
-            // $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('id_jurusan')
+                ->references('id')
+                ->on('jurusan')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -70,14 +65,14 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('mahasiswa');
         Schema::dropIfExists('admin');
+        Schema::dropIfExists('jurusan');
+        Schema::dropIfExists('prodi');
+        Schema::dropIfExists('kelas');
     }
 };

@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CountDataController;
+
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -27,3 +29,6 @@ Route::middleware(['auth:dosen'])->group(function () {
         return $request->user();
     });
 });
+
+// Count Data
+Route::get('/count/user', [CountDataController::class, 'countData']);

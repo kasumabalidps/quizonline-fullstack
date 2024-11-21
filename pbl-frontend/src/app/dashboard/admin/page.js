@@ -1,15 +1,17 @@
 'use client'
 import { Users, GraduationCap, Building2, BookOpen, Activity, ArrowUp, ArrowDown } from 'lucide-react'
 import { useAuth } from '@/hooks/admin/auth'
+import { useCountData } from '@/hooks/countData'
 
 const AdminDashboard = () => {
     const { user } = useAuth()
+    const { countData } = useCountData()
     console.log('User data:', user)
 
     const stats = [
         {
             title: 'Total Mahasiswa',
-            value: '2,500',
+            value: countData?.mahasiswa,
             icon: Users,
             gradient: 'from-blue-500 to-blue-600',
             change: '+12%',
@@ -18,7 +20,7 @@ const AdminDashboard = () => {
         },
         {
             title: 'Total Dosen',
-            value: '150',
+            value: countData?.dosen,
             icon: GraduationCap,
             gradient: 'from-emerald-500 to-emerald-600',
             change: '+5%',
@@ -27,7 +29,7 @@ const AdminDashboard = () => {
         },
         {
             title: 'Jurusan',
-            value: '5',
+            value: countData?.jurusan,
             icon: Building2,
             gradient: 'from-amber-500 to-amber-600',
             change: '0%',
@@ -36,7 +38,7 @@ const AdminDashboard = () => {
         },
         {
             title: 'Kelas Aktif',
-            value: '48',
+            value: countData?.kelas,
             icon: BookOpen,
             gradient: 'from-violet-500 to-violet-600',
             change: '-2%',

@@ -15,6 +15,7 @@ class DosenSeeder extends Seeder
             'nama' => 'Dosen Test',
             'email' => 'dosen@dosen.com',
             'password' => Hash::make('dosen123'),
+            'id_jurusan' => '1',
         ]);
     }
 }

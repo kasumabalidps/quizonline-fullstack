@@ -15,7 +15,7 @@ class MahasiswaSeeder extends Seeder
             'nama' => 'Mahasiswa Test',
             'email' => 'mahasiswa@test.com',
             'password' => Hash::make('mahasiswa123'),
-            'id_kelas' => 'TI-1A',
+            'id_kelas' => '1',
         ]);
     }
 }
