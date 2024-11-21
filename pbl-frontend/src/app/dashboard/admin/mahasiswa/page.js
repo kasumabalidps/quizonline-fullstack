@@ -6,13 +6,12 @@ import FormModal from '../components/FormModal'
 
 const MahasiswaPage = () => {
     const [mahasiswaList, setMahasiswaList] = useState([
-        { 
-            id: 1, 
-            nim: '2141720001', 
-            nama: 'John Doe', 
-            prodi: 'Teknologi Informasi',
-            kelas: 'TI-2A',
-            angkatan: '2021'
+        {
+            id: 1,
+            nim: '2141720001',
+            nama: 'John Doe',
+            email: 'halo@gmail.com',
+            kelas: 'TI-2A'
         }
         // Data will be fetched from API
     ])
@@ -47,7 +46,7 @@ const MahasiswaPage = () => {
             setMahasiswaList([...mahasiswaList, { id: Date.now(), ...formData }])
         } else {
             // Edit existing mahasiswa
-            setMahasiswaList(mahasiswaList.map(item => 
+            setMahasiswaList(mahasiswaList.map(item =>
                 item.id === selectedMahasiswa.id ? { ...item, ...formData } : item
             ))
         }
@@ -62,9 +61,8 @@ const MahasiswaPage = () => {
     const formFields = [
         { name: 'nim', label: 'NIM', type: 'text', required: true },
         { name: 'nama', label: 'Nama', type: 'text', required: true },
-        { name: 'prodi', label: 'Program Studi', type: 'text', required: true },
+        { name: 'email', label: 'Email', type: 'email', required: true },
         { name: 'kelas', label: 'Kelas', type: 'text', required: true },
-        { name: 'angkatan', label: 'Angkatan', type: 'text', required: true }
     ]
 
     return (
@@ -72,7 +70,7 @@ const MahasiswaPage = () => {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-semibold text-gray-900">Manajemen Mahasiswa</h1>
-                <button 
+                <button
                     onClick={handleAdd}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                 >
@@ -93,13 +91,10 @@ const MahasiswaPage = () => {
                                 Nama
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Program Studi
+                                Email
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Kelas
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Angkatan
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi
@@ -109,11 +104,11 @@ const MahasiswaPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {mahasiswaList.map((mahasiswa) => (
                             <tr key={mahasiswa.id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.id}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.nim}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.nama}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.prodi}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.email}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.kelas}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.angkatan}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                     <button
                                         onClick={() => handleEdit(mahasiswa)}

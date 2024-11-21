@@ -2,19 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kelas extends Model
 {
-    use HasFactory, Notifiable;
-
     protected $table = 'kelas';
-
+    
     protected $fillable = [
         'code_kelas',
         'nama_kelas',
-        'id_prodi',
+        'id_prodi'
     ];
+
+    public function prodi(): BelongsTo
+    {
+        return $this->belongsTo(Prodi::class, 'id_prodi');
+    }
+
+    public function mahasiswa(): HasMany
+    {
+        return $this->hasMany(Mahasiswa::class, 'id_kelas');
+    }
 }

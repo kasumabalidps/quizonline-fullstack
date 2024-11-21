@@ -9,10 +9,31 @@ class KelasSeeder extends Seeder
 {
     public function run(): void
     {
-        Kelas::create([
-            'code_kelas' => 'TI-1A',
-            'nama_kelas' => 'TI-1A',
-            'id_prodi' => '1',
-        ]);
+        $kelas = [
+            [
+                'code_kelas' => 'TI-1A',
+                'nama_kelas' => 'Teknik Informatika 1A',
+                'id_prodi' => 1
+            ],
+            [
+                'code_kelas' => 'TI-1B',
+                'nama_kelas' => 'Teknik Informatika 1B',
+                'id_prodi' => 1
+            ],
+            [
+                'code_kelas' => 'TE-1A',
+                'nama_kelas' => 'Teknik Elektro 1A',
+                'id_prodi' => 3
+            ],
+            [
+                'code_kelas' => 'TE-1B',
+                'nama_kelas' => 'Teknik Elektro 1B',
+                'id_prodi' => 3
+            ]
+        ];
+
+        foreach ($kelas as $k) {
+            Kelas::create($k);
+        }
     }
 }

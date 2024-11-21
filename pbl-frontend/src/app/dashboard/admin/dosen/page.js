@@ -8,11 +8,10 @@ const DosenPage = () => {
     const [dosenList, setDosenList] = useState([
         {
             id: 1,
-            nip: '198509152015041001',
+            nidn: '198509152015041001',
             nama: 'Dr. Jane Smith',
-            prodi: 'Teknologi Informasi',
-            bidangKeahlian: 'Artificial Intelligence',
-            email: 'jane.smith@example.com'
+            email: 'Teknologi Informasi',
+            jurusan: 'Artificial Intelligence'
         }
         // Data will be fetched from API
     ])
@@ -47,7 +46,7 @@ const DosenPage = () => {
             setDosenList([...dosenList, { id: Date.now(), ...formData }])
         } else {
             // Edit existing dosen
-            setDosenList(dosenList.map(item => 
+            setDosenList(dosenList.map(item =>
                 item.id === selectedDosen.id ? { ...item, ...formData } : item
             ))
         }
@@ -60,19 +59,17 @@ const DosenPage = () => {
     }
 
     const formFields = [
-        { name: 'nip', label: 'NIP', type: 'text', required: true },
+        { name: 'nidn', label: 'NIDN', type: 'text', required: true },
         { name: 'nama', label: 'Nama', type: 'text', required: true },
-        { name: 'prodi', label: 'Program Studi', type: 'text', required: true },
-        { name: 'bidangKeahlian', label: 'Bidang Keahlian', type: 'text', required: true },
-        { name: 'email', label: 'Email', type: 'email', required: true }
-    ]
+        { name: 'email', label: 'Email', type: 'text', required: true },
+        { name: 'jurusan', label: 'Jurusan', type: 'text', required: true },    ]
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-semibold text-gray-900">Manajemen Dosen</h1>
-                <button 
+                <button
                     onClick={handleAdd}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                 >
@@ -87,19 +84,16 @@ const DosenPage = () => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                NIP
+                                NIDN
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nama
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Program Studi
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Bidang Keahlian
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Email
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Jurusan
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi
@@ -109,11 +103,11 @@ const DosenPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {dosenList.map((dosen) => (
                             <tr key={dosen.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.nip}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.nidn}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.nama}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.prodi}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.bidangKeahlian}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.email}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.jurusan}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                     <button
                                         onClick={() => handleEdit(dosen)}
