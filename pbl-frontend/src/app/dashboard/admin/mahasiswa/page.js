@@ -1,20 +1,25 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
 import FormModal from '../components/FormModal'
+import { useMahasiswaData, useProdiData } from '@/hooks/admin/tableData'
 
 const MahasiswaPage = () => {
-    const [mahasiswaList, setMahasiswaList] = useState([
-        {
-            id: 1,
-            nim: '2141720001',
-            nama: 'John Doe',
-            email: 'halo@gmail.com',
-            kelas: 'TI-2A'
+    const { mahasiswaData, isLoading, error, fetchMahasiswaData } = useMahasiswaData();
+    const { prodiData, fetchProdiData } = useProdiData();
+    const [mahasiswaList, setMahasiswaList] = useState([])
+
+    useEffect(() => {
+        fetchMahasiswaData();
+        fetchProdiData();
+    }, []);
+
+    useEffect(() => {
+        if (mahasiswaData) {
+            setMahasiswaList(mahasiswaData);
         }
-        // Data will be fetched from API
-    ])
+    }, [mahasiswaData]);
 
     // Modal states
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -61,9 +66,21 @@ const MahasiswaPage = () => {
     const formFields = [
         { name: 'nim', label: 'NIM', type: 'text', required: true },
         { name: 'nama', label: 'Nama', type: 'text', required: true },
-        { name: 'email', label: 'Email', type: 'email', required: true },
-        { name: 'kelas', label: 'Kelas', type: 'text', required: true },
+        { name: 'id_prodi', label: 'Program Studi', type: 'select', 
+            required: true, 
+            options: prodiData?.map(prodi => ({
+            value: prodi.id,
+            label: prodi.nama_prodi
+        })) }
     ]
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>
+    }
+
+    if (error) {
+        return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>
+    }
 
     return (
         <div className="space-y-6">
@@ -85,16 +102,19 @@ const MahasiswaPage = () => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 NIM
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nama
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Email
+                                Kelas
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Kelas
+                                Program Studi
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi
@@ -104,24 +124,36 @@ const MahasiswaPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {mahasiswaList.map((mahasiswa) => (
                             <tr key={mahasiswa.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.nim}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.nama}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{mahasiswa.kelas}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(mahasiswa)}
-                                        className="text-blue-600 hover:text-blue-900"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(mahasiswa)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {mahasiswa.id}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {mahasiswa.nim}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {mahasiswa.nama}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {mahasiswa.kelas?.nama_kelas || '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {mahasiswa.kelas?.prodi?.nama_prodi || '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(mahasiswa)}
+                                            className="text-blue-600 hover:text-blue-900"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(mahasiswa)}
+                                            className="text-red-600 hover:text-red-900"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

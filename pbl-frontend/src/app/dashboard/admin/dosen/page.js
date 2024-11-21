@@ -1,20 +1,25 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
 import FormModal from '../components/FormModal'
+import { useDosenData, useJurusanData } from '@/hooks/admin/tableData'
 
 const DosenPage = () => {
-    const [dosenList, setDosenList] = useState([
-        {
-            id: 1,
-            nidn: '198509152015041001',
-            nama: 'Dr. Jane Smith',
-            email: 'Teknologi Informasi',
-            jurusan: 'Artificial Intelligence'
+    const { dosenData, isLoading, error, fetchDosenData } = useDosenData();
+    const { jurusanData, fetchJurusanData } = useJurusanData();
+    const [dosenList, setDosenList] = useState([])
+
+    useEffect(() => {
+        fetchDosenData();
+        fetchJurusanData();
+    }, []);
+
+    useEffect(() => {
+        if (dosenData) {
+            setDosenList(dosenData);
         }
-        // Data will be fetched from API
-    ])
+    }, [dosenData]);
 
     // Modal states
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -42,10 +47,8 @@ const DosenPage = () => {
 
     const handleSubmit = (formData) => {
         if (formMode === 'add') {
-            // Add new dosen
             setDosenList([...dosenList, { id: Date.now(), ...formData }])
         } else {
-            // Edit existing dosen
             setDosenList(dosenList.map(item =>
                 item.id === selectedDosen.id ? { ...item, ...formData } : item
             ))
@@ -62,7 +65,25 @@ const DosenPage = () => {
         { name: 'nidn', label: 'NIDN', type: 'text', required: true },
         { name: 'nama', label: 'Nama', type: 'text', required: true },
         { name: 'email', label: 'Email', type: 'text', required: true },
-        { name: 'jurusan', label: 'Jurusan', type: 'text', required: true },    ]
+        { 
+            name: 'id_jurusan', 
+            label: 'Jurusan', 
+            type: 'select', 
+            required: true,
+            options: jurusanData ? jurusanData.map(jurusan => ({
+                value: jurusan.id,
+                label: jurusan.nama_jurusan
+            })) : []
+        },
+    ]
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>
+    }
+
+    if (error) {
+        return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>
+    }
 
     return (
         <div className="space-y-6">
@@ -84,6 +105,9 @@ const DosenPage = () => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 NIDN
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -103,24 +127,36 @@ const DosenPage = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {dosenList.map((dosen) => (
                             <tr key={dosen.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.nidn}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.nama}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{dosen.jurusan}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button
-                                        onClick={() => handleEdit(dosen)}
-                                        className="text-blue-600 hover:text-blue-900"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(dosen)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {dosen.id}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {dosen.nidn}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {dosen.nama}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {dosen.email}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {dosen.jurusan?.nama_jurusan || '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(dosen)}
+                                            className="text-blue-600 hover:text-blue-900"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(dosen)}
+                                            className="text-red-600 hover:text-red-900"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
