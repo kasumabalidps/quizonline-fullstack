@@ -1,4 +1,5 @@
 'use client'
+
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Pencil, Trash2, Search, GraduationCap } from 'lucide-react'
 import DeleteModal from '../components/DeleteModal'
@@ -7,179 +8,177 @@ import { useKelasData } from '@/hooks/admin/tableData'
 import { useMahasiswaManagement } from '@/hooks/admin/mahasiswaManagement'
 
 const MahasiswaPage = () => {
-    const { kelasData, isLoading: isLoadingKelas, error: errorKelas, fetchKelasData } = useKelasData();
-    const { 
-        isLoading, 
-        error, 
+    const { kelasData, isLoading: isLoadingKelas, error: errorKelas, fetchKelasData } = useKelasData()
+    const {
+        isLoading,
+        error,
         success,
         getAllMahasiswa,
         createMahasiswa,
         updateMahasiswa,
         deleteMahasiswa,
         resetStates
-    } = useMahasiswaManagement();
+    } = useMahasiswaManagement()
 
-    const [mahasiswaList, setMahasiswaList] = useState([]);
-    const [page, setPage] = useState(1);
-    const [perPage] = useState(10);
-    const [search, setSearch] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [totalPages, setTotalPages] = useState(1);
+    const [mahasiswaList, setMahasiswaList] = useState([])
+    const [page, setPage] = useState(1)
+    const [perPage] = useState(10)
+    const [search, setSearch] = useState('')
+    const [debouncedSearch, setDebouncedSearch] = useState('')
+    const [totalPages, setTotalPages] = useState(1)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [isFormModalOpen, setIsFormModalOpen] = useState(false)
+    const [selectedMahasiswa, setSelectedMahasiswa] = useState(null)
+    const [formMode, setFormMode] = useState('add')
 
-    // Modal states
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-    const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
-    const [formMode, setFormMode] = useState('add');
-
-    // Debounce search
     useEffect(() => {
         const timer = setTimeout(() => {
-            setDebouncedSearch(search);
-        }, 500);
+            setDebouncedSearch(search)
+        }, 500)
 
-        return () => clearTimeout(timer);
-    }, [search]);
-
-    // Fetch data when page or debounced search changes
-    useEffect(() => {
-        fetchData();
-    }, [page, debouncedSearch]);
+        return () => clearTimeout(timer)
+    }, [search])
 
     useEffect(() => {
-        fetchKelasData();
-    }, []);
+        fetchData()
+    }, [page, debouncedSearch])
+
+    useEffect(() => {
+        fetchKelasData()
+    }, [])
+
+    useEffect(() => {
+        if (error || success) {
+            setTimeout(() => resetStates(), 5000)
+        }
+    }, [error, success])
 
     const fetchData = async () => {
         try {
-            const response = await getAllMahasiswa(page, perPage, debouncedSearch);
-            setMahasiswaList(response.data);
-            setTotalPages(Math.ceil(response.total / perPage));
+            const response = await getAllMahasiswa(page, perPage, debouncedSearch)
+            setMahasiswaList(response.data)
+            setTotalPages(Math.ceil(response.total / perPage))
         } catch (error) {
-            console.error('Error fetching mahasiswa:', error);
+            console.error('Error fetching mahasiswa:', error)
         }
-    };
+    }
 
-    const getFormFields = () => {
-        const fields = [
-            {
-                name: 'nim',
-                label: 'NIM',
-                type: 'text',
-                required: true,
-                placeholder: 'Masukkan NIM'
-            },
-            {
-                name: 'nama',
-                label: 'Nama Mahasiswa',
-                type: 'text',
-                required: true,
-                placeholder: 'Masukkan nama mahasiswa'
-            },
-            {
-                name: 'email',
-                label: 'Email',
-                type: 'email',
-                required: true,
-                placeholder: 'Masukkan email'
-            },
-            {
-                name: 'password',
-                label: 'Password',
-                type: 'password',
-                required: formMode === 'add',
-                placeholder: formMode === 'add' ? 'Masukkan password' : 'Kosongkan jika tidak ingin mengubah password'
-            },
-            {
-                name: 'id_kelas',
-                label: 'Kelas',
-                type: 'select',
-                required: true,
-                options: kelasData.map(kelas => ({
-                    value: kelas.id,
-                    label: kelas.nama_kelas
-                }))
-            }
-        ];
-
-        return fields;
-    };
+    const getFormFields = () => [
+        {
+            name: 'nim',
+            label: 'NIM',
+            type: 'text',
+            required: true,
+            placeholder: 'Masukkan NIM'
+        },
+        {
+            name: 'nama',
+            label: 'Nama Mahasiswa',
+            type: 'text',
+            required: true,
+            placeholder: 'Masukkan nama mahasiswa'
+        },
+        {
+            name: 'email',
+            label: 'Email',
+            type: 'email',
+            required: true,
+            placeholder: 'Masukkan email'
+        },
+        {
+            name: 'password',
+            label: 'Password',
+            type: 'password',
+            required: formMode === 'add',
+            placeholder: formMode === 'add' ? 'Masukkan password' : 'Kosongkan jika tidak ingin mengubah password'
+        },
+        {
+            name: 'id_kelas',
+            label: 'Kelas',
+            type: 'select',
+            required: true,
+            options: kelasData.map(kelas => ({
+                value: kelas.id,
+                label: kelas.nama_kelas
+            }))
+        }
+    ]
 
     const handleAdd = () => {
-        setFormMode('add');
-        setSelectedMahasiswa(null);
-        setIsFormModalOpen(true);
-        resetStates();
-    };
+        setFormMode('add')
+        setSelectedMahasiswa(null)
+        setIsFormModalOpen(true)
+        resetStates()
+    }
 
     const handleEdit = (mahasiswa) => {
-        setFormMode('edit');
-        setSelectedMahasiswa(mahasiswa);
-        setIsFormModalOpen(true);
-        resetStates();
-    };
+        setFormMode('edit')
+        setSelectedMahasiswa(mahasiswa)
+        setIsFormModalOpen(true)
+        resetStates()
+    }
 
     const handleDelete = (mahasiswa) => {
-        setSelectedMahasiswa(mahasiswa);
-        setIsDeleteModalOpen(true);
-        resetStates();
-    };
+        setSelectedMahasiswa(mahasiswa)
+        setIsDeleteModalOpen(true)
+        resetStates()
+    }
 
     const handleSubmit = async (formData) => {
         try {
             if (formMode === 'add') {
-                await createMahasiswa(formData);
-                setIsFormModalOpen(false);
-                setPage(1);
-                setSearch('');
-                await fetchData();
+                await createMahasiswa(formData)
+                setIsFormModalOpen(false)
+                setPage(1)
+                setSearch('')
+                await fetchData()
             } else {
-                const dataToSubmit = { ...formData };
+                const dataToSubmit = { ...formData }
                 if (!dataToSubmit.password) {
-                    delete dataToSubmit.password;
+                    delete dataToSubmit.password
                 }
-                await updateMahasiswa(selectedMahasiswa.id, dataToSubmit);
-                setIsFormModalOpen(false);
-                await fetchData();
+                await updateMahasiswa(selectedMahasiswa.id, dataToSubmit)
+                setIsFormModalOpen(false)
+                await fetchData()
             }
         } catch (error) {
-            console.error('Error submitting form:', error);
-            // Don't close modal if there's an error
-            return false;
+            console.error('Error submitting form:', error)
+            return false
         }
-        return true;
-    };
+        return true
+    }
 
     const handleConfirmDelete = async () => {
         try {
-            await deleteMahasiswa(selectedMahasiswa.id);
-            setIsDeleteModalOpen(false);
-            fetchData();
+            await deleteMahasiswa(selectedMahasiswa.id)
+            setIsDeleteModalOpen(false)
+            fetchData()
         } catch (error) {
-            console.error('Error deleting mahasiswa:', error);
+            console.error('Error deleting mahasiswa:', error)
         }
-    };
+    }
 
     const handleSearch = (e) => {
-        const value = e.target.value;
-        setSearch(value);
-        setPage(1);
-    };
+        const value = e.target.value
+        setSearch(value)
+        setPage(1)
+    }
 
     const handlePageChange = (newPage) => {
-        setPage(newPage);
-    };
+        setPage(newPage)
+    }
 
     if (isLoadingKelas) {
-        return <div className="flex justify-center items-center min-h-screen">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+        )
     }
 
     return (
         <div className="min-h-screen bg-gray-50/30">
             <div className="p-8 space-y-6 max-w-7xl mx-auto">
-                {/* Header Section */}
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
@@ -200,7 +199,6 @@ const MahasiswaPage = () => {
                         </button>
                     </div>
 
-                    {/* Search Bar */}
                     <div className="mt-6">
                         <div className="relative max-w-md">
                             <input
@@ -215,7 +213,19 @@ const MahasiswaPage = () => {
                     </div>
                 </div>
 
-                {/* Table Section */}
+                <div className="space-y-2">
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <p className="text-red-600 text-sm">{error}</p>
+                        </div>
+                    )}
+                    {success && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p className="text-green-600 text-sm">{success}</p>
+                        </div>
+                    )}
+                </div>
+
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20">
@@ -228,21 +238,11 @@ const MahasiswaPage = () => {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                NIM
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Nama Mahasiswa
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Email
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Kelas
-                                            </th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Aksi
-                                            </th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIM</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mahasiswa</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
@@ -278,7 +278,6 @@ const MahasiswaPage = () => {
                                 </table>
                             </div>
 
-                            {/* Pagination */}
                             {totalPages > 1 && (
                                 <div className="flex justify-center py-4 px-6 border-t border-gray-200 bg-white">
                                     <div className="flex gap-2">
@@ -303,7 +302,6 @@ const MahasiswaPage = () => {
                 </div>
             </div>
 
-            {/* Modals */}
             <FormModal
                 isOpen={isFormModalOpen}
                 onClose={() => setIsFormModalOpen(false)}
@@ -321,7 +319,7 @@ const MahasiswaPage = () => {
                 message="Apakah Anda yakin ingin menghapus mahasiswa ini?"
             />
         </div>
-    );
-};
+    )
+}
 
-export default MahasiswaPage;
+export default MahasiswaPage

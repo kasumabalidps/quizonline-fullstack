@@ -27,6 +27,7 @@ export const useDosenManagement = () => {
             const response = await axios.post('/api/dosen', data);
             setSuccess('Dosen berhasil ditambahkan');
             setError(null);
+            console.log(response.data);
             return response.data;
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menambah dosen';
