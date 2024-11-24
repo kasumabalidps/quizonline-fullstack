@@ -111,4 +111,15 @@ class KelasDataController extends Controller
             ], 500);
         }
     }
+
+    public function getKelasData(): JsonResponse
+    {
+        $kelas = Kelas::select('id', 'code_kelas', 'nama_kelas', 'id_prodi')
+            ->with('prodi:id,nama_prodi')
+            ->get();
+
+        return response()->json([
+            'kelas' => $kelas
+        ]);
+    }
 }

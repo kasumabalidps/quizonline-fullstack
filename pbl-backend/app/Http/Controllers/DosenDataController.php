@@ -112,4 +112,15 @@ class DosenDataController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus dosen'], 500);
         }
     }
+
+    public function getDosenData(): JsonResponse
+    {
+        $dosen = Dosen::select('id', 'nidn', 'nama', 'email', 'id_jurusan')
+            ->with('jurusan:id,nama_jurusan')
+            ->get();
+
+        return response()->json([
+            'dosen' => $dosen
+        ]);
+    }
 }

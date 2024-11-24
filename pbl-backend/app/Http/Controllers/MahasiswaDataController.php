@@ -103,4 +103,23 @@ class MahasiswaDataController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus mahasiswa'], 500);
         }
     }
+
+    public function getMahasiswaData(): JsonResponse
+    {
+        $mahasiswa = Mahasiswa::select('id', 'nim', 'nama', 'id_kelas', 'id_prodi')
+            ->with([
+                'kelas' => function($query) {
+                    $query->select('id', 'nama_kelas', 'id_prodi')
+                        ->with(['prodi' => function($q) {
+                            $q->select('id', 'nama_prodi', 'id_jurusan')
+                                ->with('jurusan:id,nama_jurusan');
+                        }]);
+                }
+            ])
+            ->get();
+
+        return response()->json([
+            'mahasiswa' => $mahasiswa
+        ]);
+    }
 }

@@ -93,4 +93,15 @@ class ProdiDataController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus prodi'], 500);
         }
     }
+
+    public function getProdiData(): JsonResponse
+    {
+        $prodi = Prodi::select('id', 'code_prodi', 'nama_prodi', 'id_jurusan')
+            ->with('jurusan:id,nama_jurusan')
+            ->get();
+
+        return response()->json([
+            'prodi' => $prodi
+        ]);
+    }
 }

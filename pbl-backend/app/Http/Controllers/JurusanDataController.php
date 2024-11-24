@@ -90,4 +90,13 @@ class JurusanDataController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus jurusan'], 500);
         }
     }
+
+    public function getJurusanData(): JsonResponse
+    {
+        $jurusan = Jurusan::select('id', 'code_jurusan', 'nama_jurusan')->get();
+
+        return response()->json([
+            'jurusan' => $jurusan
+        ]);
+    }
 }
