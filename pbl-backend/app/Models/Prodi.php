@@ -4,26 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Dosen extends Model
+class Prodi extends Model
 {
-    protected $table = 'dosen';
+    protected $table = 'prodi';
     
     protected $fillable = [
-        'nidn',
-        'nama',
-        'email',
-        'password',
+        'code_prodi',
+        'nama_prodi',
         'id_jurusan'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
     ];
 
     public function jurusan(): BelongsTo
     {
         return $this->belongsTo(Jurusan::class, 'id_jurusan');
+    }
+
+    public function kelas(): HasMany
+    {
+        return $this->hasMany(Kelas::class, 'id_prodi');
     }
 }
