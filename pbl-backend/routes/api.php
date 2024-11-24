@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CountDataController;
-use App\Http\Controllers\DataHandlerController;
+use App\Http\Controllers\DataHandlerController;  
 use App\Http\Controllers\KelasDataController;
 use App\Http\Controllers\ProdiDataController;
 use App\Http\Controllers\JurusanDataController;

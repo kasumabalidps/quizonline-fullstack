@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\DataEditRequest;
 use App\Models\Dosen;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Mahasiswa;
 use App\Models\Prodi;
+use App\Models\Admin;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class DataHandlerController extends Controller
 {
