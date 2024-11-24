@@ -31,7 +31,6 @@ class MahasiswaDataEditRequest extends FormRequest
             'id_kelas' => ['required', 'exists:kelas,id'],
         ];
 
-        // Only require password for new mahasiswa
         if (!$mahasiswaId) {
             $rules['password'] = ['required', 'string', 'min:8'];
         } else {

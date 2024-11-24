@@ -10,18 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminAuthenticatedSessionController extends Controller
 {
-
     public function store(AdminLoginRequest $request): JsonResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
-
-        return response()->json([
-            'message' => 'Berhasil logged in',
-        ]);
+        return response()->json(['message' => 'Berhasil logged in']);
     }
-
 
     public function destroy(Request $request): JsonResponse
     {
@@ -32,8 +26,6 @@ class AdminAuthenticatedSessionController extends Controller
             $request->session()->regenerateToken();
         }
 
-        return response()->json([
-            'message' => 'Berhasil logged out',
-        ]);
+        return response()->json(['message' => 'Berhasil logged out']);
     }
 }

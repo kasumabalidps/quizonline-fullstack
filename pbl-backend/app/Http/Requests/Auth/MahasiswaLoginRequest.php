@@ -28,7 +28,7 @@ class MahasiswaLoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::guard('mahasiswa')->attempt($this->only('nim', 'password'), $this->boolean('remember'))) {
+        if (!Auth::guard('mahasiswa')->attempt($this->only('nim', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -41,7 +41,7 @@ class MahasiswaLoginRequest extends FormRequest
 
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 

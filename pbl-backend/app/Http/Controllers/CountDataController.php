@@ -7,9 +7,7 @@ use App\Models\Mahasiswa;
 use App\Models\Jurusan;
 use App\Models\Prodi;
 use App\Models\Kelas;
-
 use Illuminate\Http\JsonResponse;
-
 
 class CountDataController extends Controller
 {

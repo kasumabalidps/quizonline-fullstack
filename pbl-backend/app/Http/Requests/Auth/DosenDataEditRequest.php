@@ -31,7 +31,6 @@ class DosenDataEditRequest extends FormRequest
             'id_jurusan' => ['required', 'exists:jurusan,id']
         ];
 
-        // Only require password for new dosen
         if (!$dosenId) {
             $rules['password'] = ['required', 'string', 'min:8'];
         } else {

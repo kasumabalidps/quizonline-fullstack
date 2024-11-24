@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class KelasDataController extends Controller
 {
-    // Get all kelas with pagination
     public function index(Request $request): JsonResponse
     {
         try {
@@ -37,7 +36,6 @@ class KelasDataController extends Controller
         }
     }
 
-    // Get single kelas
     public function show(Kelas $kelas): JsonResponse
     {
         try {
@@ -52,7 +50,6 @@ class KelasDataController extends Controller
         }
     }
 
-    // Create new kelas
     public function store(KelasDataEditRequest $request): JsonResponse
     {
         try {
@@ -70,7 +67,6 @@ class KelasDataController extends Controller
         }
     }
 
-    // Update existing kelas
     public function update(KelasDataEditRequest $request, Kelas $kelas): JsonResponse
     {
         try {
@@ -88,11 +84,9 @@ class KelasDataController extends Controller
         }
     }
 
-    // Delete kelas
     public function destroy(Kelas $kelas): JsonResponse
     {
         try {
-            // Check if kelas has any related mahasiswa
             if ($kelas->mahasiswa()->exists()) {
                 return response()->json([
                     'message' => 'Kelas tidak dapat dihapus karena masih memiliki mahasiswa'
