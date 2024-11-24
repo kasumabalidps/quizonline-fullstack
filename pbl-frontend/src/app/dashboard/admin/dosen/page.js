@@ -85,17 +85,20 @@ const DosenPage = () => {
         setFormMode('add')
         setSelectedDosen(null)
         setIsFormModalOpen(true)
+        resetStates()
     }
 
     const handleEdit = (dosen) => {
         setFormMode('edit')
         setSelectedDosen(dosen)
         setIsFormModalOpen(true)
+        resetStates()
     }
 
     const handleDelete = (dosen) => {
         setSelectedDosen(dosen)
         setIsDeleteModalOpen(true)
+        resetStates()
     }
 
     const handleSubmit = async (formData) => {
