@@ -1,5 +1,6 @@
 import { Quicksand } from 'next/font/google'
 import './global.css'
+import Navbar from './components/Navbar'
 
 const quicksandFont = Quicksand({
     subsets: ['latin'],
@@ -9,14 +10,17 @@ const quicksandFont = Quicksand({
 const RootLayout = ({ children }) => {
     return (
         <html lang="en" className={quicksandFont.className}>
-            <body className="antialiased">{children}</body>
+            <body className="antialiased">
+                <Navbar />
+                {children}
+            </body>
         </html>
     )
 }
 
 export const metadata = {
-    title: 'Beranda - Quiz Online',
-    description: 'Beranda Quiz Online untuk melakukan quiz online',
+    title: 'Kuis PNB - Platform Kuis Online',
+    description: 'Platform kuis online untuk mahasiswa dan dosen Politeknik Negeri Bali',
 }
 
 export default RootLayout
