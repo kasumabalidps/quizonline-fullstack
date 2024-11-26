@@ -6,8 +6,9 @@ import InputError from '@/components/InputError'
 import Label from '@/components/Label'
 import { useAuth } from '@/hooks/mahasiswa/auth'
 import { useState } from 'react'
-import { GraduationCap, Lock, LogIn } from 'lucide-react'
+import { GraduationCap, Lock, LogIn, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const MahasiswaLogin = () => {
     const { login } = useAuth({
@@ -104,6 +105,17 @@ const MahasiswaLogin = () => {
                         </Button>
                     </div>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <Link
+                        href="/"
+                        className="group relative inline-flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors overflow-hidden"
+                    >
+                        <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-15 group-hover:animate-[shimmer_1s_infinite] hidden group-hover:block" />
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="relative">Kembali ke Beranda</span>
+                    </Link>
+                </div>
             </div>
         </div>
     )
