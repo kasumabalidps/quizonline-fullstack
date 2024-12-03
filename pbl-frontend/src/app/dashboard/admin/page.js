@@ -90,7 +90,7 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                         <h1 className="text-2xl font-semibold text-gray-900">Selamat Datang, {user?.nama}</h1>
-                        <p className="text-gray-500">Monitor dan kelola aktivitas akademik dalam satu tampilan</p>
+                        <p className="text-gray-500">Monitor dan kelola aktivitas akademik disini ya...</p>
                     </div>
                 </div>
             </div>
