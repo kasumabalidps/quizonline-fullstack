@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, GraduationCap, ChevronDown, X } from 'lucide-react'
+import { Home, GraduationCap, ChevronDown } from 'lucide-react'
 
 const Sidebar = ({ isOpen, onClose }) => {
     const pathname = usePathname()
