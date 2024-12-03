@@ -45,6 +45,7 @@ const Navbar = ({ user, onMenuClick }) => {
                                 src="/images/logo.png"
                                 alt="Logo"
                                 fill
+                                sizes="32px"
                                 className="object-contain"
                                 priority
                             />
