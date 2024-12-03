@@ -168,14 +168,6 @@ const MahasiswaPage = () => {
         setPage(newPage)
     }
 
-    if (isLoadingKelas) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-            </div>
-        )
-    }
-
     return (
         <div className="min-h-screen bg-gray-50/30">
             <div className="p-8 space-y-6 max-w-7xl mx-auto">
