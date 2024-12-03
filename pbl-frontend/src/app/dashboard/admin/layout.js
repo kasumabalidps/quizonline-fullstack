@@ -1,4 +1,10 @@
 import AdminDashboardClient from './components/AdminDashboardClient'
+import { Quicksand } from 'next/font/google'
+
+const quicksandFont = Quicksand({
+    subsets: ['latin'],
+    display: 'swap',
+})
 
 export const metadata = {
     title: 'Dashboard Admin - Quiz Online',
@@ -6,7 +12,13 @@ export const metadata = {
 }
 
 const AdminDashboardLayout = ({ children }) => {
-    return <AdminDashboardClient>{children}</AdminDashboardClient>
+    return (
+        <html lang="en" className={quicksandFont.className}>
+            <body>
+                <AdminDashboardClient>{children}</AdminDashboardClient>
+            </body>
+        </html>
+    )
 }
 
 export default AdminDashboardLayout

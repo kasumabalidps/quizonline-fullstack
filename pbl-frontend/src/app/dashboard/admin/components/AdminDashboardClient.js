@@ -6,13 +6,6 @@ import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import '../dashboard.css'
 
-import { Quicksand } from 'next/font/google'
-
-const quicksandFont = Quicksand({
-    subsets: ['latin'],
-    display: 'swap',
-})
-
 const AdminDashboardClient = ({ children }) => {
     const { user } = useAuth({ middleware: 'auth' })
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -22,23 +15,19 @@ const AdminDashboardClient = ({ children }) => {
     }
 
     return (
-        <html lang="en" className={quicksandFont.className}>
-            <body>
-                <div className="min-h-screen bg-gray-50">
-                    <Navbar
-                        user={user}
-                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    />
-                    <Sidebar
-                        isOpen={isSidebarOpen}
-                        onClose={() => setIsSidebarOpen(false)}
-                    />
-                    <main className="p-4 lg:ml-64 pt-20">
-                        {children}
-                    </main>
-                </div>
-            </body>
-        </html>
+        <div className="min-h-screen bg-gray-50">
+            <Navbar
+                user={user}
+                onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
+            <main className="p-4 lg:ml-64 pt-20">
+                {children}
+            </main>
+        </div>
     )
 }
 
