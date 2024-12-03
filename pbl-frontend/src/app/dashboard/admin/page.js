@@ -6,7 +6,7 @@ import { useCountData } from '@/hooks/countData'
 const AdminDashboard = () => {
     const { user } = useAuth()
     const { countData } = useCountData()
-    console.log('User data:', user)
+    // console.log('User data:', user)
 
     const stats = [
         {
