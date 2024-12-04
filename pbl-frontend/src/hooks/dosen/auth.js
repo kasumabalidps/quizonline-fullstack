@@ -33,7 +33,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
             await axios.post('/dosen/login', props)
             await mutate()
-            
+
             if (redirectIfAuthenticated) {
                 router.push(redirectIfAuthenticated)
             }

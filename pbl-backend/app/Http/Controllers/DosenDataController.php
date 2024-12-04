@@ -4,62 +4,47 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\DosenDataEditRequest;
 use App\Models\Dosen;
+use App\Models\Kelas;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class DosenDataController extends Controller
 {
     public function index(): JsonResponse
     {
-        $search = request()->query('search');
-        $limit = request()->query('limit', 10);
+        try {
+            $search = request()->query('search');
+            $limit = request()->query('limit', 10);
+            
+            $dosen = Dosen::where('name', 'like', '%' . $search . '%')
+                ->paginate($limit);
 
-        $query = Dosen::with('jurusan')
-            ->select('id', 'nidn', 'nama', 'email', 'id_jurusan', 'created_at')
-            ->orderBy('created_at', 'desc');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nidn', 'like', "%{$search}%")
-                    ->orWhere('nama', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
+            return response()->json([
+                'data' => $dosen->items(),
+                'total' => $dosen->total(),
+                'current_page' => $dosen->currentPage(),
+                'per_page' => $dosen->perPage(),
+                'last_page' => $dosen->lastPage()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Terjadi kesalahan saat mengambil data dosen'], 500);
         }
-
-        $dosen = $query->paginate($limit);
-
-        return response()->json([
-            'data' => $dosen->items(),
-            'total' => $dosen->total(),
-            'current_page' => $dosen->currentPage(),
-            'per_page' => $dosen->perPage(),
-            'last_page' => $dosen->lastPage()
-        ]);
     }
 
     public function store(DosenDataEditRequest $request): JsonResponse
     {
         try {
-            DB::beginTransaction();
-
-            $dosen = Dosen::create([
-                'nidn' => $request->nidn,
-                'nama' => $request->nama,
-                'email' => $request->email,
-                'id_jurusan' => $request->id_jurusan,
-                'password' => bcrypt($request->password),
-            ]);
-
-            $dosen->load('jurusan');
-
-            DB::commit();
+            $dosen = Dosen::create($request->validated());
 
             return response()->json([
                 'message' => 'Dosen berhasil ditambahkan',
                 'data' => $dosen
             ], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan saat menambahkan dosen'], 500);
         }
     }
@@ -67,31 +52,14 @@ class DosenDataController extends Controller
     public function update(DosenDataEditRequest $request, $id): JsonResponse
     {
         try {
-            DB::beginTransaction();
-
-            $dosen = Dosen::findOrFail($id);
-            $updateData = [
-                'nidn' => $request->nidn,
-                'nama' => $request->nama,
-                'email' => $request->email,
-                'id_jurusan' => $request->id_jurusan,
-            ];
-
-            if ($request->filled('password')) {
-                $updateData['password'] = bcrypt($request->password);
-            }
-
-            $dosen->update($updateData);
-            $dosen->load('jurusan');
-
-            DB::commit();
+            $dosen = Dosen::find($id);
+            $dosen->update($request->validated());
 
             return response()->json([
                 'message' => 'Dosen berhasil diperbarui',
                 'data' => $dosen
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan saat memperbarui dosen'], 500);
         }
     }
@@ -99,28 +67,63 @@ class DosenDataController extends Controller
     public function destroy($id): JsonResponse
     {
         try {
-            DB::beginTransaction();
+            Dosen::destroy($id);
 
-            $dosen = Dosen::findOrFail($id);
-            $dosen->delete();
-
-            DB::commit();
-
-            return response()->json(['message' => 'Dosen berhasil dihapus']);
+            return response()->json([
+                'message' => 'Dosen berhasil dihapus'
+            ]);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus dosen'], 500);
         }
     }
 
     public function getDosenData(): JsonResponse
     {
-        $dosen = Dosen::select('id', 'nidn', 'nama', 'email', 'id_jurusan')
-            ->with('jurusan:id,nama_jurusan')
-            ->get();
+        $dosen = Dosen::all();
 
         return response()->json([
             'dosen' => $dosen
         ]);
+    }
+
+    // membaca dosen itu bisa akses kelas apa saja
+    public function getDosenClass(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User tidak terautentikasi'
+                ], 401);
+            }
+
+            $dosen = Dosen::with('jurusan')->find($user->id);
+
+            if (!$dosen) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data dosen tidak ditemukan'
+                ], 404);
+            }
+
+            $kelas = Kelas::whereHas('prodi', function($query) use ($dosen) {
+                $query->where('id_jurusan', $dosen->id_jurusan);
+            })
+            ->with(['prodi.jurusan'])
+            ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data kelas berhasil diambil',
+                'kelas' => $kelas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

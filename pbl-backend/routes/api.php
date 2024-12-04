@@ -30,10 +30,11 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
 });
 
 // Dosen Routes
-Route::middleware(['auth:dosen'])->group(function () {
-    Route::get('/dosen/user', function (Request $request) {
+Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
+    Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::get('/kelas', [DosenDataController::class, 'getDosenClass']);
 });
 
 // Data Handler Route

@@ -50,69 +50,58 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 </Link>
                             </li>
 
+                            {/* Kelas Menu */}
+                            <li>
+                                <Link
+                                    href="/dashboard/dosen/kelas"
+                                    className={`flex items-center p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                        isActive('/dashboard/dosen/kelas') ? 'bg-blue-50 text-blue-600' : ''
+                                    }`}
+                                    onClick={() => onClose()}
+                                >
+                                    <GraduationCap className={`w-5 h-5 ${isActive('/dashboard/dosen/kelas') ? 'text-blue-600' : ''}`} />
+                                    <span className="ml-3">Kelas</span>
+                                </Link>
+                            </li>
+
+                            {/* Quiz Menu */}
                             <li>
                                 <button
                                     onClick={() => setIsKelasOpen(!isKelasOpen)}
-                                    className={`flex items-center w-full p-2.5 text-gray-900 rounded-lg transition-all duration-200
-                                              ${isKelasOpen || pathname.includes('/dashboard/dosen/kelas') ? 'bg-blue-50 text-blue-600' : 'hover:bg-blue-50 hover:text-blue-600'}`}
+                                    className={`flex items-center justify-between w-full p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                        pathname.includes('/dashboard/dosen/quiz') ? 'bg-blue-50 text-blue-600' : ''
+                                    }`}
                                 >
-                                    <BookOpen className={`w-5 h-5 ${isKelasOpen || pathname.includes('/dashboard/dosen/kelas') ? 'text-blue-600' : ''}`} />
-                                    <span className="flex-1 ml-3 text-left">Kelas</span>
+                                    <div className="flex items-center">
+                                        <ClipboardList className={`w-5 h-5 ${pathname.includes('/dashboard/dosen/quiz') ? 'text-blue-600' : ''}`} />
+                                        <span className="ml-3">Quiz</span>
+                                    </div>
                                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isKelasOpen ? 'rotate-180' : ''}`} />
                                 </button>
-
-                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isKelasOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <ul className="pt-1 pb-1 space-y-1">
-                                        <li>
-                                            <Link
-                                                href="/dashboard/dosen/kelas"
-                                                className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                    isActive('/dashboard/dosen/kelas') ? 'bg-blue-50 text-blue-600' : ''
-                                                }`}
-                                                onClick={() => onClose()}
-                                            >
-                                                Daftar Kelas
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link
-                                                href="/dashboard/dosen/kelas/quiz"
-                                                className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                    isActive('/dashboard/dosen/kelas/quiz') ? 'bg-blue-50 text-blue-600' : ''
-                                                }`}
-                                                onClick={() => onClose()}
-                                            >
-                                                Quiz
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-
-                            <li>
-                                <Link
-                                    href="/dashboard/dosen/mahasiswa"
-                                    className={`flex items-center p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                        isActive('/dashboard/dosen/mahasiswa') ? 'bg-blue-50 text-blue-600' : ''
-                                    }`}
-                                    onClick={() => onClose()}
-                                >
-                                    <Users className={`w-5 h-5 ${isActive('/dashboard/dosen/mahasiswa') ? 'text-blue-600' : ''}`} />
-                                    <span className="ml-3">Mahasiswa</span>
-                                </Link>
-                            </li>
-
-                            <li>
-                                <Link
-                                    href="/dashboard/dosen/nilai"
-                                    className={`flex items-center p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                        isActive('/dashboard/dosen/nilai') ? 'bg-blue-50 text-blue-600' : ''
-                                    }`}
-                                    onClick={() => onClose()}
-                                >
-                                    <ClipboardList className={`w-5 h-5 ${isActive('/dashboard/dosen/nilai') ? 'text-blue-600' : ''}`} />
-                                    <span className="ml-3">Nilai</span>
-                                </Link>
+                                <ul className={`mt-1 space-y-1 ${isKelasOpen ? 'block' : 'hidden'}`}>
+                                    <li>
+                                        <Link
+                                            href="/dashboard/dosen/quiz/create"
+                                            className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                                isActive('/dashboard/dosen/quiz/create') ? 'bg-blue-50 text-blue-600' : ''
+                                            }`}
+                                            onClick={() => onClose()}
+                                        >
+                                            Buat Quiz
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            href="/dashboard/dosen/quiz"
+                                            className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                                isActive('/dashboard/dosen/quiz') ? 'bg-blue-50 text-blue-600' : ''
+                                            }`}
+                                            onClick={() => onClose()}
+                                        >
+                                            Daftar Quiz
+                                        </Link>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </nav>
