@@ -1,4 +1,10 @@
 import DosenDashboardClient from './components/DosenDashboardClient'
+import { Quicksand } from 'next/font/google'
+
+const quicksandFont = Quicksand({
+    subsets: ['latin'],
+    display: 'swap',
+})
 
 export const metadata = {
     title: 'Dashboard Dosen - Quiz Online',
@@ -6,7 +12,13 @@ export const metadata = {
 }
 
 const DosenDashboardLayout = ({ children }) => {
-    return <DosenDashboardClient>{children}</DosenDashboardClient>
+    return (
+        <html lang="en" className={quicksandFont.className}>
+            <body>
+                <DosenDashboardClient>{children}</DosenDashboardClient>
+            </body>
+        </html>
+    )
 }
 
 export default DosenDashboardLayout
