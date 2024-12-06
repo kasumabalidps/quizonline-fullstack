@@ -38,6 +38,20 @@ return new class extends Migration
                 ->onUpdate('cascade');
             $table->timestamps();
         });
+
+        Schema::create('mata_kuliah', function (Blueprint $table) {
+            $table->id();
+            $table->string('id_matkul');
+            $table->string('nama_matkul');
+            $table->timestamps();
+        });
+
+        Schema::create('dosen_matkul', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('dosen_id')->references('id')->on('dosen')->onDelete('cascade');
+            $table->foreignId('matkul_id')->references('id')->on('mata_kuliah')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
 
@@ -46,5 +60,7 @@ return new class extends Migration
         Schema::dropIfExists('jurusan');
         Schema::dropIfExists('prodi');
         Schema::dropIfExists('kelas');
+        Schema::dropIfExists('mata_kuliah');
+        Schema::dropIfExists('dosen_matkul');
     }
 };

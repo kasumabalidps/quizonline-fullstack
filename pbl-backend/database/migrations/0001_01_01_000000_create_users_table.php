@@ -67,12 +67,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('admin');
+        Schema::dropIfExists('mahasiswa');
+        Schema::dropIfExists('dosen');
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('mahasiswa');
-        Schema::dropIfExists('admin');
-        Schema::dropIfExists('jurusan');
-        Schema::dropIfExists('prodi');
-        Schema::dropIfExists('kelas');
     }
 };
