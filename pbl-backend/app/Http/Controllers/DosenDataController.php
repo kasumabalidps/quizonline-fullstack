@@ -86,44 +86,47 @@ class DosenDataController extends Controller
         ]);
     }
 
-    // membaca dosen itu bisa akses kelas apa saja
     public function getDosenClass(): JsonResponse
     {
-        try {
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'User tidak terautentikasi'
-                ], 401);
-            }
+    try {
+        $user = Auth::user();
 
-            $dosen = Dosen::with('jurusan')->find($user->id);
-
-            if (!$dosen) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data dosen tidak ditemukan'
-                ], 404);
-            }
-
-            $kelas = Kelas::whereHas('prodi', function($query) use ($dosen) {
-                $query->where('id_jurusan', $dosen->id_jurusan);
-            })
-            ->with(['prodi.jurusan'])
-            ->get();
-
+        if (!$user) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Data kelas berhasil diambil',
-                'kelas' => $kelas
-            ]);
+                'status' => 'error',
+                'message' => 'User tidak terautentikasi'
+            ], 401);
+        }
+
+        $dosen = Dosen::with('jurusan')->find($user->id);
+
+        if (!$dosen) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data dosen tidak ditemukan'
+            ], 404);
+        }
+
+
+        $kelas = $this->getKelasByDosenJurusan($dosen->id_jurusan);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data kelas berhasil diambil',
+            'kelas' => $kelas
+        ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function getKelasByDosenJurusan($idJurusan)
+    {
+        return Kelas::whereHas('prodi', fn($query) => 
+            $query->where('id_jurusan', $idJurusan)
+        )->with('prodi.jurusan')->get();
     }
 }
