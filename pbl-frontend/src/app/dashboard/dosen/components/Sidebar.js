@@ -73,7 +73,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                                     }`}
                                 >
                                     <div className="flex items-center">
-                                        <ClipboardList className={`w-5 h-5 ${pathname.includes('/dashboard/dosen/quiz') ? 'text-blue-600' : ''}`} />
+                                        <ClipboardList className={`w-5 h-5 ${pathname.includes('/dashboard/dosen/kuis') ? 'text-blue-600' : ''}`} />
                                         <span className="ml-3">Quiz</span>
                                     </div>
                                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isKelasOpen ? 'rotate-180' : ''}`} />
@@ -81,24 +81,24 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 <ul className={`mt-1 space-y-1 ${isKelasOpen ? 'block' : 'hidden'}`}>
                                     <li>
                                         <Link
-                                            href="/dashboard/dosen/quiz/create"
+                                            href="/dashboard/dosen/kuis/buat"
                                             className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                isActive('/dashboard/dosen/quiz/create') ? 'bg-blue-50 text-blue-600' : ''
+                                                isActive('/dashboard/dosen/kuis/buat') ? 'bg-blue-50 text-blue-600' : ''
                                             }`}
                                             onClick={() => onClose()}
                                         >
-                                            Buat Quiz
+                                            Buat Kuis
                                         </Link>
                                     </li>
                                     <li>
                                         <Link
-                                            href="/dashboard/dosen/quiz"
+                                            href="/dashboard/dosen/kuis"
                                             className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                isActive('/dashboard/dosen/quiz') ? 'bg-blue-50 text-blue-600' : ''
+                                                isActive('/dashboard/dosen/kuis') ? 'bg-blue-50 text-blue-600' : ''
                                             }`}
                                             onClick={() => onClose()}
                                         >
-                                            Daftar Quiz
+                                            Daftar Kuis
                                         </Link>
                                     </li>
                                 </ul>
