@@ -12,10 +12,8 @@ use App\Http\Controllers\DosenDataController;
 use App\Http\Controllers\MahasiswaDataController;
 use App\Http\Controllers\KuisDataController;
 use App\Http\Controllers\DosenStatsController;
-
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+use App\Http\Controllers\KuisController;
+use App\Http\Controllers\Auth\MahasiswaAuthenticatedSessionController;
 
 // Admin Routes
 Route::middleware(['auth:admin'])->group(function () {
@@ -26,8 +24,18 @@ Route::middleware(['auth:admin'])->group(function () {
 
 // Mahasiswa Routes
 Route::middleware(['auth:mahasiswa'])->group(function () {
-    Route::get('/mahasiswa/user', function (Request $request) {
+    Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+
+    Route::prefix('mahasiswa')->group(function () {
+        // Kuis routes
+        Route::get('/kuis', [KuisController::class, 'index']);
+        Route::get('/kuis/{id}', [KuisController::class, 'detail']);
+        Route::get('/kuis/{id}/mulai', [KuisController::class, 'show']);
+        Route::post('/kuis/{id}/submit', [KuisController::class, 'submit']);
+        Route::get('/kuis/{id}/hasil', [KuisController::class, 'hasil']);
+        Route::get('/kuis/{id}/leaderboard', [KuisController::class, 'leaderboard']);
     });
 });
 

@@ -5,12 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kuis extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'kuis';
+    
     protected $fillable = [
         'judul',
         'id_dosen',
@@ -22,32 +26,32 @@ class Kuis extends Model
 
     protected $with = ['soal'];
 
-    public function dosen()
+    public function dosen(): BelongsTo
     {
         return $this->belongsTo(Dosen::class, 'id_dosen');
     }
 
-    public function kelas()
+    public function kelas(): BelongsTo
     {
         return $this->belongsTo(Kelas::class, 'id_kelas');
     }
 
-    public function matkul()
+    public function matkul(): BelongsTo
     {
-        return $this->belongsTo(MataKuliah::class, 'id_matkul');
+        return $this->belongsTo(MataKuliah::class, 'id_matkul', 'id');
     }
 
-    public function soalKuis()
+    public function soalKuis(): HasMany
     {
         return $this->hasMany(SoalKuis::class, 'id_kuis');
     }
 
-    public function soal()
+    public function soal(): BelongsToMany
     {
         return $this->belongsToMany(Soal::class, 'soal_kuis', 'id_kuis', 'id_soal');
     }
 
-    public function jawabanMhs()
+    public function jawabanMhs(): HasMany
     {
         return $this->hasMany(JawabanMhs::class, 'id_kuis');
     }

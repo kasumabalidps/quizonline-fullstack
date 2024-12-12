@@ -2,12 +2,10 @@ import '@/app/(home)/global.css'
 
 export default function AuthLayout({ children }) {
     return (
-        <html lang="id">
-            <body>
-                <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">
-                    {children}
-                </div>
-            </body>
-        </html>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
+                {children}
+            </div>
+        </div>
     )
 }
