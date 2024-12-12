@@ -116,7 +116,7 @@ class KuisController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan'
             ], 500);
         }
     }
@@ -138,7 +138,7 @@ class KuisController extends Controller
             if ($sudahSelesai) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda sudah menyelesaikan kuis ini',
+                    'message' => 'Anda sudah menyelesaikan kuis ini'
                 ], 403);
             }
 
@@ -177,7 +177,7 @@ class KuisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan'
             ], 500);
         }
     }
@@ -200,17 +200,6 @@ class KuisController extends Controller
             ]);
 
             // Validasi semua soal harus dijawab
-            $jumlahSoal = $kuis->soal->count();
-            $jumlahJawaban = count($request->jawaban);
-            
-            if ($jumlahJawaban < $jumlahSoal) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Semua soal harus dijawab terlebih dahulu'
-                ], 422);
-            }
-
-            // Validasi setiap jawaban tidak boleh kosong
             foreach ($kuis->soal as $soal) {
                 if (!isset($request->jawaban[$soal->id]) || trim($request->jawaban[$soal->id]) === '') {
                     return response()->json([
@@ -289,7 +278,7 @@ class KuisController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan'
             ], 500);
         }
     }
@@ -365,7 +354,7 @@ class KuisController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan'
             ], 500);
         }
     }
@@ -409,7 +398,7 @@ class KuisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error'
             ], 500);
         }
     }
@@ -470,7 +459,7 @@ class KuisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error'
             ], 500);
         }
     }
@@ -498,7 +487,7 @@ class KuisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error'
             ], 500);
         }
     }
@@ -566,7 +555,7 @@ class KuisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error'
             ], 500);
         }
     }
