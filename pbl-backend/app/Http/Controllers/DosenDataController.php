@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\DosenDataEditRequest;
 use App\Models\Dosen;
 use App\Models\Kelas;
+use App\Models\MataKuliah;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -109,6 +110,92 @@ class DosenDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function getDosenMatkul(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User tidak terautentikasi'
+                ], 401);
+            }
+
+            $kelas = Kelas::whereHas('dosen', function($query) use ($user) {
+                $query->where('dosen.id', $user->id);
+            })->with('mataKuliah')->get();
+
+            if ($kelas->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Belum ada kelas dan mata kuliah yang ditambahkan',
+                    'data' => []
+                ]);
+            }
+
+            $matkul = [];
+            foreach ($kelas as $k) {
+                foreach ($k->mataKuliah as $m) {
+                    $matkul[] = [
+                        'id' => $m->id,
+                        'nama_matkul' => $m->nama_matkul,
+                        'kelas' => [
+                            'id' => $k->id,
+                            'nama_kelas' => $k->nama_kelas
+                        ]
+                    ];
+                }
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data mata kuliah berhasil diambil',
+                'data' => $matkul
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getDosenKelas(): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User tidak terautentikasi'
+                ], 401);
+            }
+
+            $kelas = Kelas::whereHas('dosen', function($query) use ($user) {
+                $query->where('dosen.id', $user->id);
+            })->with(['prodi.jurusan'])->get();
+
+            if ($kelas->isEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Belum ada kelas yang ditambahkan',
+                    'data' => []
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data kelas berhasil diambil',
+                'data' => $kelas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
     }
 

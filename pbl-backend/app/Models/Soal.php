@@ -12,13 +12,18 @@ class Soal extends Model
 
     protected $table = 'soal';
     protected $fillable = [
-        'soal',
+        'pertanyaan',
         'a',
         'b',
         'c',
         'd',
-        'jawaban'
+        'jawaban_benar'
     ];
+
+    public function kuis()
+    {
+        return $this->belongsToMany(Kuis::class, 'soal_kuis', 'id_soal', 'id_kuis');
+    }
 
     public function soalKuis()
     {

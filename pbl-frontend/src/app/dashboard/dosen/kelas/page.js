@@ -5,8 +5,7 @@ import { Search, GraduationCap } from 'lucide-react'
 import { useKelasData } from '@/hooks/dosen/kelasData'
 
 const KelasPage = () => {
-    const { isLoading, error, getKelasData } = useKelasData()
-    const [kelasList, setKelasList] = useState([])
+    const { kelas, loading, error, getKelas } = useKelasData()
     const [filteredKelas, setFilteredKelas] = useState([])
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -20,29 +19,22 @@ const KelasPage = () => {
     }, [search])
 
     useEffect(() => {
-        const loadData = async () => {
-            const data = await getKelasData()
-            console.log('Loaded kelas data:', data)
-            setKelasList(data)
-            setFilteredKelas(data)
-        }
-        loadData()
+        getKelas()
     }, [])
 
     useEffect(() => {
         if (debouncedSearch.trim() === '') {
-            setFilteredKelas(kelasList)
+            setFilteredKelas(kelas)
         } else {
             const searchLower = debouncedSearch.toLowerCase()
-            const filtered = kelasList.filter(kelas => 
+            const filtered = kelas.filter(kelas => 
                 kelas.nama_kelas.toLowerCase().includes(searchLower) ||
-                kelas.code_kelas.toLowerCase().includes(searchLower) ||
                 kelas.prodi.nama_prodi.toLowerCase().includes(searchLower) ||
                 kelas.prodi.jurusan.nama_jurusan.toLowerCase().includes(searchLower)
             )
             setFilteredKelas(filtered)
         }
-    }, [debouncedSearch, kelasList])
+    }, [debouncedSearch, kelas])
 
     return (
         <div className="min-h-screen bg-gray-50/30">
@@ -64,7 +56,7 @@ const KelasPage = () => {
                         <div className="relative max-w-md">
                             <input
                                 type="text"
-                                placeholder="Cari kelas berdasarkan kode atau nama..."
+                                placeholder="Cari kelas berdasarkan nama..."
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 className="w-full px-4 py-2.5 pl-11 pr-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
@@ -83,8 +75,8 @@ const KelasPage = () => {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className={`transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
-                        {isLoading ? (
+                    <div className={`transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+                        {loading ? (
                             <div className="flex flex-col items-center justify-center py-20">
                                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mb-4"></div>
                                 <p className="text-gray-500 text-sm">Loading data, mohon sabar...</p>
@@ -104,7 +96,6 @@ const KelasPage = () => {
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Kelas</th>
                                             <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Kelas</th>
                                             <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program Studi</th>
                                             <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jurusan</th>
@@ -113,27 +104,14 @@ const KelasPage = () => {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {filteredKelas.map((kelas) => (
                                             <tr key={kelas.id} className="hover:bg-gray-50/50 transition-colors duration-150">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {kelas.code_kelas}
-                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                     {kelas.nama_kelas}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    <span
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 cursor-help transition-colors hover:bg-blue-100"
-                                                        title={`Program Studi ${kelas.prodi?.nama_prodi || ''}`}
-                                                    >
-                                                        {kelas.prodi?.nama_prodi || 'N/A'}
-                                                    </span>
+                                                    {kelas.prodi.nama_prodi}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                    <span
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-50 text-gray-700 cursor-help transition-colors hover:bg-gray-100"
-                                                        title={`Jurusan ${kelas.prodi?.jurusan?.nama_jurusan || ''}`}
-                                                    >
-                                                        {kelas.prodi?.jurusan?.nama_jurusan || 'N/A'}
-                                                    </span>
+                                                    {kelas.prodi.jurusan.nama_jurusan}
                                                 </td>
                                             </tr>
                                         ))}

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\MataKuliah;
+use App\Models\MatkulKelas;
 use Illuminate\Database\Seeder;
 
 class MatkulSeeder extends Seeder
@@ -15,48 +17,45 @@ class MatkulSeeder extends Seeder
     {
         $matkuls = [
             [
-                'id_matkul' => '1',
-                'nama_matkul' => 'Matematika',
+                'nama_matkul' => 'Matematika'
             ],
             [
-                'id_matkul' => '2',
-                'nama_matkul' => 'Fisika',
+                'nama_matkul' => 'Fisika'
             ],
             [
-                'id_matkul' => '3',
-                'nama_matkul' => 'Kimia',
+                'nama_matkul' => 'Kimia'
             ],
             [
-                'id_matkul' => '4',
-                'nama_matkul' => 'Biologi',
-            ]   
-        ];
-
-        $dosen_matkul = [
-            [
-                'dosen_id' => 1,
-                'matkul_id' => 1
-            ],
-            [
-                'dosen_id' => 2,
-                'matkul_id' => 2
-            ],
-            [
-                'dosen_id' => 3,
-                'matkul_id' => 3
-            ],
-            [
-                'dosen_id' => 4,
-                'matkul_id' => 4
+                'nama_matkul' => 'Biologi'
             ]
         ];
 
         foreach ($matkuls as $matkul) {
-            \App\Models\Matkul::create($matkul);
+            MataKuliah::create($matkul);
         }
 
-        foreach ($dosen_matkul as $dm) {
-            \App\Models\DosenMatkul::create($dm);
+        // Contoh relasi matkul dengan kelas
+        $matkul_kelas = [
+            [
+                'id_matkul' => 1,
+                'id_kelas' => 1
+            ],
+            [
+                'id_matkul' => 2,
+                'id_kelas' => 1
+            ],
+            [
+                'id_matkul' => 3,
+                'id_kelas' => 2
+            ],
+            [
+                'id_matkul' => 4,
+                'id_kelas' => 2
+            ]
+        ];
+
+        foreach ($matkul_kelas as $mk) {
+            MatkulKelas::create($mk);
         }
     }
 }

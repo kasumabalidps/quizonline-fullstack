@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             MahasiswaSeeder::class,
             DosenSeeder::class,
             MatkulSeeder::class,
+            DosenKelasSeeder::class,
             KuisSeeder::class,
             SoalSeeder::class,
             SoalKuisSeeder::class,

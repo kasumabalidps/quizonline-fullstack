@@ -20,6 +20,8 @@ class Kuis extends Model
         'waktu_selesai'
     ];
 
+    protected $with = ['soal'];
+
     public function dosen()
     {
         return $this->belongsTo(Dosen::class, 'id_dosen');
@@ -30,7 +32,7 @@ class Kuis extends Model
         return $this->belongsTo(Kelas::class, 'id_kelas');
     }
 
-    public function mataKuliah()
+    public function matkul()
     {
         return $this->belongsTo(MataKuliah::class, 'id_matkul');
     }
@@ -38,6 +40,11 @@ class Kuis extends Model
     public function soalKuis()
     {
         return $this->hasMany(SoalKuis::class, 'id_kuis');
+    }
+
+    public function soal()
+    {
+        return $this->belongsToMany(Soal::class, 'soal_kuis', 'id_kuis', 'id_soal');
     }
 
     public function jawabanMhs()

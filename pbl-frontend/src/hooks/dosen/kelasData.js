@@ -3,11 +3,12 @@ import axios from '@/lib/axios'
 import { useAuth } from '@/hooks/dosen/auth'
 
 export const useKelasData = () => {
-    const [isLoading, setIsLoading] = useState(false)
+    const [kelas, setKelas] = useState([])
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const { user } = useAuth({ middleware: 'auth' })
 
-    const getKelasData = async () => {
+    const getKelas = async () => {
         try {
             if (!user) {
                 await new Promise(resolve => setTimeout(resolve, 1000))
@@ -16,7 +17,7 @@ export const useKelasData = () => {
                 }
             }
 
-            setIsLoading(true)
+            setLoading(true)
             setError(null)
 
             const response = await axios.get('/api/dosen/kelas')
@@ -25,7 +26,8 @@ export const useKelasData = () => {
                 throw new Error(response.data.message)
             }
 
-            return response.data.kelas || []
+            setKelas(response.data.data || [])
+            return response.data.data || []
         } catch (err) {
             console.error('Error fetching kelas data:', err)
             if (err.response?.status === 401) {
@@ -35,13 +37,14 @@ export const useKelasData = () => {
             }
             return []
         } finally {
-            setIsLoading(false)
+            setLoading(false)
         }
     }
 
     return {
-        getKelasData,
-        isLoading,
+        kelas,
+        getKelas,
+        loading,
         error
     }
 }
