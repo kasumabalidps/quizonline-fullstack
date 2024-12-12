@@ -27,13 +27,15 @@ class KuisDataEditRequest extends FormRequest
             'id_matkul' => 'required|exists:mata_kuliah,id',
             'waktu_mulai' => 'required|date',
             'waktu_selesai' => 'required|date|after:waktu_mulai',
-            'soal' => 'required|array|min:1',
+            'soal' => 'required|array',
             'soal.*.soal' => 'required|string',
             'soal.*.a' => 'required|string',
             'soal.*.b' => 'required|string',
             'soal.*.c' => 'required|string',
             'soal.*.d' => 'required|string',
-            'soal.*.jawaban' => 'required|in:a,b,c,d',
+            'soal.*.jawaban' => 'required|string|in:a,b,c,d',
+            'deleted_soal_ids' => 'nullable|array',
+            'deleted_soal_ids.*' => 'exists:soal,id'
         ];
     }
 

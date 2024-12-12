@@ -57,7 +57,7 @@ const Navbar = ({ user, onMenuClick }) => {
                     </div>
                     <div className="flex items-center gap-4">
                         <Link
-                            href="/dashboard/dosen/kuis/create"
+                            href="/dashboard/dosen/buat-kuis"
                             className="hidden md:flex items-center gap-2 px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             <PlusCircle className="w-4 h-4" />
@@ -75,7 +75,7 @@ const Navbar = ({ user, onMenuClick }) => {
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100">
                                     <div className="p-2">
                                         <Link
-                                            href="/dashboard/dosen/kuis/create"
+                                            href="/dashboard/dosen/buat-kuis"
                                             className="flex md:hidden items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
                                         >
                                             <PlusCircle className="w-4 h-4 mr-2" />

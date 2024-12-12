@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useKelasData } from '@/hooks/dosen/kelasData';
-import { useMatkulData } from '@/hooks/dosen/matkulData';
+import { useKelasData } from '@/hooks/dosen/kelasManagement';
+import { useMatkulData } from '@/hooks/dosen/matkulManagement';
 
 export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
     const { kelas, loading: kelasLoading, getKelas } = useKelasData();
@@ -18,13 +18,14 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deletedSoalIds, setDeletedSoalIds] = useState([]);
 
     useEffect(() => {
         if (isOpen) {
             getKelas();
             getDosenMatkul();
+            setDeletedSoalIds([]); 
             if (kuis) {
-                console.log('Data kuis yang diterima:', kuis);
                 const formattedData = {
                     judul: kuis.judul || '',
                     id_kelas: kuis.id_kelas || '',
@@ -41,7 +42,6 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
                         jawaban: s.jawaban || ''
                     })) : []
                 };
-                console.log('Data yang akan diset ke form:', formattedData);
                 setFormData(formattedData);
             }
         }
@@ -65,7 +65,6 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
             ...prev,
             [name]: value
         }));
-        // Clear error when field is edited
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -81,6 +80,7 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
         }
         newSoal[index] = {
             ...newSoal[index],
+            id: newSoal[index].id, 
             [field]: value
         };
         setFormData(prev => ({
@@ -107,6 +107,12 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
     };
 
     const removeSoal = (index) => {
+        const soalToRemove = formData.soal[index];
+        
+        if (soalToRemove && soalToRemove.id) {
+            setDeletedSoalIds(prev => [...prev, soalToRemove.id]);
+        }
+
         setFormData(prev => ({
             ...prev,
             soal: prev.soal.filter((_, i) => i !== index)
@@ -140,9 +146,20 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
 
         setIsSubmitting(true);
         try {
-            await onSave(formData);
+            const updatedSoal = formData.soal.filter(soal => 
+                !deletedSoalIds.includes(soal.id)
+            );
+
+            const dataToSend = {
+                ...formData,
+                soal: updatedSoal,
+                deleted_soal_ids: deletedSoalIds
+            };
+
+            await onSave(dataToSend);
             onClose();
         } catch (error) {
+            console.error('Error:', error);
             setErrors(prev => ({
                 ...prev,
                 submit: 'Gagal menyimpan kuis. Silakan coba lagi.'

@@ -199,6 +199,20 @@ class DosenDataController extends Controller
         }
     }
 
+    public function getDosenKelasNew(): JsonResponse
+    {
+        $dosen = Auth::user();
+        $kelas = $dosen->kelas;
+        return response()->json($kelas);
+    }
+
+    public function getDosenMatkulNew(): JsonResponse
+    {
+        $dosen = Auth::user();
+        $matkul = $dosen->matkul;
+        return response()->json($matkul);
+    }
+
     private function getKelasByDosenJurusan($idJurusan)
     {
         return Kelas::whereHas('prodi', fn($query) => 

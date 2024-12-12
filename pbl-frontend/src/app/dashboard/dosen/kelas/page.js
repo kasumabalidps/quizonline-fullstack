@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Search, GraduationCap } from 'lucide-react'
-import { useKelasData } from '@/hooks/dosen/kelasData'
+import { useKelasData } from '@/hooks/dosen/kelasManagement'
 
 const KelasPage = () => {
     const { kelas, loading, error, getKelas } = useKelasData()

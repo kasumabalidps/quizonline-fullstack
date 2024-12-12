@@ -43,6 +43,11 @@ class Dosen extends Authenticatable
         return $this->hasMany(Kuis::class, 'id_dosen');
     }
 
+    public function matkul(): BelongsToMany
+    {
+        return $this->belongsToMany(Matkul::class, 'dosen_matkul', 'id_dosen', 'id_matkul');
+    }
+
     /**
      * Get the login username to be used by the controller.
      */

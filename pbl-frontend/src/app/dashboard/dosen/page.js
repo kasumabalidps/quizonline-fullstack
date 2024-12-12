@@ -1,26 +1,33 @@
 'use client'
-import { Users, BookOpen, ClipboardList, Sparkles, Activity } from 'lucide-react'
+import { useEffect } from 'react'
+import { BookOpen, Users, ClipboardList, Sparkles, Activity } from 'lucide-react'
 import { useAuth } from '@/hooks/dosen/auth'
+import { useDosenStats } from '@/hooks/dosen/statsManagement'
 
 const DosenDashboard = () => {
     const { user } = useAuth()
+    const { stats, loading, error, getDosenStats } = useDosenStats()
 
-    const stats = [
+    useEffect(() => {
+        getDosenStats()
+    }, [])
+
+    const statsConfig = [
         {
             title: 'Total Kelas',
-            value: '5',
+            value: loading ? '-' : stats?.total_kelas || '0',
             icon: BookOpen,
             gradient: 'from-blue-500 to-blue-600',
         },
         {
             title: 'Total Mahasiswa',
-            value: '120',
+            value: loading ? '-' : stats?.total_mahasiswa || '0',
             icon: Users,
             gradient: 'from-emerald-500 to-emerald-600',
         },
         {
             title: 'Quiz Aktif',
-            value: '3',
+            value: loading ? '-' : stats?.total_kuis_aktif || '0',
             icon: ClipboardList,
             gradient: 'from-amber-500 to-amber-600',
         }
@@ -88,7 +95,7 @@ const DosenDashboard = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {stats.map((stat, index) => (
+                {statsConfig.map((stat, index) => (
                     <div key={index}
                          className="relative overflow-hidden bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
                         <div className="absolute inset-0 bg-gradient-to-r opacity-[0.08] group-hover:opacity-[0.12] transition-opacity duration-200 -z-1"
@@ -155,6 +162,13 @@ const DosenDashboard = () => {
                     </div>
                 </div>
             </div>
+            {error && (
+                <div className="max-w-7xl mx-auto mt-4">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                        <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

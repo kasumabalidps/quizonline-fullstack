@@ -11,6 +11,7 @@ use App\Http\Controllers\JurusanDataController;
 use App\Http\Controllers\DosenDataController;
 use App\Http\Controllers\MahasiswaDataController;
 use App\Http\Controllers\KuisDataController;
+use App\Http\Controllers\DosenStatsController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -35,19 +36,26 @@ Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
     // Kelas routes
     Route::get('/kelas', [DosenDataController::class, 'getDosenKelas']);
-    
+    Route::post('/kelas', [DosenDataController::class, 'createKelas']);
+    Route::put('/kelas/{id}', [DosenDataController::class, 'updateKelas']);
+    Route::delete('/kelas/{id}', [DosenDataController::class, 'deleteKelas']);
+
     // Mata kuliah routes
     Route::get('/matkul', [DosenDataController::class, 'getDosenMatkul']);
-    
-    // Kuis routes untuk dosen
+
+    // Kuis routes
     Route::get('/kuis', [KuisDataController::class, 'index']);
-    Route::get('/soal', [KuisDataController::class, 'getAllSoal']);
+    Route::get('/kuis/{id}', [KuisDataController::class, 'show']);
     Route::post('/kuis', [KuisDataController::class, 'store']);
     Route::put('/kuis/{id}', [KuisDataController::class, 'update']);
     Route::delete('/kuis/{id}', [KuisDataController::class, 'destroy']);
+    Route::delete('/kuis/{kuisId}/soal/{soalId}', [KuisDataController::class, 'destroySoal']);
+    
+    // Statistik dosen
+    Route::get('/stats', [DosenStatsController::class, 'getStats']);
 });
 
 // Data Handler Route
