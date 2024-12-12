@@ -96,8 +96,8 @@ Route::middleware('auth:admin')->group(function () {
 });
 
 // Kuis routes untuk dosen dan mahasiswa
-Route::middleware(['auth:dosen,mahasiswa'])->group(function () {
-    Route::get('/kuis', [KuisDataController::class, 'index']);
-    Route::get('/kuis/{id}', [KuisDataController::class, 'show']);
-    Route::get('/soal', [KuisDataController::class, 'getAllSoal']);
-});
+// Route::middleware(['auth:dosen,mahasiswa'])->group(function () {
+//     Route::get('/kuis', [KuisDataController::class, 'index']);
+//     Route::get('/kuis/{id}', [KuisDataController::class, 'show']);
+//     Route::get('/soal', [KuisDataController::class, 'getAllSoal']);
+// });

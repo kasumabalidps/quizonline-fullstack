@@ -21,6 +21,21 @@ export const useMatkulData = () => {
         }
     };
 
+    const getDosenMatkul = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('/api/dosen/matkul');
+            setMatkul(response.data.data);
+            setErrors([]);
+            return response.data.data;
+        } catch (error) {
+            setErrors(['Gagal mengambil data mata kuliah']);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const createMatkul = async (data) => {
         setLoading(true);
         setErrors([]);
@@ -79,6 +94,7 @@ export const useMatkulData = () => {
         loading,
         errors,
         getMatkul,
+        getDosenMatkul,
         createMatkul,
         updateMatkul,
         deleteMatkul,

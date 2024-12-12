@@ -65,7 +65,6 @@ export const useKuisData = () => {
 
         try {
             await axios.put(`/api/dosen/kuis/${id}`, data);
-            router.push('/dashboard/dosen/kuis');
             return true;
         } catch (error) {
             if (error.response?.data?.errors) {
@@ -73,7 +72,7 @@ export const useKuisData = () => {
             } else {
                 setErrors(['Terjadi kesalahan saat memperbarui kuis']);
             }
-            return false;
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -87,7 +86,11 @@ export const useKuisData = () => {
             await axios.delete(`/api/dosen/kuis/${id}`);
             return true;
         } catch (error) {
-            setErrors(['Terjadi kesalahan saat menghapus kuis']);
+            if (error.response?.data?.message) {
+                setErrors([error.response.data.message]);
+            } else {
+                setErrors(['Terjadi kesalahan saat menghapus kuis']);
+            }
             return false;
         } finally {
             setLoading(false);
@@ -103,6 +106,6 @@ export const useKuisData = () => {
         getAllSoal,
         createKuis,
         updateKuis,
-        deleteKuis,
+        deleteKuis
     };
 };

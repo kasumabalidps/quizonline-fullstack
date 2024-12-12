@@ -12,12 +12,12 @@ class Soal extends Model
 
     protected $table = 'soal';
     protected $fillable = [
-        'pertanyaan',
+        'soal',
         'a',
         'b',
         'c',
         'd',
-        'jawaban_benar'
+        'jawaban'
     ];
 
     public function kuis()

@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useKuisData } from '@/hooks/dosen/kuisData';
-import Link from 'next/link';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import EditKuisModal from '@/components/dosen/EditKuisModal';
 
 export default function KuisPage() {
-    const { kuis, loading, errors, getKuis, deleteKuis } = useKuisData();
+    const { kuis, loading, errors, getKuis, deleteKuis, updateKuis } = useKuisData();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedKuisId, setSelectedKuisId] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedKuis, setSelectedKuis] = useState(null);
     const [deleteError, setDeleteError] = useState('');
 
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function KuisPage() {
 
     const handleDelete = async () => {
         setDeleteError('');
-        const success = await deleteKuis(selectedKuisId);
+        const success = await deleteKuis(selectedKuis.id);
         if (success) {
             setShowDeleteModal(false);
             const result = await getKuis(); // Refresh data
@@ -35,10 +37,25 @@ export default function KuisPage() {
         }
     };
 
-    const confirmDelete = (id) => {
-        setSelectedKuisId(id);
+    const confirmDelete = (kuis) => {
+        setSelectedKuis(kuis);
         setShowDeleteModal(true);
         setDeleteError('');
+    };
+
+    const handleEdit = (kuis) => {
+        setSelectedKuis(kuis);
+        setShowEditModal(true);
+    };
+
+    const handleSaveEdit = async (formData) => {
+        try {
+            await updateKuis(selectedKuis.id, formData);
+            await getKuis(); // Refresh data
+            setShowEditModal(false);
+        } catch (error) {
+            throw error;
+        }
     };
 
     if (loading) {
@@ -113,13 +130,13 @@ export default function KuisPage() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         <div className="flex justify-center space-x-2">
-                                            <Link
-                                                href={`/dashboard/dosen/edit-kuis/${item.id}`}
+                                            <button
+                                                onClick={() => handleEdit(item)}
                                                 className="text-blue-600 hover:text-blue-900">
                                                 <Pencil className="w-5 h-5" />
-                                            </Link>
+                                            </button>
                                             <button
-                                                onClick={() => confirmDelete(item.id)}
+                                                onClick={() => confirmDelete(item)}
                                                 className="text-red-600 hover:text-red-900">
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
@@ -136,29 +153,39 @@ export default function KuisPage() {
                 )}
             </div>
 
+            {/* Modal Konfirmasi Hapus */}
             {showDeleteModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-bold mb-4">Konfirmasi Hapus</h2>
-                        <p>Apakah Anda yakin ingin menghapus kuis ini?</p>
-                        {deleteError && (
-                            <p className="text-red-500 mt-2">{deleteError}</p>
-                        )}
-                        <div className="mt-4 flex justify-end space-x-2">
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+                    <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Konfirmasi Hapus</h3>
+                        <p className="text-gray-500 mb-4">
+                            Apakah Anda yakin ingin menghapus kuis "{selectedKuis.judul}"? Tindakan ini tidak dapat
+                            dibatalkan.
+                        </p>
+                        {deleteError && <p className="text-red-600 text-sm mb-4">{deleteError}</p>}
+                        <div className="flex justify-end space-x-3">
                             <button
                                 onClick={() => setShowDeleteModal(false)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800">
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
                                 Batal
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
                                 Hapus
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* Modal Edit Kuis */}
+            <EditKuisModal
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                kuis={selectedKuis}
+                onSave={handleSaveEdit}
+            />
         </div>
     );
 }
