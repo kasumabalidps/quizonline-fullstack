@@ -15,6 +15,7 @@ export default function KuisPage() {
     const [search, setSearch] = useState('');
     const [filteredKuis, setFilteredKuis] = useState([]);
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -48,12 +49,17 @@ export default function KuisPage() {
     }, [debouncedSearch, kuis]);
 
     const handleDelete = async () => {
-        setDeleteError('');
-        const success = await deleteKuis(selectedKuis.id);
-        if (success) {
-            setShowDeleteModal(false);
-            await getKuis();
-        } else {
+        try {
+            const success = await deleteKuis(selectedKuis.id);
+            if (success) {
+                setShowDeleteModal(false);
+                await getKuis();
+                setSuccessMessage('Kuis berhasil dihapus');
+                setTimeout(() => setSuccessMessage(''), 3000);
+            } else {
+                setDeleteError('Gagal menghapus kuis');
+            }
+        } catch (error) {
             setDeleteError('Gagal menghapus kuis');
         }
     };
@@ -74,6 +80,8 @@ export default function KuisPage() {
             await updateKuis(selectedKuis.id, formData);
             await getKuis();
             setShowEditModal(false);
+            setSuccessMessage('Kuis berhasil diupdate');
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             throw error;
         }
@@ -120,6 +128,11 @@ export default function KuisPage() {
                             {errors.map((error, index) => (
                                 <p key={index} className="text-red-600 text-sm">{error}</p>
                             ))}
+                        </div>
+                    )}
+                    {successMessage && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <p className="text-green-600 text-sm">{successMessage}</p>
                         </div>
                     )}
                 </div>
