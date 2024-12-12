@@ -156,6 +156,9 @@ export default function KuisMulai() {
                 soal={soalList[currentSoalIndex]}
                 jawaban={jawaban}
                 onJawab={handleJawab}
+                currentIndex={currentSoalIndex}
+                totalSoal={soalList.length}
+                onNavigate={setCurrentSoalIndex}
               />
             </div>
           </div>
