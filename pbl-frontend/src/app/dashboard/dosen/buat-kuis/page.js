@@ -23,12 +23,12 @@ export default function BuatKuisPage() {
     });
 
     const emptySoal = {
-        pertanyaan: '',
+        soal: '',
         a: '',
         b: '',
         c: '',
         d: '',
-        jawaban_benar: 'a'
+        jawaban: 'a'
     };
     
     const [soalList, setSoalList] = useState([emptySoal]);
@@ -89,7 +89,7 @@ export default function BuatKuisPage() {
 
         // Validasi setiap soal
         const invalidSoal = soalList.find(soal => 
-            !soal.pertanyaan || !soal.a || !soal.b || !soal.c || !soal.d
+            !soal.soal || !soal.a || !soal.b || !soal.c || !soal.d
         );
 
         if (invalidSoal) {
@@ -222,30 +222,31 @@ export default function BuatKuisPage() {
                             <button
                                 type="button"
                                 onClick={addSoal}
-                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center">
-                                <Plus className="w-4 h-4 mr-2" /> Tambah Soal
+                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <Plus className="h-4 w-4 mr-2" />
+                                Tambah Soal
                             </button>
                         </div>
 
                         {soalList.map((soal, index) => (
-                            <div key={index} className="border rounded-lg p-4 space-y-4">
+                            <div key={index} className="bg-gray-50 p-4 rounded-lg space-y-4">
                                 <div className="flex justify-between items-start">
-                                    <h3 className="font-medium">Soal {index + 1}</h3>
+                                    <h3 className="text-md font-medium text-gray-900">Soal #{index + 1}</h3>
                                     {soalList.length > 1 && (
                                         <button
                                             type="button"
                                             onClick={() => removeSoal(index)}
                                             className="text-red-600 hover:text-red-800">
-                                            <Trash2 className="w-5 h-5" />
+                                            <Trash2 className="h-5 w-5" />
                                         </button>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Pertanyaan</label>
+                                    <label className="block text-sm font-medium text-gray-700">Soal</label>
                                     <textarea
-                                        value={soal.pertanyaan}
-                                        onChange={(e) => handleSoalChange(index, 'pertanyaan', e.target.value)}
+                                        value={soal.soal}
+                                        onChange={(e) => handleSoalChange(index, 'soal', e.target.value)}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         rows="3"
                                         required
@@ -254,7 +255,7 @@ export default function BuatKuisPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Jawaban A</label>
+                                        <label className="block text-sm font-medium text-gray-700">Opsi A</label>
                                         <input
                                             type="text"
                                             value={soal.a}
@@ -263,8 +264,9 @@ export default function BuatKuisPage() {
                                             required
                                         />
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Jawaban B</label>
+                                        <label className="block text-sm font-medium text-gray-700">Opsi B</label>
                                         <input
                                             type="text"
                                             value={soal.b}
@@ -273,8 +275,9 @@ export default function BuatKuisPage() {
                                             required
                                         />
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Jawaban C</label>
+                                        <label className="block text-sm font-medium text-gray-700">Opsi C</label>
                                         <input
                                             type="text"
                                             value={soal.c}
@@ -283,8 +286,9 @@ export default function BuatKuisPage() {
                                             required
                                         />
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Jawaban D</label>
+                                        <label className="block text-sm font-medium text-gray-700">Opsi D</label>
                                         <input
                                             type="text"
                                             value={soal.d}
@@ -296,10 +300,10 @@ export default function BuatKuisPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Jawaban Benar</label>
+                                    <label className="block text-sm font-medium text-gray-700">Jawaban</label>
                                     <select
-                                        value={soal.jawaban_benar}
-                                        onChange={(e) => handleSoalChange(index, 'jawaban_benar', e.target.value)}
+                                        value={soal.jawaban}
+                                        onChange={(e) => handleSoalChange(index, 'jawaban', e.target.value)}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         required>
                                         <option value="a">A</option>
@@ -312,17 +316,14 @@ export default function BuatKuisPage() {
                         ))}
                     </div>
 
-                    <div className="flex justify-end space-x-3">
-                        <Link
-                            href="/dashboard/dosen/kuis"
-                            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Batal
-                        </Link>
+                    <div className="flex justify-end">
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
-                            {loading ? 'Menyimpan...' : 'Simpan Kuis'}
+                            className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                                loading ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}>
+                            {loading ? 'Menyimpan...' : 'Simpan'}
                         </button>
                     </div>
                 </form>

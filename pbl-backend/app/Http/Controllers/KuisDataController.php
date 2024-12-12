@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kuis;
 use App\Models\Soal;
 use App\Models\SoalKuis;
-use App\Http\Requests\KuisDataEditRequest;
+use App\Http\Requests\Auth\KuisDataEditRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -42,26 +42,10 @@ class KuisDataController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(KuisDataEditRequest $request)
     {
         try {
             DB::beginTransaction();
-
-            // Validasi request
-            $request->validate([
-                'judul' => 'required|string|max:255',
-                'id_kelas' => 'required|exists:kelas,id',
-                'id_matkul' => 'required|exists:mata_kuliah,id',
-                'waktu_mulai' => 'required|date',
-                'waktu_selesai' => 'required|date|after:waktu_mulai',
-                'soal' => 'required|array|min:1',
-                'soal.*.pertanyaan' => 'required|string',
-                'soal.*.a' => 'required|string',
-                'soal.*.b' => 'required|string',
-                'soal.*.c' => 'required|string',
-                'soal.*.d' => 'required|string',
-                'soal.*.jawaban_benar' => 'required|in:a,b,c,d',
-            ]);
 
             // Buat kuis
             $kuis = Kuis::create([
@@ -76,12 +60,12 @@ class KuisDataController extends Controller
             // Buat soal dan hubungkan dengan kuis
             foreach ($request->soal as $soalData) {
                 $soal = Soal::create([
-                    'pertanyaan' => $soalData['pertanyaan'],
+                    'soal' => $soalData['soal'],
                     'a' => $soalData['a'],
                     'b' => $soalData['b'],
                     'c' => $soalData['c'],
                     'd' => $soalData['d'],
-                    'jawaban_benar' => $soalData['jawaban_benar'],
+                    'jawaban' => $soalData['jawaban'],
                 ]);
 
                 SoalKuis::create([
@@ -119,28 +103,12 @@ class KuisDataController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(KuisDataEditRequest $request, $id)
     {
         try {
             DB::beginTransaction();
 
             $kuis = Kuis::where('id_dosen', Auth::id())->findOrFail($id);
-
-            // Validasi request
-            $request->validate([
-                'judul' => 'required|string|max:255',
-                'id_kelas' => 'required|exists:kelas,id',
-                'id_matkul' => 'required|exists:mata_kuliah,id',
-                'waktu_mulai' => 'required|date',
-                'waktu_selesai' => 'required|date|after:waktu_mulai',
-                'soal' => 'required|array|min:1',
-                'soal.*.pertanyaan' => 'required|string',
-                'soal.*.a' => 'required|string',
-                'soal.*.b' => 'required|string',
-                'soal.*.c' => 'required|string',
-                'soal.*.d' => 'required|string',
-                'soal.*.jawaban_benar' => 'required|in:a,b,c,d',
-            ]);
 
             // Update kuis
             $kuis->update([
@@ -157,12 +125,12 @@ class KuisDataController extends Controller
             // Buat soal baru
             foreach ($request->soal as $soalData) {
                 $soal = Soal::create([
-                    'pertanyaan' => $soalData['pertanyaan'],
+                    'soal' => $soalData['soal'],
                     'a' => $soalData['a'],
                     'b' => $soalData['b'],
                     'c' => $soalData['c'],
                     'd' => $soalData['d'],
-                    'jawaban_benar' => $soalData['jawaban_benar'],
+                    'jawaban' => $soalData['jawaban'],
                 ]);
 
                 SoalKuis::create([

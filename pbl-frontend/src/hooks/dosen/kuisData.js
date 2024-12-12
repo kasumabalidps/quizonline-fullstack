@@ -64,7 +64,22 @@ export const useKuisData = () => {
         setErrors([]);
 
         try {
-            await axios.put(`/api/dosen/kuis/${id}`, data);
+            const formattedData = {
+                judul: data.judul,
+                id_kelas: data.id_kelas,
+                id_matkul: data.id_matkul,
+                waktu_mulai: data.waktu_mulai,
+                waktu_selesai: data.waktu_selesai,
+                soal: data.soal.map(s => ({
+                    soal: s.soal,
+                    a: s.a,
+                    b: s.b,
+                    c: s.c,
+                    d: s.d,
+                    jawaban: s.jawaban
+                }))
+            };
+            await axios.put(`/api/dosen/kuis/${id}`, formattedData);
             return true;
         } catch (error) {
             if (error.response?.data?.errors) {
