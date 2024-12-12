@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jawaban_mhs', function (Blueprint $table) {
+        Schema::create('leader_board', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_mhs')->references('id')->on('mahasiswa')->onDelete('cascade');
+            $table->double('jumlah_total');
+            $table->time('waktu');
             $table->foreignId('id_kuis')->references('id')->on('kuis')->onDelete('cascade');
-            $table->foreignId('id_soal')->references('id')->on('soal')->onDelete('cascade');
-            $table->enum('jawaban', ['a', 'b', 'c', 'd']);
-            $table->float('nilai')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jawaban_mhs');
+        Schema::dropIfExists('leader_board');
     }
 };
