@@ -10,7 +10,7 @@ export default function KuisList({ kuisList }) {
         <div className="flex justify-center mb-4">
           <AlertCircle className="h-12 w-12 text-gray-400" />
         </div>
-        <p className="text-gray-500 text-lg">Tidak ada kuis yang tersedia saat ini.</p>
+        <p className="text-gray-500 text-lg">Tidak ada kuis aktif yang tersedia saat ini.</p>
       </div>
     )
   }
