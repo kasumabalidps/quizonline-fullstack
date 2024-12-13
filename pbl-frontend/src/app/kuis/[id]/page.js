@@ -28,16 +28,12 @@ export default function KuisDetail() {
     if (!isLoadingAuth && user && params.id) {
       const fetchKuis = async () => {
         try {
-          const [kuisResponse, leaderboardResponse, nilaiResponse] = await Promise.all([
+          const [kuisResponse, leaderboardResponse] = await Promise.all([
             axios.get(`/api/mahasiswa/kuis/${params.id}`),
-            axios.get(`/api/mahasiswa/kuis/${params.id}/leaderboard`),
-            axios.get(`/api/mahasiswa/kuis/${params.id}/hasil`)
+            axios.get(`/api/mahasiswa/kuis/${params.id}/leaderboard`)
           ])
 
-          setKuis({
-            ...kuisResponse.data.data,
-            nilai: nilaiResponse.data.data?.nilai || null
-          })
+          setKuis(kuisResponse.data.data)
           setLeaderboard(leaderboardResponse.data.data)
           setError(null)
         } catch (e) {
@@ -49,23 +45,21 @@ export default function KuisDetail() {
 
       fetchKuis()
     }
-  }, [params.id, user, router, isLoadingAuth])
+  }, [isLoadingAuth, user, params.id, router])
 
   const LoadingSpinner = () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-        <p className="text-gray-600 font-medium">Memuat...</p>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p className="text-gray-600">Memuat kuis...</p>
       </div>
     </div>
   )
 
-  // Tampilkan loading saat mengecek auth
   if (isLoadingAuth || loading) {
     return <LoadingSpinner />
   }
 
-  // Jangan tampilkan apapun saat redirect ke login
   if (!user) {
     return null
   }
@@ -95,6 +89,8 @@ export default function KuisDetail() {
   const handleMulaiKuis = () => {
     router.push(`/kuis/${params.id}/mulai`)
   }
+
+  const isExpired = new Date() > new Date(kuis.waktu_selesai)
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
@@ -201,16 +197,16 @@ export default function KuisDetail() {
                   </div>
                 </div>
 
-                {kuis.nilai !== null && (
-                <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <BookmarkCheck className="w-5 h-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-green-500">Nilai Kamu</p>
-                  <p className="font-bold text-green-500">{kuis.nilai}</p>
-                </div>
-              </div>
+                {kuis.status?.sudah_selesai && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Trophy className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Nilai Kamu</p>
+                      <p className="font-semibold text-green-500">{kuis.status.nilai}</p>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -226,6 +222,11 @@ export default function KuisDetail() {
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Selesai
                   </span>
+                ) : isExpired ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-50 text-red-700 border border-red-200">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    Kadaluarsa
+                  </span>
                 ) : (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 border border-blue-200">
                     <AlertCircle className="h-4 w-4 mr-1" />
@@ -233,16 +234,6 @@ export default function KuisDetail() {
                   </span>
                 )}
               </div>
-
-              {/* Quiz Score */}
-              {/* {kuis.nilai !== null && (
-                <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-                  <Trophy className="h-4 w-4 text-blue-500" />
-                  <span className="font-medium text-blue-700">
-                    Nilai: {kuis.nilai}
-                  </span>
-                </div>
-              )} */}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
@@ -261,6 +252,14 @@ export default function KuisDetail() {
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Kuis Selesai
+                  </button>
+                ) : isExpired ? (
+                  <button
+                    disabled
+                    className="flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 cursor-not-allowed"
+                  >
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Kuis Kadaluarsa
                   </button>
                 ) : (
                   <button
@@ -281,8 +280,20 @@ export default function KuisDetail() {
                   </div>
                   <div>
                     <h3 className="font-medium text-green-900">Kuis Telah Selesai</h3>
-                    {/* <p className="text-green-700">Anda telah menyelesaikan kuis ini dengan nilai: {kuis.status.nilai}</p> */}
                     <p className="text-green-700">Anda telah menyelesaikan kuis ini 😃</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Expired status */}
+              {isExpired && !kuis.status?.sudah_selesai && (
+                <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-red-900">Kuis Telah Kadaluarsa</h3>
+                    <p className="text-red-700">Maaf, waktu pengerjaan kuis ini telah berakhir 😔</p>
                   </div>
                 </div>
               )}
@@ -319,15 +330,12 @@ export default function KuisDetail() {
                     }`}>
                       {index + 1}
                     </div>
-
-                    <div className="flex-grow">
-                      <p className="font-medium">{item.nama}</p>
-                      <p className="text-sm text-gray-500">{item.nim}</p>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.nama_mahasiswa}</p>
                     </div>
-
-                    <div className="text-right">
-                      <p className="font-semibold">{item.nilai}</p>
-                      <p className="text-sm text-gray-500">Nilai</p>
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-yellow-500" />
+                      <span className="font-semibold">{item.nilai}</span>
                     </div>
                   </div>
                 ))

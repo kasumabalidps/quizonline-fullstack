@@ -2,7 +2,14 @@ import { Clock, BookOpen, AlertCircle, Trophy } from 'lucide-react'
 
 export default function KuisExpired({ expiredKuisList }) {
   if (!expiredKuisList || expiredKuisList.length === 0) {
-    return null
+    return (
+      <div className="p-8 text-center">
+        <div className="flex justify-center mb-4">
+          <AlertCircle className="h-12 w-12 text-gray-400" />
+        </div>
+        <p className="text-gray-500 text-lg">Belum ada kuis yang telah berakhir.</p>
+      </div>
+    )
   }
 
   return (
@@ -11,7 +18,7 @@ export default function KuisExpired({ expiredKuisList }) {
         {expiredKuisList.map((kuis) => (
           <div
             key={kuis.id}
-            className="block bg-gray-100 rounded-lg border border-gray-200 opacity-75"
+            className="block bg-gray-100 rounded-lg border border-gray-200 opacity-75 cursor-not-allowed"
           >
             <div className="p-6">
               {/* Quiz Title & Description */}

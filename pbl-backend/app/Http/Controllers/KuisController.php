@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Auth;
 
 class KuisController extends Controller
 {
-    protected $defaultResponse = [
-        'success' => false,
-        'message' => 'Terjadi kesalahan'
-    ];
+    protected const DEFAULT_DURASI = 60;
+    protected const DEFAULT_LIMIT = 10;
+    protected const NILAI_BENAR = 100;
+    protected const NILAI_SALAH = 0;
 
     protected function successResponse($data, $message = null) {
         return response()->json([
@@ -38,55 +38,72 @@ class KuisController extends Controller
         return Auth::user() ?? $request->user();
     }
 
-    protected function checkKuisCompletion($mahasiswaId, $kuisId) {
-        return NilaiMahasiswa::where('mahasiswa_id', $mahasiswaId)
-            ->where('kuis_id', $kuisId)
-            ->whereNotNull('nilai_total')
+    protected function getNilaiMahasiswa($mahasiswaId, $kuisId) {
+        return NilaiMahasiswa::where('id_mhs', $mahasiswaId)
+            ->where('id_kuis', $kuisId)
             ->first();
     }
 
-    protected function checkAndDeleteExpiredQuizzes()
-    {
-        $now = now();
-        return Kuis::where('waktu_selesai', '<', $now)->delete();
+    protected function checkAndDeleteExpiredQuizzes() {
+        return Kuis::where('waktu_selesai', '<', now())->delete();
+    }
+
+    protected function getKuisWithRelations($id, $mahasiswaId) {
+        return Kuis::with([
+            'dosen', 
+            'matkul', 
+            'kelas',
+            'soal',
+            'jawabanMhs' => function($query) use ($mahasiswaId) {
+                $query->where('id_mhs', $mahasiswaId)
+                      ->whereNotNull('nilai')
+                      ->latest();
+            }
+        ])
+        ->findOrFail($id);
+    }
+
+    protected function getLeaderboard($kuisId, $limit = self::DEFAULT_LIMIT) {
+        return Leaderboard::where('kuis_id', $kuisId)
+            ->with('mahasiswa:id,nama')
+            ->orderBy('nilai', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'nama_mahasiswa' => $item->mahasiswa->nama,
+                    'nilai' => $item->nilai
+                ];
+            });
     }
 
     public function index(Request $request)
     {
         try {
-            // Delete expired quizzes first
             $this->checkAndDeleteExpiredQuizzes();
-            
             $mahasiswa = $this->getMahasiswa($request);
 
-            $kuisList = Kuis::with(['soal', 'jawabanMhs' => function($query) use ($mahasiswa) {
-                $query->where('id_mhs', $mahasiswa->id)
-                      ->orderBy('created_at', 'desc');
-            }])
-            ->get()
-            ->map(function ($kuis) use ($mahasiswa) {
-                $nilaiMhs = NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
-                    ->where('id_kuis', $kuis->id)
-                    ->first();
+            $kuisList = Kuis::with(['soal'])
+                ->where('id_kelas', $mahasiswa->id_kelas)
+                ->get()
+                ->map(function ($kuis) use ($mahasiswa) {
+                    $nilaiMhs = $this->getNilaiMahasiswa($mahasiswa->id, $kuis->id);
 
-                return [
-                    'id' => $kuis->id,
-                    'nama_kuis' => $kuis->judul,
-                    'deskripsi' => $kuis->deskripsi ?? '',
-                    'durasi' => $kuis->durasi ?? 60,
-                    'jumlah_soal' => $kuis->soal->count(),
-                    'status' => $nilaiMhs ? 'selesai' : 'belum',
-                    'nilai' => $nilaiMhs ? $nilaiMhs->nilai_total : null,
-                    'waktu_selesai' => $kuis->waktu_selesai,
-                ];
-            });
+                    return [
+                        'id' => $kuis->id,
+                        'nama_kuis' => $kuis->judul,
+                        'deskripsi' => $kuis->deskripsi ?? '',
+                        'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
+                        'jumlah_soal' => $kuis->soal->count(),
+                        'status' => $nilaiMhs ? 'selesai' : 'belum',
+                        'nilai' => $nilaiMhs?->nilai_total,
+                        'waktu_selesai' => $kuis->waktu_selesai,
+                    ];
+                });
 
             return $this->successResponse($kuisList);
         } catch (\Exception $e) {
-            Log::error('Error in index:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error in index:', ['error' => $e]);
             return $this->errorResponse();
         }
     }
@@ -94,32 +111,10 @@ class KuisController extends Controller
     public function detail(Request $request, $id)
     {
         try {
-            // Delete expired quizzes first
             $this->checkAndDeleteExpiredQuizzes();
-            
             $mahasiswa = $this->getMahasiswa($request);
-
-            $kuis = Kuis::with(['dosen', 'matkul', 'kelas', 'jawabanMhs' => function($query) use ($mahasiswa) {
-                $query->where('id_mhs', $mahasiswa->id)
-                      ->whereNotNull('nilai')
-                      ->latest();
-            }])
-            ->findOrFail($id);
-
-            $leaderboard = $kuis->jawabanMhs()
-                ->with('mahasiswa:id,nama')
-                ->select('id_mhs', 'nilai', 'created_at')
-                ->whereNotNull('nilai')
-                ->orderByDesc('nilai')
-                ->limit(10)
-                ->get()
-                ->map(function ($jawaban) {
-                    return [
-                        'nama' => $jawaban->mahasiswa->nama,
-                        'nilai' => $jawaban->nilai,
-                        'created_at' => $jawaban->created_at
-                    ];
-                });
+            $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
+            $nilaiMhs = $this->getNilaiMahasiswa($mahasiswa->id, $id);
 
             $data = [
                 'id' => $kuis->id,
@@ -128,26 +123,22 @@ class KuisController extends Controller
                 'dosen' => optional($kuis->dosen)->nama,
                 'mata_kuliah' => optional($kuis->matkul)->nama_matkul,
                 'kelas' => optional($kuis->kelas)->nama_kelas,
-                'jumlah_soal' => $kuis->soal()->count(),
+                'jumlah_soal' => $kuis->soal->count(),
                 'waktu_mulai' => $kuis->waktu_mulai,
                 'waktu_selesai' => $kuis->waktu_selesai,
-                'status' => $kuis->jawabanMhs->isNotEmpty() ? [
+                'status' => $nilaiMhs ? [
                     'sudah_selesai' => true,
-                    'nilai' => $kuis->jawabanMhs->first()->nilai,
-                    'waktu_selesai' => $kuis->jawabanMhs->first()->created_at
+                    'nilai' => $nilaiMhs->nilai_total,
+                    'waktu_selesai' => $nilaiMhs->created_at
                 ] : [
                     'sudah_selesai' => false
                 ],
-                'leaderboard' => $leaderboard
+                'leaderboard' => $this->getLeaderboard($id)
             ];
 
             return $this->successResponse($data);
         } catch (\Exception $e) {
-            Log::error('Error in detail:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
+            Log::error('Error in detail:', ['error' => $e]);
             return $this->errorResponse();
         }
     }
@@ -156,47 +147,35 @@ class KuisController extends Controller
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
-
-            $kuis = Kuis::with('soal')->findOrFail($id);
-
-            $sudahSelesai = $kuis->jawabanMhs()
-                ->where('id_mhs', $mahasiswa->id)
-                ->whereNotNull('nilai')
-                ->exists();
-
-            if ($sudahSelesai) {
+            $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
+            
+            if ($this->getNilaiMahasiswa($mahasiswa->id, $id)) {
                 return $this->errorResponse('Anda sudah menyelesaikan kuis ini', 403);
             }
 
-            $kuis->jawabanMhs()
-                ->where('id_mhs', $mahasiswa->id)
-                ->whereNull('nilai')
-                ->delete();
-
             $waktuMulai = now();
-            $waktuSelesai = $waktuMulai->copy()->addMinutes($kuis->durasi ?? 60);
+            $waktuSelesai = $waktuMulai->copy()->addMinutes($kuis->durasi ?? self::DEFAULT_DURASI);
 
             return $this->successResponse([
                 'id' => $kuis->id,
                 'nama_kuis' => $kuis->judul,
                 'deskripsi' => $kuis->deskripsi ?? '',
-                'durasi' => $kuis->durasi ?? 60,
+                'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
                 'waktu_mulai' => $waktuMulai,
                 'waktu_selesai' => $waktuSelesai,
-                'soal' => $kuis->soal->map(function ($soal) {
-                    return [
-                        'id' => $soal->id,
-                        'pertanyaan' => $soal->soal,
-                        'pilihan_jawaban' => [
-                            ['id' => 'a', 'teks' => $soal->a],
-                            ['id' => 'b', 'teks' => $soal->b],
-                            ['id' => 'c', 'teks' => $soal->c],
-                            ['id' => 'd', 'teks' => $soal->d],
-                        ],
-                    ];
-                }),
+                'soal' => $kuis->soal->map(fn($soal) => [
+                    'id' => $soal->id,
+                    'pertanyaan' => $soal->soal,
+                    'pilihan_jawaban' => [
+                        ['id' => 'a', 'teks' => $soal->a],
+                        ['id' => 'b', 'teks' => $soal->b],
+                        ['id' => 'c', 'teks' => $soal->c],
+                        ['id' => 'd', 'teks' => $soal->d],
+                    ],
+                ]),
             ]);
         } catch (\Exception $e) {
+            Log::error('Error in show:', ['error' => $e]);
             return $this->errorResponse();
         }
     }
@@ -204,81 +183,68 @@ class KuisController extends Controller
     public function submit(Request $request, $id)
     {
         try {
-            DB::beginTransaction();
-
+            $request->validate(['jawaban' => 'required|array']);
+            
             $mahasiswa = $this->getMahasiswa($request);
-
-            $kuis = Kuis::with(['soal' => function($query) {
-                $query->orderBy('id', 'asc');
-            }])->findOrFail($id);
-
-            $request->validate([
-                'jawaban' => 'required|array',
-            ]);
-
+            $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
+            
             foreach ($kuis->soal as $soal) {
                 if (!isset($request->jawaban[$soal->id]) || trim($request->jawaban[$soal->id]) === '') {
                     return $this->errorResponse('Semua soal harus dijawab terlebih dahulu', 422);
                 }
             }
 
-            JawabanMhs::where('id_mhs', $mahasiswa->id)
-                ->where('id_kuis', $id)
-                ->delete();
+            $nilaiTotal = 0;
+            DB::beginTransaction();
+            try {
+                // Hapus jawaban dan nilai lama
+                JawabanMhs::where('id_mhs', $mahasiswa->id)->where('id_kuis', $id)->delete();
+                NilaiMahasiswa::where('id_mhs', $mahasiswa->id)->where('id_kuis', $id)->delete();
 
-            NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
-                ->where('id_kuis', $id)
-                ->delete();
+                $totalNilai = 0;
+                foreach ($kuis->soal as $soal) {
+                    $jawabanSiswa = $request->jawaban[$soal->id];
+                    $nilaiSoal = $jawabanSiswa === $soal->jawaban ? self::NILAI_BENAR : self::NILAI_SALAH;
+                    
+                    JawabanMhs::create([
+                        'id_mhs' => $mahasiswa->id,
+                        'id_kuis' => $id,
+                        'id_soal' => $soal->id,
+                        'jawaban' => $jawabanSiswa,
+                        'nilai' => $nilaiSoal
+                    ]);
 
-            $totalSoal = $kuis->soal->count();
-            $totalNilai = 0;
+                    $totalNilai += $nilaiSoal;
+                }
 
-            foreach ($kuis->soal as $soal) {
-                $jawabanSiswa = $request->jawaban[$soal->id];
-                $isBenar = $jawabanSiswa === $soal->jawaban;
-                $nilaiSoal = $isBenar ? 100 : 0;
-
-                JawabanMhs::create([
+                $nilaiTotal = $totalNilai / $kuis->soal->count();
+                
+                NilaiMahasiswa::create([
                     'id_mhs' => $mahasiswa->id,
                     'id_kuis' => $id,
-                    'id_soal' => $soal->id,
-                    'jawaban' => $jawabanSiswa,
-                    'nilai' => $nilaiSoal
+                    'nilai_total' => $nilaiTotal,
                 ]);
 
-                $totalNilai += $nilaiSoal;
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
             }
-
-            $nilaiTotal = $totalNilai / $totalSoal;
-
-            NilaiMahasiswa::create([
-                'id_mhs' => $mahasiswa->id,
-                'id_kuis' => $id,
-                'nilai_total' => $nilaiTotal,
-            ]);
-
-            DB::commit();
 
             $jawabanBenar = JawabanMhs::where('id_mhs', $mahasiswa->id)
                 ->where('id_kuis', $id)
-                ->where('nilai', 100)
+                ->where('nilai', self::NILAI_BENAR)
                 ->count();
 
             return $this->successResponse([
                 'nilai_total' => $nilaiTotal,
                 'jawaban_benar' => $jawabanBenar,
-                'jawaban_salah' => $totalSoal - $jawabanBenar,
-                'total_soal' => $totalSoal
+                'jawaban_salah' => $kuis->soal->count() - $jawabanBenar,
+                'total_soal' => $kuis->soal->count()
             ]);
         } catch (\Exception $e) {
-            DB::rollback();
-
-            Log::error('Error in submit:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return $this->errorResponse();
+            Log::error('Error in submit:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->errorResponse($e->getMessage());
         }
     }
 
@@ -286,190 +252,42 @@ class KuisController extends Controller
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
+            $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
+            $nilaiMhs = $this->getNilaiMahasiswa($mahasiswa->id, $id);
 
-            $kuis = Kuis::with(['soal' => function($query) {
-                $query->orderBy('id', 'asc');
-            }])->findOrFail($id);
+            if (!$nilaiMhs) {
+                return $this->errorResponse('Anda belum mengerjakan kuis ini', 404);
+            }
 
             $jawabanMhs = JawabanMhs::where('id_mhs', $mahasiswa->id)
                 ->where('id_kuis', $id)
                 ->get()
                 ->keyBy('id_soal');
 
-            $nilaiMhs = NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
-                ->where('id_kuis', $id)
-                ->first();
+            $jawabanBenar = $jawabanMhs->where('nilai', self::NILAI_BENAR)->count();
 
-            if (!$nilaiMhs) {
-                return $this->errorResponse('Anda belum mengerjakan kuis ini', 404);
-            }
-
-            $jawabanBenar = $jawabanMhs->where('nilai', 100)->count();
-            $jawabanSalah = $kuis->soal->count() - $jawabanBenar;
-
-            $hasilSoal = [];
-            foreach ($kuis->soal as $soal) {
-                $jawaban = $jawabanMhs->get($soal->id);
-
-                $hasilSoal[] = [
+            return $this->successResponse([
+                'id_kuis' => $id,
+                'nama_kuis' => $kuis->judul,
+                'nilai' => $nilaiMhs->nilai_total,
+                'jawaban_benar' => $jawabanBenar,
+                'jawaban_salah' => $kuis->soal->count() - $jawabanBenar,
+                'hasil_soal' => $kuis->soal->map(fn($soal) => [
                     'id_soal' => $soal->id,
                     'soal' => $soal->soal,
                     'jawaban_benar' => $soal->jawaban,
-                    'jawaban_mhs' => $jawaban ? $jawaban->jawaban : null,
-                    'nilai' => $jawaban ? $jawaban->nilai : 0,
+                    'jawaban_mhs' => optional($jawabanMhs->get($soal->id))->jawaban,
+                    'nilai' => optional($jawabanMhs->get($soal->id))->nilai ?? self::NILAI_SALAH,
                     'pilihan' => [
                         'a' => $soal->a,
                         'b' => $soal->b,
                         'c' => $soal->c,
                         'd' => $soal->d,
                     ]
-                ];
-            }
-
-            return $this->successResponse([
-                'id_kuis' => $id,
-                'nama_kuis' => $kuis->nama,
-                'nilai' => $nilaiMhs->nilai_total,
-                'jawaban_benar' => $jawabanBenar,
-                'jawaban_salah' => $jawabanSalah,
-                'hasil_soal' => $hasilSoal
+                ])
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in hasil:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return $this->errorResponse();
-        }
-    }
-
-    public function showKuis(Request $request, $id)
-    {
-        try {
-            $mahasiswa = $this->getMahasiswa($request);
-
-            $kuis = Kuis::with(['mataKuliah'])->findOrFail($id);
-
-            $nilaiMahasiswa = $this->checkKuisCompletion($mahasiswa->id, $id);
-
-            if ($nilaiMahasiswa) {
-                return $this->errorResponse('Anda sudah mengerjakan kuis ini', 403);
-            }
-
-            return $this->successResponse([
-                'id' => $kuis->id,
-                'judul' => $kuis->judul,
-                'deskripsi' => $kuis->deskripsi,
-                'durasi' => $kuis->durasi,
-                'jumlah_soal' => $kuis->jumlah_soal,
-                'mata_kuliah' => $kuis->mataKuliah->nama,
-                'sudah_mengerjakan' => false
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse();
-        }
-    }
-
-    public function mulaiKuis(Request $request, $id)
-    {
-        try {
-            $mahasiswa = $this->getMahasiswa($request);
-            $kuis = Kuis::with(['soal.jawaban'])->findOrFail($id);
-
-            $nilaiMahasiswa = $this->checkKuisCompletion($mahasiswa->id, $id);
-
-            if ($nilaiMahasiswa) {
-                return $this->errorResponse('Anda sudah mengerjakan kuis ini', 403);
-            }
-
-            $nilaiMahasiswa = NilaiMahasiswa::firstOrCreate(
-                [
-                    'mahasiswa_id' => $mahasiswa->id,
-                    'kuis_id' => $id,
-                ],
-                ['waktu_mulai' => now()]
-            );
-
-            return $this->successResponse([
-                'id' => $kuis->id,
-                'judul' => $kuis->judul,
-                'durasi' => $kuis->durasi,
-                'waktu_mulai' => $nilaiMahasiswa->waktu_mulai,
-                'soal' => $kuis->soal->map(function ($soal) {
-                    return [
-                        'id' => $soal->id,
-                        'pertanyaan' => $soal->pertanyaan,
-                        'jawaban' => $soal->jawaban->map(function ($jawaban) {
-                            return [
-                                'id' => $jawaban->id,
-                                'teks' => $jawaban->teks
-                            ];
-                        })
-                    ];
-                })
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error in mulaiKuis:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return $this->errorResponse();
-        }
-    }
-
-    public function selesaiKuis($id, Request $request)
-    {
-        try {
-            $mahasiswa = $this->getMahasiswa($request);
-            $kuis = Kuis::with(['soal.jawaban'])->findOrFail($id);
-            $jawaban = $request->input('jawaban');
-
-            if (!$jawaban) {
-                return $this->errorResponse('Jawaban tidak boleh kosong', 422);
-            }
-
-            $nilai = 0;
-            $totalSoal = $kuis->soal->count();
-
-            foreach ($kuis->soal as $soal) {
-                if (isset($jawaban[$soal->id])) {
-                    $jawabanBenar = $soal->jawaban->where('is_benar', true)->first();
-                    if ($jawabanBenar && $jawaban[$soal->id] == $jawabanBenar->id) {
-                        $nilai++;
-                    }
-                }
-            }
-
-            $nilaiAkhir = ($nilai / $totalSoal) * 100;
-
-            DB::transaction(function () use ($mahasiswa, $id, $nilaiAkhir) {
-                NilaiMahasiswa::updateOrCreate(
-                    [
-                        'mahasiswa_id' => $mahasiswa->id,
-                        'kuis_id' => $id,
-                    ],
-                    ['nilai_total' => $nilaiAkhir]
-                );
-
-                Leaderboard::updateOrCreate(
-                    [
-                        'mahasiswa_id' => $mahasiswa->id,
-                        'kuis_id' => $id,
-                    ],
-                    ['nilai' => $nilaiAkhir]
-                );
-            });
-
-            return $this->successResponse([
-                'nilai' => $nilaiAkhir,
-                'message' => 'Kuis berhasil diselesaikan'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error in selesaiKuis:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error in hasil:', ['error' => $e]);
             return $this->errorResponse();
         }
     }
@@ -477,20 +295,9 @@ class KuisController extends Controller
     public function leaderboard($id)
     {
         try {
-            $leaderboard = Leaderboard::where('kuis_id', $id)
-                ->with('mahasiswa:id,nama') // Eager load mahasiswa untuk nama
-                ->orderBy('nilai', 'desc') // Urutkan berdasarkan nilai tertinggi
-                ->limit(10) // Batasi 10 teratas
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'nama_mahasiswa' => $item->mahasiswa->nama,
-                        'nilai' => $item->nilai
-                    ];
-                });
-
-            return $this->successResponse($leaderboard);
+            return $this->successResponse($this->getLeaderboard($id));
         } catch (\Exception $e) {
+            Log::error('Error in leaderboard:', ['error' => $e]);
             return $this->errorResponse();
         }
     }
@@ -501,38 +308,30 @@ class KuisController extends Controller
             $mahasiswa = $this->getMahasiswa($request);
 
             $expiredKuisList = Kuis::onlyTrashed()
-                ->with(['soal', 'jawabanMhs' => function($query) use ($mahasiswa) {
-                    $query->where('id_mhs', $mahasiswa->id)
-                          ->orderBy('created_at', 'desc');
-                }])
+                ->with(['soal'])
                 ->orderBy('deleted_at', 'desc')
                 ->limit(3)
                 ->get()
                 ->map(function ($kuis) use ($mahasiswa) {
-                    $nilaiMhs = NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
-                        ->where('id_kuis', $kuis->id)
-                        ->first();
+                    $nilaiMhs = $this->getNilaiMahasiswa($mahasiswa->id, $kuis->id);
 
                     return [
                         'id' => $kuis->id,
                         'nama_kuis' => $kuis->judul,
                         'deskripsi' => $kuis->deskripsi ?? '',
-                        'durasi' => $kuis->durasi ?? 60,
+                        'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
                         'jumlah_soal' => $kuis->soal->count(),
                         'waktu_mulai' => $kuis->waktu_mulai,
                         'waktu_selesai' => $kuis->waktu_selesai,
                         'deleted_at' => $kuis->deleted_at,
                         'status' => 'expired',
-                        'nilai' => $nilaiMhs ? $nilaiMhs->nilai_total : null,
+                        'nilai' => $nilaiMhs?->nilai_total,
                     ];
                 });
 
             return $this->successResponse($expiredKuisList);
         } catch (\Exception $e) {
-            Log::error('Error in expiredList:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error in expiredList:', ['error' => $e]);
             return $this->errorResponse();
         }
     }

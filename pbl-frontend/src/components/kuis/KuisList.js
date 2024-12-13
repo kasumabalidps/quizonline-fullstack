@@ -1,10 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { Clock, BookOpen, CheckCircle, AlertCircle, Trophy, Play } from 'lucide-react'
 
 export default function KuisList({ kuisList }) {
   if (!kuisList || kuisList.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+      <div className="p-8 text-center">
         <div className="flex justify-center mb-4">
           <AlertCircle className="h-12 w-12 text-gray-400" />
         </div>
@@ -35,9 +37,6 @@ export default function KuisList({ kuisList }) {
               </div>
             )}
           </div>
-          {/* <div className="text-gray-600 mb-4 line-clamp-2">
-            <p>{kuis.deskripsi || 'Tidak ada deskripsi'}</p>
-          </div> */}
 
           {/* Quiz Info */}
           <div className="space-y-2 mb-4">
@@ -88,10 +87,15 @@ export default function KuisList({ kuisList }) {
                 <Clock className="h-4 w-4 mr-1" />
                 Belum Mulai
               </span>
-            ) : new Date() > new Date(kuis.waktu_selesai) || kuis.status === 'selesai' ? (
+            ) : kuis.status === 'selesai' ? (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-50 text-green-700 border border-green-200">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Selesai
+              </span>
+            ) : new Date() > new Date(kuis.waktu_selesai) ? (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-50 text-red-700 border border-red-200">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                Kadaluarsa
               </span>
             ) : (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 border border-blue-200">

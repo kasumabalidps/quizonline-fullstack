@@ -16,7 +16,6 @@ export default function KuisPage() {
   })
 
   const [kuisList, setKuisList] = useState([])
-  const [expiredKuisList, setExpiredKuisList] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -30,13 +29,9 @@ export default function KuisPage() {
     if (!isLoadingAuth && user) {
       const fetchKuis = async () => {
         try {
-          const [kuisResponse, expiredResponse] = await Promise.all([
-            axios.get('/api/mahasiswa/kuis'),
-            axios.get('/api/mahasiswa/kuis/expired')
-          ])
+          const kuisResponse = await axios.get('/api/mahasiswa/kuis')
 
           setKuisList(kuisResponse.data.data)
-          setExpiredKuisList(expiredResponse.data.data)
           setError(null)
         } catch (e) {
           setError('Error mengambil daftar kuis: ' + e.message)
@@ -49,14 +44,28 @@ export default function KuisPage() {
     }
   }, [user, router, isLoadingAuth])
 
-  const filteredKuisList = kuisList.filter(kuis =>
+  // Filter kuis aktif: hanya tampilkan yang belum kadaluarsa
+  const activeKuisList = kuisList.filter(kuis => 
+    new Date() <= new Date(kuis.waktu_selesai)
+  )
+
+  const filteredKuisList = activeKuisList.filter((kuis) =>
+    kuis.nama_kuis.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Filter kuis kadaluarsa: tampilkan yang sudah lewat waktu selesai
+  const expiredKuisList = kuisList.filter(kuis => 
+    new Date() > new Date(kuis.waktu_selesai)
+  )
+
+  const filteredExpiredKuisList = expiredKuisList.filter((kuis) =>
     kuis.nama_kuis.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const stats = {
-    total: kuisList.length,
-    selesai: kuisList.filter(kuis => kuis.status === 'selesai').length,
-    belumDikerjakan: kuisList.filter(kuis => kuis.status !== 'selesai').length
+    total: activeKuisList.length,
+    selesai: activeKuisList.filter(kuis => kuis.status === 'selesai').length,
+    belumDikerjakan: activeKuisList.filter(kuis => kuis.status !== 'selesai').length
   }
 
   if (loading) {
@@ -147,15 +156,15 @@ export default function KuisPage() {
             </div>
 
             {/* Expired Quiz Section */}
-            {expiredKuisList.length > 0 && (
+            {filteredExpiredKuisList.length > 0 && (
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Kuis Yang Telah Berakhir</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Kuis Kadaluarsa</h2>
                   <span className="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-800 rounded-full">
                     Tidak Aktif
                   </span>
                 </div>
-                <KuisExpired expiredKuisList={expiredKuisList} />
+                <KuisExpired expiredKuisList={filteredExpiredKuisList} />
               </div>
             )}
           </div>
