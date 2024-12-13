@@ -24,7 +24,7 @@ Route::middleware(['auth:admin'])->group(function () {
 
 // Mahasiswa Routes
 Route::middleware(['auth:mahasiswa'])->group(function () {
-    Route::get('/user', function (Request $request) {
+    Route::get('/mahasiswa/user', function (Request $request) {
         return $request->user();
     });
 
@@ -61,7 +61,7 @@ Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
     Route::put('/kuis/{id}', [KuisDataController::class, 'update']);
     Route::delete('/kuis/{id}', [KuisDataController::class, 'destroy']);
     Route::delete('/kuis/{kuisId}/soal/{soalId}', [KuisDataController::class, 'destroySoal']);
-    
+
     // Statistik dosen
     Route::get('/stats', [DosenStatsController::class, 'getStats']);
 });
@@ -110,10 +110,3 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('/mahasiswa/{mahasiswa}', [MahasiswaDataController::class, 'update']);
     Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaDataController::class, 'destroy']);
 });
-
-// Kuis routes untuk dosen dan mahasiswa
-// Route::middleware(['auth:dosen,mahasiswa'])->group(function () {
-//     Route::get('/kuis', [KuisDataController::class, 'index']);
-//     Route::get('/kuis/{id}', [KuisDataController::class, 'show']);
-//     Route::get('/soal', [KuisDataController::class, 'getAllSoal']);
-// });

@@ -9,7 +9,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
     const { data: user, error, mutate } = useSWR('/api/user', () =>
         axios
-            .get('/api/user')
+            .get('/api/mahasiswa/user')
             .then(res => res.data)
             .catch(error => {
                 if (error.response?.status === 401) {
@@ -41,7 +41,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
             await axios.post('/mahasiswa/login', props)
             await mutate()
-            
+
             if (redirectIfAuthenticated && !isLoading) {
                 router.push(redirectIfAuthenticated)
             }
