@@ -5,25 +5,23 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function KuisCountdown({ onComplete }) {
   const [count, setCount] = useState(3)
-  const [started, setStarted] = useState(false)
 
   useEffect(() => {
-    if (!started) {
-      setStarted(true)
-      return
-    }
-
-    if (count === 0) {
-      onComplete()
-      return
-    }
-
-    const timer = setTimeout(() => {
-      setCount(count - 1)
+    const timer = setInterval(() => {
+      setCount((prevCount) => {
+        if (prevCount <= 1) {
+          clearInterval(timer)
+          if (typeof onComplete === 'function') {
+            onComplete()
+          }
+          return 0
+        }
+        return prevCount - 1
+      })
     }, 1000)
 
-    return () => clearTimeout(timer)
-  }, [count, started, onComplete])
+    return () => clearInterval(timer)
+  }, [onComplete])
 
   return (
     <AnimatePresence>
@@ -42,13 +40,6 @@ export default function KuisCountdown({ onComplete }) {
           >
             {count === 3 && (
               <div className="text-center">
-                {/* <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  className="text-gray-800 text-xl mb-4"
-                >
-                  Bersiap untuk memulai kuis...
-                </motion.div> */}
                 <motion.div
                   className="text-7xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
                 >

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/mahasiswa/auth'
 import axios from '@/lib/axios'
-import { BookOpen, Clock, Users, Trophy, ChevronRight, ChevronLeft, AlertCircle, Loader2, GraduationCap, ListChecks, CheckCircle } from 'lucide-react'
+import { BookOpen, Clock, Users, Trophy, ChevronRight, ChevronLeft, AlertCircle, Loader2, GraduationCap, ListChecks, CheckCircle, BookmarkCheck } from 'lucide-react'
 
 export default function KuisDetail() {
   const params = useParams()
@@ -28,12 +28,16 @@ export default function KuisDetail() {
     if (!isLoadingAuth && user && params.id) {
       const fetchKuis = async () => {
         try {
-          const [kuisResponse, leaderboardResponse] = await Promise.all([
+          const [kuisResponse, leaderboardResponse, nilaiResponse] = await Promise.all([
             axios.get(`/api/mahasiswa/kuis/${params.id}`),
-            axios.get(`/api/mahasiswa/kuis/${params.id}/leaderboard`)
+            axios.get(`/api/mahasiswa/kuis/${params.id}/leaderboard`),
+            axios.get(`/api/mahasiswa/kuis/${params.id}/hasil`)
           ])
 
-          setKuis(kuisResponse.data.data)
+          setKuis({
+            ...kuisResponse.data.data,
+            nilai: nilaiResponse.data.data?.nilai || null
+          })
           setLeaderboard(leaderboardResponse.data.data)
           setError(null)
         } catch (e) {
@@ -152,6 +156,26 @@ export default function KuisDetail() {
                     <Clock className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
+                    <p className="text-sm text-gray-500">Mulai pada</p>
+                    <p className="font-medium">
+                      {new Date(kuis.waktu_mulai).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}{' '}
+                      {new Date(kuis.waktu_mulai).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })} WIB
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div>
                     <p className="text-sm text-gray-500">Berakhir pada</p>
                     <p className="font-medium">
                       {new Date(kuis.waktu_selesai).toLocaleDateString('id-ID', {
@@ -176,6 +200,77 @@ export default function KuisDetail() {
                     <p className="font-medium">{kuis.jumlah_soal} Soal</p>
                   </div>
                 </div>
+
+                {kuis.nilai !== null && (
+                <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookmarkCheck className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-sm text-green-500">Nilai Kamu</p>
+                  <p className="font-bold text-green-500">{kuis.nilai}</p>
+                </div>
+              </div>
+                )}
+              </div>
+
+              {/* Status Badge */}
+              <div className="flex items-center mb-6">
+                {new Date() < new Date(kuis.waktu_mulai) ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-50 text-yellow-700 border border-yellow-200">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    Belum Mulai
+                  </span>
+                ) : kuis.status?.sudah_selesai ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-50 text-green-700 border border-green-200">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Selesai
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 border border-blue-200">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    Belum Dikerjakan
+                  </span>
+                )}
+              </div>
+
+              {/* Quiz Score */}
+              {/* {kuis.nilai !== null && (
+                <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                  <Trophy className="h-4 w-4 text-blue-500" />
+                  <span className="font-medium text-blue-700">
+                    Nilai: {kuis.nilai}
+                  </span>
+                </div>
+              )} */}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+                {new Date() < new Date(kuis.waktu_mulai) ? (
+                  <button
+                    disabled
+                    className="flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed"
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Menunggu Waktu Mulai
+                  </button>
+                ) : kuis.status?.sudah_selesai ? (
+                  <button
+                    disabled
+                    className="flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Kuis Selesai
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleMulaiKuis}
+                    className="flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <ChevronRight className="h-4 w-4 mr-2" />
+                    Mulai Kuis
+                  </button>
+                )}
               </div>
 
               {/* Quiz completion status */}
@@ -186,30 +281,11 @@ export default function KuisDetail() {
                   </div>
                   <div>
                     <h3 className="font-medium text-green-900">Kuis Telah Selesai</h3>
-                    <p className="text-green-700">Anda telah menyelesaikan kuis ini dengan nilai: {kuis.status.nilai}</p>
+                    {/* <p className="text-green-700">Anda telah menyelesaikan kuis ini dengan nilai: {kuis.status.nilai}</p> */}
+                    <p className="text-green-700">Anda telah menyelesaikan kuis ini 😃</p>
                   </div>
                 </div>
               )}
-
-              {/* Prominent start button */}
-              <button
-                onClick={handleMulaiKuis}
-                disabled={kuis.status?.sudah_selesai}
-                className={`w-full py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
-                  kuis.status?.sudah_selesai
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
-              >
-                {kuis.status?.sudah_selesai ? (
-                  'Kuis Telah Selesai'
-                ) : (
-                  <>
-                    Mulai Kuis
-                    <ChevronRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
             </div>
           </div>
 

@@ -140,7 +140,7 @@ export default function KuisPage() {
               <div className="flex items-center gap-3 mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Kuis Aktif</h2>
                 <span className="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
-                  Sedang Berlangsung
+                  Kuis Aktif
                 </span>
               </div>
               <KuisList kuisList={filteredKuisList} />
