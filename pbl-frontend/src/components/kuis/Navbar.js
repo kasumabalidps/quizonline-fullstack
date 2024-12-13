@@ -3,41 +3,45 @@
 import Link from 'next/link'
 import { useAuth } from '@/hooks/mahasiswa/auth'
 import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import Image from 'next/image'
 
 export default function Navbar() {
   const { user, logout } = useAuth({ middleware: 'auth' })
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link href="/dashboard" className="text-xl font-bold">
-            QuizOnline
-          </Link>
+    <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
+      <div className="px-3 py-3 lg:px-5 lg:pl-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative w-8 h-8">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                fill
+                sizes="32px"
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="flex flex-col">
+              <Link href="/kuis" className="text-sm font-semibold text-gray-900">
+                PNB KUIS ONLINE
+              </Link>
+              <span className="text-xs text-gray-600">MAHASISWA</span>
+            </div>
+          </div>
           
-          <div className="flex items-center space-x-4">
-            <Link href="/dashboard" className="text-gray-700 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link href="/kuis" className="text-gray-700 hover:text-blue-600">
-              Kuis
-            </Link>
+          <div className="flex items-center">
             {user && (
               <div className="relative">
                 <button 
                   onClick={() => setIsOpen(!isOpen)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+                  className="flex items-center gap-2 text-sm bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-all"
                 >
-                  <span className="text-sm font-medium">{user?.nama || 'User'}</span>
-                  <svg 
-                    className={`w-4 h-4 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <span className="text-gray-900">{user?.nama || 'User'}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
                 {isOpen && (
                   <>
@@ -45,16 +49,16 @@ export default function Navbar() {
                       className="fixed inset-0 z-40"
                       onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100">
                       <div className="px-4 py-2 text-sm text-gray-500 border-b">
-                        {user?.nim || 'NIM'}
+                        NIM: {user?.nim || 'NIM'}
                       </div>
                       <button
                         onClick={() => {
                           setIsOpen(false)
                           logout()
                         }}
-                        className="block w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100"
+                        className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                       >
                         Keluar
                       </button>
