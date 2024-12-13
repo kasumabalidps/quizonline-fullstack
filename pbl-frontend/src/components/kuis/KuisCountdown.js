@@ -32,7 +32,7 @@ export default function KuisCountdown({ onComplete }) {
           <motion.div
             key={count}
             initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ 
+            animate={{
               scale: [0.5, 1.2, 1],
               opacity: [0, 1, 1]
             }}
@@ -42,13 +42,13 @@ export default function KuisCountdown({ onComplete }) {
           >
             {count === 3 && (
               <div className="text-center">
-                <motion.div
+                {/* <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   className="text-gray-800 text-xl mb-4"
                 >
                   Bersiap untuk memulai kuis...
-                </motion.div>
+                </motion.div> */}
                 <motion.div
                   className="text-7xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
                 >

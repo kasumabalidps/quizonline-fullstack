@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('nilai_mhs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_mhs')->references('id')->on('mahasiswa')->onDelete('cascade');
-            $table->double('nilai_total');
+            $table->integer('nilai_total');
             $table->foreignId('id_kuis')->references('id')->on('kuis')->onDelete('cascade');
             $table->timestamps();
         });
