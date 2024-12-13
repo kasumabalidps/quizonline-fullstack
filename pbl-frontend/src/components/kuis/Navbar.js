@@ -30,14 +30,10 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              
+
               {user && (
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setIsOpen(!isOpen)}
                     className="flex items-center gap-3 text-sm bg-gray-50 rounded-lg px-4 py-2 hover:bg-gray-100 transition-all border border-gray-200"
                   >
@@ -50,10 +46,10 @@ export default function Navbar() {
                     </div>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
-                  
+
                   {isOpen && (
                     <>
-                      <div 
+                      <div
                         className="fixed inset-0 z-40 bg-black/5"
                         onClick={() => setIsOpen(false)}
                       />

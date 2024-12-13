@@ -31,6 +31,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::prefix('mahasiswa')->group(function () {
         // Kuis routes
         Route::get('/kuis', [KuisController::class, 'index']);
+        Route::get('/kuis/expired', [KuisController::class, 'expiredList']);
         Route::get('/kuis/{id}', [KuisController::class, 'detail']);
         Route::get('/kuis/{id}/mulai', [KuisController::class, 'show']);
         Route::post('/kuis/{id}/submit', [KuisController::class, 'submit']);

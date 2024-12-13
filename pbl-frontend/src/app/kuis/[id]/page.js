@@ -9,11 +9,11 @@ import { BookOpen, Clock, Users, Trophy, ChevronRight, ChevronLeft, AlertCircle,
 export default function KuisDetail() {
   const params = useParams()
   const router = useRouter()
-  const { user, isLoading: isLoadingAuth } = useAuth({ 
+  const { user, isLoading: isLoadingAuth } = useAuth({
     middleware: 'auth',
     redirectIfAuthenticated: `/kuis/${params.id}`
   })
-  
+
   const [kuis, setKuis] = useState(null)
   const [leaderboard, setLeaderboard] = useState([])
   const [loading, setLoading] = useState(true)
@@ -32,7 +32,7 @@ export default function KuisDetail() {
             axios.get(`/api/mahasiswa/kuis/${params.id}`),
             axios.get(`/api/mahasiswa/kuis/${params.id}/leaderboard`)
           ])
-          
+
           setKuis(kuisResponse.data.data)
           setLeaderboard(leaderboardResponse.data.data)
           setError(null)
@@ -116,7 +116,7 @@ export default function KuisDetail() {
               </div>
 
               {/* Main info section */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <BookOpen className="w-5 h-5 text-blue-500" />
@@ -149,70 +149,31 @@ export default function KuisDetail() {
 
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Berakhir pada</p>
+                    <p className="font-medium">
+                      {new Date(kuis.waktu_selesai).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}{' '}
+                      {new Date(kuis.waktu_selesai).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })} WIB
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <ListChecks className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Jumlah Soal</p>
                     <p className="font-medium">{kuis.jumlah_soal} Soal</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-500 mb-2">Masa Aktif</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-500 mb-1">Mulai</p>
-                        <p className="text-sm font-medium">
-                          {new Date(kuis.waktu_mulai).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </p>
-                        <p className="text-sm font-medium text-gray-600">
-                          {new Date(kuis.waktu_mulai).toLocaleTimeString('id-ID', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })} WIB
-                        </p>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-2">
-                        <p className="text-xs text-gray-500 mb-1">Selesai</p>
-                        <p className="text-sm font-medium">
-                          {new Date(kuis.waktu_selesai).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </p>
-                        <p className="text-sm font-medium text-gray-600">
-                          {new Date(kuis.waktu_selesai).toLocaleTimeString('id-ID', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })} WIB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Trophy className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Status</p>
-                    <p className="font-medium">
-                      {kuis.status?.sudah_selesai ? (
-                        <span className="text-green-500">Selesai</span>
-                      ) : (
-                        <span className="text-blue-500">Belum Dikerjakan</span>
-                      )}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -266,11 +227,11 @@ export default function KuisDetail() {
                 </div>
               ) : (
                 leaderboard.map((item, index) => (
-                  <div 
+                  <div
                     key={item.id}
                     className={`flex items-center gap-4 p-4 rounded-lg ${
-                      item.nim === user?.nim 
-                        ? 'bg-blue-50 border border-blue-100' 
+                      item.nim === user?.nim
+                        ? 'bg-blue-50 border border-blue-100'
                         : 'bg-gray-50'
                     }`}
                   >
@@ -282,12 +243,12 @@ export default function KuisDetail() {
                     }`}>
                       {index + 1}
                     </div>
-                    
+
                     <div className="flex-grow">
                       <p className="font-medium">{item.nama}</p>
                       <p className="text-sm text-gray-500">{item.nim}</p>
                     </div>
-                    
+
                     <div className="text-right">
                       <p className="font-semibold">{item.nilai}</p>
                       <p className="text-sm text-gray-500">Nilai</p>

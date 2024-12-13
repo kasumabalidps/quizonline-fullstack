@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Clock, BookOpen, CheckCircle, XCircle, AlertCircle, Trophy } from 'lucide-react'
+import { Clock, BookOpen, CheckCircle, AlertCircle, Trophy } from 'lucide-react'
 
 export default function KuisList({ kuisList }) {
   if (!kuisList || kuisList.length === 0) {
@@ -36,15 +36,31 @@ export default function KuisList({ kuisList }) {
                 </div>
               )}
             </div>
-            <div className="text-gray-600 mb-4 line-clamp-2">
+            {/* <div className="text-gray-600 mb-4 line-clamp-2">
               <p>{kuis.deskripsi || 'Tidak ada deskripsi'}</p>
-            </div>
+            </div> */}
 
             {/* Quiz Info */}
             <div className="space-y-2 mb-4">
               <div className="flex items-center text-sm text-gray-500">
                 <Clock className="h-4 w-4 mr-2" />
-                <span>Durasi: {kuis.durasi} menit</span>
+                <span>
+                  Berakhir pada:{' '}
+                  {kuis.waktu_selesai && (
+                    <>
+                      {new Date(kuis.waktu_selesai).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}{' '}
+                      pukul{' '}
+                      {new Date(kuis.waktu_selesai).toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })} WIB
+                    </>
+                  )}
+                </span>
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <BookOpen className="h-4 w-4 mr-2" />
@@ -54,20 +70,15 @@ export default function KuisList({ kuisList }) {
 
             {/* Status Badge */}
             <div className="flex items-center">
-              {kuis.status === 'belum' ? (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 border border-blue-200">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  Belum Dikerjakan
-                </span>
-              ) : kuis.status === 'selesai' ? (
+              {kuis.status === 'selesai' ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-50 text-green-700 border border-green-200">
                   <CheckCircle className="h-4 w-4 mr-1" />
                   Selesai
                 </span>
               ) : (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-50 text-yellow-700 border border-yellow-200">
-                  <Clock className="h-4 w-4 mr-1" />
-                  Sedang Dikerjakan
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 border border-blue-200">
+                  <AlertCircle className="h-4 w-4 mr-1" />
+                  Belum Dikerjakan
                 </span>
               )}
             </div>

@@ -77,6 +77,7 @@ class KuisController extends Controller
                     'jumlah_soal' => $kuis->soal->count(),
                     'status' => $nilaiMhs ? 'selesai' : 'belum',
                     'nilai' => $nilaiMhs ? $nilaiMhs->nilai_total : null,
+                    'waktu_selesai' => $kuis->waktu_selesai,
                 ];
             });
 
@@ -490,6 +491,48 @@ class KuisController extends Controller
 
             return $this->successResponse($leaderboard);
         } catch (\Exception $e) {
+            return $this->errorResponse();
+        }
+    }
+
+    public function expiredList(Request $request)
+    {
+        try {
+            $mahasiswa = $this->getMahasiswa($request);
+
+            $expiredKuisList = Kuis::onlyTrashed()
+                ->with(['soal', 'jawabanMhs' => function($query) use ($mahasiswa) {
+                    $query->where('id_mhs', $mahasiswa->id)
+                          ->orderBy('created_at', 'desc');
+                }])
+                ->orderBy('deleted_at', 'desc')
+                ->limit(3)
+                ->get()
+                ->map(function ($kuis) use ($mahasiswa) {
+                    $nilaiMhs = NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
+                        ->where('id_kuis', $kuis->id)
+                        ->first();
+
+                    return [
+                        'id' => $kuis->id,
+                        'nama_kuis' => $kuis->judul,
+                        'deskripsi' => $kuis->deskripsi ?? '',
+                        'durasi' => $kuis->durasi ?? 60,
+                        'jumlah_soal' => $kuis->soal->count(),
+                        'waktu_mulai' => $kuis->waktu_mulai,
+                        'waktu_selesai' => $kuis->waktu_selesai,
+                        'deleted_at' => $kuis->deleted_at,
+                        'status' => 'expired',
+                        'nilai' => $nilaiMhs ? $nilaiMhs->nilai_total : null,
+                    ];
+                });
+
+            return $this->successResponse($expiredKuisList);
+        } catch (\Exception $e) {
+            Log::error('Error in expiredList:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return $this->errorResponse();
         }
     }
