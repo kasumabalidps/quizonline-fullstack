@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\JurusanDataEditRequest;
+use App\Http\Requests\Jurusan\JurusanDataEditRequest;
 use App\Models\Jurusan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;

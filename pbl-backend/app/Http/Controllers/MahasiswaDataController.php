@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\MahasiswaDataEditRequest;
+use App\Http\Requests\Mahasiswa\MahasiswaDataEditRequest;
 use App\Models\Mahasiswa;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class MahasiswaDataController extends Controller
 {

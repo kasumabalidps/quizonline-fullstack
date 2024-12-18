@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\KelasDataEditRequest;
+use App\Http\Requests\Kelas\KelasDataEditRequest;
 use App\Models\Kelas;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KelasDataController extends Controller
 {
@@ -15,7 +16,7 @@ class KelasDataController extends Controller
             $perPage = $request->query('per_page', 10);
             $search = $request->query('search');
 
-            $query = Kelas::with('prodi:id,nama_prodi,id_jurusan');
+            $query = Kelas::with(['prodi.jurusan']);
 
             if ($search) {
                 $query->where(function ($q) use ($search) {
@@ -36,11 +37,40 @@ class KelasDataController extends Controller
         }
     }
 
+    public function getKelasByDosen(): JsonResponse
+    {
+        try {
+            $dosen = Auth::user();
+            if (!$dosen) {
+                return response()->json([
+                    'message' => 'User tidak terautentikasi'
+                ], 401);
+            }
+
+            // Ambil kelas berdasarkan jurusan dosen
+            $kelas = Kelas::whereHas('prodi', function($query) use ($dosen) {
+                $query->where('id_jurusan', $dosen->id_jurusan);
+            })
+            ->with(['prodi.jurusan'])
+            ->get();
+
+            return response()->json([
+                'message' => 'Berhasil mengambil data kelas',
+                'data' => $kelas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal mengambil data kelas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function show(Kelas $kelas): JsonResponse
     {
         try {
             return response()->json([
-                'kelas' => $kelas->load('prodi:id,nama_prodi,id_jurusan')
+                'kelas' => $kelas->load(['prodi.jurusan'])
             ]);
         } catch (\Exception $e) {
             return response()->json([

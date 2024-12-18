@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\ProdiDataEditRequest;
+use App\Http\Requests\Prodi\ProdiDataEditRequest;
 use App\Models\Prodi;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProdiDataController extends Controller

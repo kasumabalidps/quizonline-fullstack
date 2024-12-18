@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\DosenDataEditRequest;
+use App\Http\Requests\Dosen\DosenDataEditRequest;
 use App\Models\Dosen;
 use App\Models\Kelas;
 use App\Models\MataKuliah;
