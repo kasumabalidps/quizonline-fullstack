@@ -14,6 +14,7 @@ use App\Http\Controllers\KuisDataController;
 use App\Http\Controllers\DosenStatsController;
 use App\Http\Controllers\KuisController;
 use App\Http\Controllers\Auth\MahasiswaAuthenticatedSessionController;
+use App\Http\Controllers\NilaiMahasiswaController;
 
 // Admin Routes
 Route::middleware(['auth:admin'])->group(function () {
@@ -47,13 +48,16 @@ Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
     });
 
     // Kelas routes
-    Route::get('/kelas', [DosenDataController::class, 'getDosenKelas']);
-    Route::post('/kelas', [DosenDataController::class, 'createKelas']);
-    Route::put('/kelas/{id}', [DosenDataController::class, 'updateKelas']);
-    Route::delete('/kelas/{id}', [DosenDataController::class, 'deleteKelas']);
+    Route::get('/kelas', [KelasDataController::class, 'index']);
+    Route::post('/kelas', [KelasDataController::class, 'store']);
+    Route::put('/kelas/{id}', [KelasDataController::class, 'update']);
+    Route::delete('/kelas/{id}', [KelasDataController::class, 'destroy']);
 
     // Mata kuliah routes
-    Route::get('/matkul', [DosenDataController::class, 'getDosenMatkul']);
+    Route::get('/matkul', [MatkulDataController::class, 'index']);
+    Route::post('/matkul', [MatkulDataController::class, 'store']);
+    Route::put('/matkul/{id}', [MatkulDataController::class, 'update']);
+    Route::delete('/matkul/{id}', [MatkulDataController::class, 'destroy']);
 
     // Kuis routes
     Route::get('/kuis', [KuisDataController::class, 'index']);
@@ -62,6 +66,12 @@ Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
     Route::put('/kuis/{id}', [KuisDataController::class, 'update']);
     Route::delete('/kuis/{id}', [KuisDataController::class, 'destroy']);
     Route::delete('/kuis/{kuisId}/soal/{soalId}', [KuisDataController::class, 'destroySoal']);
+
+    // Route untuk nilai mahasiswa
+    Route::get('/nilai-mahasiswa/kuis/{kuisId}', [NilaiMahasiswaController::class, 'getNilaiByKuis']);
+
+    // Nilai Mahasiswa routes
+    Route::get('/dosen/nilai-mahasiswa/kuis/{kuisId}', [NilaiMahasiswaController::class, 'getNilaiByKuis']);
 
     // Statistik dosen
     Route::get('/stats', [DosenStatsController::class, 'getStats']);
