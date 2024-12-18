@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Kuis\GetKuisRequest;
+use App\Http\Requests\Kuis\SubmitKuisRequest;
 use App\Models\Kuis;
 use App\Models\JawabanMhs;
 use App\Models\Soal;
@@ -11,15 +13,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class KuisController extends Controller
 {
+    // Konstanta
     protected const DEFAULT_DURASI = 60;
     protected const DEFAULT_LIMIT = 10;
     protected const NILAI_BENAR = 100;
     protected const NILAI_SALAH = 0;
 
-    protected function successResponse($data, $message = null) {
+    /**
+     * Response helper untuk sukses
+     */
+    protected function successResponse($data, $message = null): JsonResponse 
+    {
         return response()->json([
             'success' => true,
             'message' => $message,
@@ -27,28 +35,48 @@ class KuisController extends Controller
         ]);
     }
 
-    protected function errorResponse($message = 'Terjadi kesalahan', $code = 500) {
+    /**
+     * Response helper untuk error
+     */
+    protected function errorResponse($message = 'Terjadi kesalahan', $code = 500): JsonResponse 
+    {
         return response()->json([
             'success' => false,
             'message' => $message
         ], $code);
     }
 
-    protected function getMahasiswa(Request $request) {
+    /**
+     * Mendapatkan data mahasiswa yang sedang login
+     */
+    protected function getMahasiswa(Request $request) 
+    {
         return Auth::user() ?? $request->user();
     }
 
-    protected function getNilaiMahasiswa($mahasiswaId, $kuisId) {
+    /**
+     * Mendapatkan nilai mahasiswa untuk kuis tertentu
+     */
+    protected function getNilaiMahasiswa($mahasiswaId, $kuisId) 
+    {
         return NilaiMahasiswa::where('id_mhs', $mahasiswaId)
             ->where('id_kuis', $kuisId)
             ->first();
     }
 
-    protected function checkAndDeleteExpiredQuizzes() {
+    /**
+     * Membersihkan kuis yang sudah expired
+     */
+    protected function checkAndDeleteExpiredQuizzes() 
+    {
         return Kuis::where('waktu_selesai', '<', now())->delete();
     }
 
-    protected function getKuisWithRelations($id, $mahasiswaId) {
+    /**
+     * Mendapatkan data kuis dengan relasi yang dibutuhkan
+     */
+    protected function getKuisWithRelations($id, $mahasiswaId) 
+    {
         return Kuis::with([
             'dosen', 
             'matkul', 
@@ -63,21 +91,30 @@ class KuisController extends Controller
         ->findOrFail($id);
     }
 
-    protected function getLeaderboard($kuisId, $limit = self::DEFAULT_LIMIT) {
-        return Leaderboard::where('kuis_id', $kuisId)
+    /**
+     * Mendapatkan leaderboard kuis
+     */
+    protected function getLeaderboard($kuisId, $limit = self::DEFAULT_LIMIT) 
+    {
+        return Leaderboard::where('id_kuis', $kuisId)
             ->with('mahasiswa:id,nama')
-            ->orderBy('nilai', 'desc')
+            ->orderBy('jumlah_total', 'desc') // Pertama urut berdasarkan nilai
+            ->orderBy('waktu', 'asc')         // Kemudian berdasarkan waktu tercepat
             ->limit($limit)
             ->get()
             ->map(function ($item) {
                 return [
                     'nama_mahasiswa' => $item->mahasiswa->nama,
-                    'nilai' => $item->nilai
+                    'nilai' => $item->jumlah_total,
+                    'waktu_selesai' => $item->waktu
                 ];
             });
     }
 
-    public function index(Request $request)
+    /**
+     * Menampilkan daftar kuis untuk mahasiswa yang login
+     */
+    public function index(GetKuisRequest $request): JsonResponse
     {
         try {
             $this->checkAndDeleteExpiredQuizzes();
@@ -103,12 +140,15 @@ class KuisController extends Controller
 
             return $this->successResponse($kuisList);
         } catch (\Exception $e) {
-            Log::error('Error in index:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in index:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal mengambil daftar kuis');
         }
     }
 
-    public function detail(Request $request, $id)
+    /**
+     * Menampilkan detail kuis
+     */
+    public function detail(Request $request, $id): JsonResponse
     {
         try {
             $this->checkAndDeleteExpiredQuizzes();
@@ -138,12 +178,15 @@ class KuisController extends Controller
 
             return $this->successResponse($data);
         } catch (\Exception $e) {
-            Log::error('Error in detail:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in detail:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal mengambil detail kuis');
         }
     }
 
-    public function show(Request $request, $id)
+    /**
+     * Menampilkan soal kuis untuk dikerjakan
+     */
+    public function show(Request $request, $id): JsonResponse
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
@@ -175,80 +218,151 @@ class KuisController extends Controller
                 ]),
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in show:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in show:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal menampilkan soal kuis');
         }
     }
 
-    public function submit(Request $request, $id)
+    /**
+     * Menyimpan jawaban kuis
+     */
+    public function submit(SubmitKuisRequest $request, $id): JsonResponse
     {
         try {
-            $request->validate(['jawaban' => 'required|array']);
-            
             $mahasiswa = $this->getMahasiswa($request);
             $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
             
+            // Debug: Log jawaban yang diterima
+            Log::info('Jawaban yang diterima:', [
+                'jawaban' => $request->jawaban,
+                'kuis_id' => $id,
+                'mahasiswa_id' => $mahasiswa->id
+            ]);
+
+            // Validasi semua soal sudah dijawab
             foreach ($kuis->soal as $soal) {
-                if (!isset($request->jawaban[$soal->id]) || trim($request->jawaban[$soal->id]) === '') {
+                if (!isset($request->jawaban[$soal->id])) {
                     return $this->errorResponse('Semua soal harus dijawab terlebih dahulu', 422);
                 }
             }
 
             $nilaiTotal = 0;
+            $detailJawaban = [];
+
             DB::beginTransaction();
             try {
-                // Hapus jawaban dan nilai lama
-                JawabanMhs::where('id_mhs', $mahasiswa->id)->where('id_kuis', $id)->delete();
-                NilaiMahasiswa::where('id_mhs', $mahasiswa->id)->where('id_kuis', $id)->delete();
+                // Hapus jawaban dan nilai lama jika ada
+                JawabanMhs::where('id_mhs', $mahasiswa->id)
+                    ->where('id_kuis', $id)
+                    ->delete();
+                
+                NilaiMahasiswa::where('id_mhs', $mahasiswa->id)
+                    ->where('id_kuis', $id)
+                    ->delete();
 
-                $totalNilai = 0;
+                // Simpan jawaban dan hitung nilai
                 foreach ($kuis->soal as $soal) {
-                    $jawabanSiswa = $request->jawaban[$soal->id];
-                    $nilaiSoal = $jawabanSiswa === $soal->jawaban ? self::NILAI_BENAR : self::NILAI_SALAH;
+                    $jawabanMhs = strtolower(trim($request->jawaban[$soal->id]));
+                    $kunciJawaban = strtolower(trim($soal->jawaban));
                     
+                    // Debug: Log perbandingan jawaban
+                    Log::info('Perbandingan jawaban:', [
+                        'soal_id' => $soal->id,
+                        'jawaban_mhs' => $jawabanMhs,
+                        'kunci_jawaban' => $kunciJawaban
+                    ]);
+
+                    // Pastikan jawaban valid
+                    if (!in_array($jawabanMhs, ['a', 'b', 'c', 'd'])) {
+                        throw new \Exception('Jawaban tidak valid');
+                    }
+
+                    $nilai = $jawabanMhs === $kunciJawaban ? self::NILAI_BENAR : self::NILAI_SALAH;
+                    $nilaiTotal += $nilai;
+
+                    // Simpan detail jawaban untuk debugging
+                    $detailJawaban[] = [
+                        'soal_id' => $soal->id,
+                        'pertanyaan' => $soal->soal,
+                        'jawaban_mhs' => $jawabanMhs,
+                        'kunci_jawaban' => $kunciJawaban,
+                        'nilai' => $nilai
+                    ];
+
                     JawabanMhs::create([
                         'id_mhs' => $mahasiswa->id,
                         'id_kuis' => $id,
                         'id_soal' => $soal->id,
-                        'jawaban' => $jawabanSiswa,
-                        'nilai' => $nilaiSoal
+                        'jawaban' => $jawabanMhs,
+                        'nilai' => $nilai
                     ]);
-
-                    $totalNilai += $nilaiSoal;
                 }
 
-                $nilaiTotal = round($totalNilai / $kuis->soal->count(), 2);
-                
+                // Debug: Log detail jawaban
+                Log::info('Detail semua jawaban:', ['detail' => $detailJawaban]);
+
+                // Hitung rata-rata nilai
+                $nilaiRata = $kuis->soal->count() > 0 ? 
+                    round($nilaiTotal / $kuis->soal->count(), 2) : 0;
+
+                // Simpan nilai total
                 NilaiMahasiswa::create([
                     'id_mhs' => $mahasiswa->id,
                     'id_kuis' => $id,
-                    'nilai_total' => $nilaiTotal,
+                    'nilai_total' => $nilaiRata
                 ]);
 
+                // Update atau buat leaderboard
+                Leaderboard::updateOrCreate(
+                    [
+                        'id_kuis' => $id,
+                        'id_mhs' => $mahasiswa->id
+                    ],
+                    [
+                        'jumlah_total' => $nilaiRata,
+                        'waktu' => now()
+                    ]
+                );
+
                 DB::commit();
+
+                // Hitung statistik jawaban
+                $jawabanBenar = $nilaiTotal / self::NILAI_BENAR;
+                $totalSoal = $kuis->soal->count();
+
+                return $this->successResponse([
+                    'nilai_total' => $nilaiRata,
+                    'jawaban_benar' => $jawabanBenar,
+                    'jawaban_salah' => $totalSoal - $jawabanBenar,
+                    'total_soal' => $totalSoal,
+                    'detail_jawaban' => $detailJawaban, // Tambahkan detail jawaban ke response
+                    'leaderboard' => $this->getLeaderboard($id)
+                ], 'Kuis berhasil diselesaikan');
+
             } catch (\Exception $e) {
-                DB::rollback();
+                DB::rollBack();
+                Log::error('Error in submit transaction:', [
+                    'error' => $e->getMessage(),
+                    'kuis_id' => $id,
+                    'mahasiswa_id' => $mahasiswa->id,
+                    'detail_jawaban' => $detailJawaban
+                ]);
                 throw $e;
             }
-
-            $jawabanBenar = JawabanMhs::where('id_mhs', $mahasiswa->id)
-                ->where('id_kuis', $id)
-                ->where('nilai', self::NILAI_BENAR)
-                ->count();
-
-            return $this->successResponse([
-                'nilai_total' => $nilaiTotal,
-                'jawaban_benar' => $jawabanBenar,
-                'jawaban_salah' => $kuis->soal->count() - $jawabanBenar,
-                'total_soal' => $kuis->soal->count()
-            ]);
         } catch (\Exception $e) {
-            Log::error('Error in submit:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return $this->errorResponse($e->getMessage());
+            Log::error('Error in submit:', [
+                'error' => $e->getMessage(),
+                'kuis_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return $this->errorResponse('Gagal menyimpan jawaban kuis: ' . $e->getMessage());
         }
     }
 
-    public function hasil(Request $request, $id)
+    /**
+     * Menampilkan hasil kuis
+     */
+    public function hasil(Request $request, $id): JsonResponse
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
@@ -275,7 +389,7 @@ class KuisController extends Controller
                 'hasil_soal' => $kuis->soal->map(fn($soal) => [
                     'id_soal' => $soal->id,
                     'soal' => $soal->soal,
-                    'jawaban_benar' => $soal->jawaban,
+                    'jawaban_benar' => $soal->kunci_jawaban,
                     'jawaban_mhs' => optional($jawabanMhs->get($soal->id))->jawaban,
                     'nilai' => optional($jawabanMhs->get($soal->id))->nilai ?? self::NILAI_SALAH,
                     'pilihan' => [
@@ -287,22 +401,28 @@ class KuisController extends Controller
                 ])
             ]);
         } catch (\Exception $e) {
-            Log::error('Error in hasil:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in hasil:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal menampilkan hasil kuis');
         }
     }
 
-    public function leaderboard($id)
+    /**
+     * Menampilkan leaderboard kuis
+     */
+    public function leaderboard($id): JsonResponse
     {
         try {
             return $this->successResponse($this->getLeaderboard($id));
         } catch (\Exception $e) {
-            Log::error('Error in leaderboard:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in leaderboard:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal menampilkan leaderboard kuis');
         }
     }
 
-    public function expiredList(Request $request)
+    /**
+     * Menampilkan daftar kuis yang sudah expired
+     */
+    public function expiredList(Request $request): JsonResponse
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
@@ -331,8 +451,8 @@ class KuisController extends Controller
 
             return $this->successResponse($expiredKuisList);
         } catch (\Exception $e) {
-            Log::error('Error in expiredList:', ['error' => $e]);
-            return $this->errorResponse();
+            Log::error('Error in expiredList:', ['error' => $e->getMessage()]);
+            return $this->errorResponse('Gagal menampilkan daftar kuis yang sudah expired');
         }
     }
 }
