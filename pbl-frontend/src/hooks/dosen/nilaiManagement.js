@@ -15,9 +15,11 @@ export const useNilaiData = () => {
 
     /**
      * Mengambil data nilai mahasiswa berdasarkan ID kuis
-     * @param {number} kuisId - ID kuis yang ingin diambil nilainya
+     * @param {number} kuisId - ID kuis
+     * @param {string} search - Kata kunci pencarian
+     * @param {number} page - Nomor halaman
      */
-    const getNilaiByKuis = async (kuisId) => {
+    const getNilaiByKuis = async (kuisId, search = '', page = 1) => {
         try {
             // Validasi user sudah login
             if (!user) {
@@ -27,10 +29,16 @@ export const useNilaiData = () => {
             setLoading(true);
             setError(null);
             
-            const response = await axios.get(`/api/dosen/nilai-mahasiswa/kuis/${kuisId}`);
+            const response = await axios.get(`/api/dosen/nilai-mahasiswa/kuis/${kuisId}`, {
+                params: {
+                    search,
+                    page,
+                    per_page: 10
+                }
+            });
             
             if (response.data.status === 'success') {
-                setNilai(response.data.data || []);
+                setNilai(response.data.data);
             } else {
                 throw new Error(response.data.message || 'Terjadi kesalahan saat mengambil data');
             }
@@ -41,7 +49,7 @@ export const useNilaiData = () => {
                     ? 'Sesi Anda telah berakhir. Silakan refresh halaman atau login ulang.'
                     : err.response?.data?.message || err.message || 'Gagal mengambil data nilai'
             );
-            setNilai([]);
+            setNilai(null);
         } finally {
             setLoading(false);
         }
