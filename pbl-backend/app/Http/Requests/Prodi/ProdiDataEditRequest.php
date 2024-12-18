@@ -14,7 +14,8 @@ class ProdiDataEditRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('id');
+        $prodi = $this->route('prodi');
+        $id = $prodi ? $prodi->id : null;
 
         return [
             'code_prodi' => [

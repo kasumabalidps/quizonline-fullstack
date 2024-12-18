@@ -43,7 +43,9 @@ export const useMahasiswaManagement = () => {
             setError(null);
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menambahkan mahasiswa';
+            const errorMessage = error.response?.data?.errors 
+                ? Object.values(error.response.data.errors).flat().join(', ') 
+                : error.response?.data?.message || 'Terjadi kesalahan saat menambahkan mahasiswa';
             setError(errorMessage);
             throw error;
         } finally {
@@ -59,7 +61,9 @@ export const useMahasiswaManagement = () => {
             setError(null);
             return response.data;
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat memperbarui mahasiswa';
+            const errorMessage = error.response?.data?.errors 
+                ? Object.values(error.response.data.errors).flat().join(', ') 
+                : error.response?.data?.message || 'Terjadi kesalahan saat memperbarui mahasiswa';
             setError(errorMessage);
             throw error;
         } finally {

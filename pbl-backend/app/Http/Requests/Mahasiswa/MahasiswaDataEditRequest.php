@@ -14,7 +14,8 @@ class MahasiswaDataEditRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('id');
+        $mahasiswa = $this->route('mahasiswa');
+        $id = $mahasiswa ? $mahasiswa->id : null;
 
         return [
             'nim' => [

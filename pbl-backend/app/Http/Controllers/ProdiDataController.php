@@ -46,7 +46,7 @@ class ProdiDataController extends Controller
 
             return response()->json([
                 'message' => 'Prodi berhasil ditambahkan',
-                'data' => $prodi
+                'data' => $prodi->load('jurusan')
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -54,12 +54,11 @@ class ProdiDataController extends Controller
         }
     }
 
-    public function update(ProdiDataEditRequest $request, $id): JsonResponse
+    public function update(ProdiDataEditRequest $request, Prodi $prodi): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            $prodi = Prodi::findOrFail($id);
             $prodi->update([
                 'code_prodi' => $request->code_prodi,
                 'nama_prodi' => $request->nama_prodi,
@@ -70,7 +69,7 @@ class ProdiDataController extends Controller
 
             return response()->json([
                 'message' => 'Prodi berhasil diperbarui',
-                'data' => $prodi
+                'data' => $prodi->load('jurusan')
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -78,12 +77,11 @@ class ProdiDataController extends Controller
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(Prodi $prodi): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            $prodi = Prodi::findOrFail($id);
             $prodi->delete();
 
             DB::commit();

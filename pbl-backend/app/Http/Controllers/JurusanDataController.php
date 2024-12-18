@@ -51,12 +51,11 @@ class JurusanDataController extends Controller
         }
     }
 
-    public function update(JurusanDataEditRequest $request, $id): JsonResponse
+    public function update(JurusanDataEditRequest $request, Jurusan $jurusan): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            $jurusan = Jurusan::findOrFail($id);
             $jurusan->update([
                 'code_jurusan' => $request->code_jurusan,
                 'nama_jurusan' => $request->nama_jurusan,
@@ -74,12 +73,11 @@ class JurusanDataController extends Controller
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(Jurusan $jurusan): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            $jurusan = Jurusan::findOrFail($id);
             $jurusan->delete();
 
             DB::commit();

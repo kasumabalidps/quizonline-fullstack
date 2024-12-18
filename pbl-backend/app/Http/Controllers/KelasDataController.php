@@ -12,29 +12,22 @@ class KelasDataController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        try {
-            $perPage = $request->query('per_page', 10);
-            $search = $request->query('search');
+        $perPage = $request->query('per_page', 10);
+        $search = $request->query('search');
 
-            $query = Kelas::with(['prodi.jurusan']);
+        $query = Kelas::with(['prodi.jurusan']);
 
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('code_kelas', 'like', "%{$search}%")
-                      ->orWhere('nama_kelas', 'like', "%{$search}%");
-                });
-            }
-
-            $kelas = $query->orderBy('created_at', 'desc')
-                          ->paginate($perPage);
-
-            return response()->json($kelas);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Gagal mengambil data kelas',
-                'error' => $e->getMessage()
-            ], 500);
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('code_kelas', 'like', "%{$search}%")
+                  ->orWhere('nama_kelas', 'like', "%{$search}%");
+            });
         }
+
+        $kelas = $query->orderBy('created_at', 'desc')
+                      ->paginate($perPage);
+
+        return response()->json($kelas);
     }
 
     public function getKelasByDosen(): JsonResponse
@@ -60,8 +53,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengambil data kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengambil data kelas'
             ], 500);
         }
     }
@@ -74,8 +66,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengambil detail kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengambil detail kelas'
             ], 500);
         }
     }
@@ -91,8 +82,7 @@ class KelasDataController extends Controller
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal menambahkan kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal menambahkan kelas'
             ], 500);
         }
     }
@@ -108,8 +98,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengupdate kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengupdate kelas'
             ], 500);
         }
     }
@@ -130,8 +119,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal menghapus kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal menghapus kelas'
             ], 500);
         }
     }

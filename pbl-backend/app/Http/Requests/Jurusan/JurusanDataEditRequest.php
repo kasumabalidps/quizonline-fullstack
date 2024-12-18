@@ -14,7 +14,8 @@ class JurusanDataEditRequest extends FormRequest
 
     public function rules(): array
     {
-        $id = $this->route('id');
+        $jurusan = $this->route('jurusan');
+        $id = $jurusan ? $jurusan->id : null;
 
         return [
             'code_jurusan' => [
