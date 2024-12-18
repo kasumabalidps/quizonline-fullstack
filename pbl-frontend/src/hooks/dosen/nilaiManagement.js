@@ -2,26 +2,14 @@ import { useState } from 'react';
 import axios from '@/lib/axios';
 import { useAuth } from '@/hooks/dosen/auth';
 
-/**
- * Hook untuk mengelola data nilai mahasiswa
- * 
- * @returns {object} nilai, loading, error, getNilaiByKuis
- */
 export const useNilaiData = () => {
     const [nilai, setNilai] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { user } = useAuth({ middleware: 'auth' });
 
-    /**
-     * Mengambil data nilai mahasiswa berdasarkan ID kuis
-     * @param {number} kuisId - ID kuis
-     * @param {string} search - Kata kunci pencarian
-     * @param {number} page - Nomor halaman
-     */
     const getNilaiByKuis = async (kuisId, search = '', page = 1) => {
         try {
-            // Validasi user sudah login
             if (!user) {
                 throw new Error('Silahkan login terlebih dahulu');
             }
