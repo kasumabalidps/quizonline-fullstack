@@ -19,6 +19,10 @@ class NilaiMahasiswa extends Model
         'id_kuis',
     ];
 
+    protected $casts = [
+        'nilai_total' => 'float',
+    ];
+
     public function mahasiswa(): BelongsToMany
     {
         return $this->belongsToMany(Mahasiswa::class, 'nilai_mhs', 'id_mhs', 'id_mhs');

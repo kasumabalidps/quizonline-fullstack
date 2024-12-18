@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { AlertTriangle } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 export default function KuisSidebar({
   soalList,
@@ -12,6 +13,25 @@ export default function KuisSidebar({
   warning,
   onSubmit
 }) {
+  const [showWarning, setShowWarning] = useState(false)
+  const [warningMessage, setWarningMessage] = useState('')
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  // Effect untuk menghilangkan warning setelah 3 detik
+  useEffect(() => {
+    let timeoutId;
+    if (showWarning) {
+      timeoutId = setTimeout(() => {
+        setShowWarning(false);
+      }, 3000);
+    }
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [showWarning]);
+
   const handleSubmit = () => {
     // Periksa apakah semua soal sudah dijawab
     const belumDijawab = soalList.filter(soal => !jawaban[soal.id]).length
@@ -20,13 +40,14 @@ export default function KuisSidebar({
         .map((soal, index) => !jawaban[soal.id] ? index + 1 : null)
         .filter(num => num !== null)
       
-      alert(`Masih ada ${belumDijawab} soal yang belum dijawab (Nomor: ${nomorSoal.join(', ')})`)
+      setWarningMessage(`Masih ada ${belumDijawab} soal yang belum dijawab (Nomor: ${nomorSoal.join(', ')})`)
+      setShowWarning(true)
+      setShowConfirm(false)
       return
     }
     
-    if (window.confirm('Apakah Anda yakin ingin mengirim jawaban?')) {
-      onSubmit()
-    }
+    setShowWarning(false)
+    setShowConfirm(true)
   }
 
   return (
@@ -50,10 +71,10 @@ export default function KuisSidebar({
                   currentSoalIndex === index
                     ? 'bg-blue-600 text-white'
                     : jawaban[soal.id]
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
                 }
-              `}
+                hover:bg-opacity-90`}
             >
               {index + 1}
             </motion.button>
@@ -78,43 +99,56 @@ export default function KuisSidebar({
         </div>
       </div>
 
-      {/* Warning */}
-      {warning && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200"
-        >
-          <div className="flex items-start">
-            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5 mr-2" />
-            <div className="flex-1">
-              <p className="text-sm text-yellow-700">{warning}</p>
+      {/* Submit Button Section */}
+      <div className="space-y-4">
+        {showWarning && (
+          <div className="bg-red-50 text-red-800 px-4 py-3 rounded-lg border border-red-200">
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5 mr-2" />
+              <p className="text-sm">{warningMessage}</p>
             </div>
           </div>
-        </motion.div>
-      )}
-
-      {/* Submit Button */}
-      <button
-        onClick={handleSubmit}
-        disabled={mengirim}
-        className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-colors
-          ${
-            mengirim
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
-          }
-        `}
-      >
-        {mengirim ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-            Mengirim...
-          </div>
-        ) : (
-          'Selesai & Kirim'
         )}
-      </button>
+
+        {showConfirm && (
+          <div className="bg-yellow-50 text-yellow-800 px-4 py-3 rounded-lg border border-yellow-200">
+            <div className="flex flex-col gap-3">
+              <p className="text-sm">Apakah Anda yakin ingin mengirim jawaban?</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={onSubmit}
+                  className="px-3 py-1.5 bg-yellow-500 text-white text-sm font-medium rounded-md hover:bg-yellow-600"
+                >
+                  Ya, Kirim
+                </button>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={mengirim}
+          className={`w-full py-2.5 px-4 rounded-lg font-medium text-white
+            ${mengirim ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
+            transition-colors flex items-center justify-center gap-2`}
+        >
+          {mengirim ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span>Mengirim...</span>
+            </>
+          ) : (
+            'Selesai & Kirim'
+          )}
+        </button>
+      </div>
     </motion.div>
   )
 }

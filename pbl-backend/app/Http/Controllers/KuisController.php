@@ -217,7 +217,7 @@ class KuisController extends Controller
                     $totalNilai += $nilaiSoal;
                 }
 
-                $nilaiTotal = $totalNilai / $kuis->soal->count();
+                $nilaiTotal = round($totalNilai / $kuis->soal->count(), 2);
                 
                 NilaiMahasiswa::create([
                     'id_mhs' => $mahasiswa->id,
