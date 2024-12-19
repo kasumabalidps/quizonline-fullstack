@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, BookOpen, Users, ChevronDown, X, GraduationCap, ClipboardList } from 'lucide-react'
+import { Home, BookOpen, Trophy, ChevronDown, X, GraduationCap, ClipboardList } from 'lucide-react'
 
 const Sidebar = ({ isOpen, onClose }) => {
     const pathname = usePathname()
@@ -74,6 +74,18 @@ const Sidebar = ({ isOpen, onClose }) => {
                                 >
                                     <BookOpen className={`w-5 h-5 ${isActive('/dashboard/dosen/matkul') ? 'text-blue-600' : ''}`} />
                                     <span className="ml-3">Mata Kuliah</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/dashboard/dosen/nilai"
+                                    className={`flex items-center p-2.5 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                        isActive('/dashboard/dosen/nilai') ? 'bg-blue-50 text-blue-600' : ''
+                                    }`}
+                                    onClick={() => onClose()}
+                                >
+                                    <Trophy className={`w-5 h-5 ${isActive('/dashboard/dosen/nilai') ? 'text-blue-600' : ''}`} />
+                                    <span className="ml-3">Nilai Mahasiswa</span>
                                 </Link>
                             </li>
 

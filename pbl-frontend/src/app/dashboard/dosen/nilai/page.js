@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useKuisData } from '@/hooks/dosen/kuisManagement';
 import { useNilaiData } from '@/hooks/dosen/nilaiManagement';
-import { BookOpen, Search } from 'lucide-react';
+import { Trophy, Search } from 'lucide-react';
 
 export default function NilaiPage() {
   // State untuk kuis
@@ -59,7 +59,7 @@ export default function NilaiPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+                <Trophy className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <h1 className="text-2xl font-semibold text-gray-900">Nilai Mahasiswa</h1>
