@@ -2,36 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\KelasDataEditRequest;
+use App\Http\Requests\Kelas\KelasDataEditRequest;
 use App\Models\Kelas;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KelasDataController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $perPage = $request->query('per_page', 10);
+        $search = $request->query('search');
+
+        $query = Kelas::with(['prodi.jurusan']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('code_kelas', 'like', "%{$search}%")
+                  ->orWhere('nama_kelas', 'like', "%{$search}%");
+            });
+        }
+
+        $kelas = $query->orderBy('created_at', 'desc')
+                      ->paginate($perPage);
+
+        return response()->json($kelas);
+    }
+
+    public function getKelasByDosen(): JsonResponse
+    {
         try {
-            $perPage = $request->query('per_page', 10);
-            $search = $request->query('search');
-
-            $query = Kelas::with('prodi:id,nama_prodi,id_jurusan');
-
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('code_kelas', 'like', "%{$search}%")
-                      ->orWhere('nama_kelas', 'like', "%{$search}%");
-                });
+            $dosen = Auth::user();
+            if (!$dosen) {
+                return response()->json([
+                    'message' => 'User tidak terautentikasi'
+                ], 401);
             }
 
-            $kelas = $query->orderBy('created_at', 'desc')
-                          ->paginate($perPage);
+            // Ambil kelas berdasarkan jurusan dosen
+            $kelas = Kelas::whereHas('prodi', function($query) use ($dosen) {
+                $query->where('id_jurusan', $dosen->id_jurusan);
+            })
+            ->with(['prodi.jurusan'])
+            ->get();
 
-            return response()->json($kelas);
+            return response()->json([
+                'message' => 'Berhasil mengambil data kelas',
+                'data' => $kelas
+            ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengambil data kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengambil data kelas'
             ], 500);
         }
     }
@@ -40,12 +62,11 @@ class KelasDataController extends Controller
     {
         try {
             return response()->json([
-                'kelas' => $kelas->load('prodi:id,nama_prodi,id_jurusan')
+                'kelas' => $kelas->load(['prodi.jurusan'])
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengambil detail kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengambil detail kelas'
             ], 500);
         }
     }
@@ -61,8 +82,7 @@ class KelasDataController extends Controller
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal menambahkan kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal menambahkan kelas'
             ], 500);
         }
     }
@@ -78,8 +98,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal mengupdate kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengupdate kelas'
             ], 500);
         }
     }
@@ -100,8 +119,7 @@ class KelasDataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Gagal menghapus kelas',
-                'error' => $e->getMessage()
+                'message' => 'Gagal menghapus kelas'
             ], 500);
         }
     }

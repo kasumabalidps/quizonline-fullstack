@@ -48,16 +48,16 @@ Route::prefix('dosen')->middleware(['auth:dosen'])->group(function () {
     });
 
     // Kelas routes
-    Route::get('/kelas', [KelasDataController::class, 'index']);
+    Route::get('/kelas', [KelasDataController::class, 'getKelasByDosen']);
     Route::post('/kelas', [KelasDataController::class, 'store']);
     Route::put('/kelas/{id}', [KelasDataController::class, 'update']);
     Route::delete('/kelas/{id}', [KelasDataController::class, 'destroy']);
 
     // Mata kuliah routes
-    Route::get('/matkul', [MatkulDataController::class, 'index']);
-    Route::post('/matkul', [MatkulDataController::class, 'store']);
-    Route::put('/matkul/{id}', [MatkulDataController::class, 'update']);
-    Route::delete('/matkul/{id}', [MatkulDataController::class, 'destroy']);
+    Route::get('/matkul', [DosenDataController::class, 'getDosenMatkul']);
+    Route::post('/matkul', [DosenDataController::class, 'store']);
+    Route::put('/matkul/{id}', [DosenDataController::class, 'update']);
+    Route::delete('/matkul/{id}', [DosenDataController::class, 'destroy']);
 
     // Kuis routes
     Route::get('/kuis', [KuisDataController::class, 'index']);

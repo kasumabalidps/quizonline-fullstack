@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Kuis\KuisDataEditRequest;
 use App\Models\Kuis;
 use App\Models\Soal;
 use App\Models\SoalKuis;
-use App\Http\Requests\Auth\KuisDataEditRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;

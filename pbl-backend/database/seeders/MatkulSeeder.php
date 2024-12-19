@@ -4,58 +4,50 @@ namespace Database\Seeders;
 
 use App\Models\MataKuliah;
 use App\Models\MatkulKelas;
+use App\Models\Dosen;
+use App\Models\Kelas;
 use Illuminate\Database\Seeder;
 
 class MatkulSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
-        $matkuls = [
-            [
-                'nama_matkul' => 'Matematika'
-            ],
-            [
-                'nama_matkul' => 'Fisika'
-            ],
-            [
-                'nama_matkul' => 'Kimia'
-            ],
-            [
-                'nama_matkul' => 'Biologi'
-            ]
-        ];
+        $dosen = Dosen::first();
 
-        foreach ($matkuls as $matkul) {
-            MataKuliah::create($matkul);
+        if (!$dosen) {
+            $this->command->error('Tidak ada dosen yang tersedia. Jalankan DosenSeeder terlebih dahulu.');
+            return;
         }
 
-        // Contoh relasi matkul dengan kelas
-        $matkul_kelas = [
-            [
-                'id_matkul' => 1,
-                'id_kelas' => 1
-            ],
-            [
-                'id_matkul' => 2,
-                'id_kelas' => 1
-            ],
-            [
-                'id_matkul' => 3,
-                'id_kelas' => 2
-            ],
-            [
-                'id_matkul' => 4,
-                'id_kelas' => 2
-            ]
+        // Pastikan ada kelas
+        $kelas = Kelas::first();
+        if (!$kelas) {
+            $this->command->error('Tidak ada kelas yang tersedia. Jalankan KelasSeeder terlebih dahulu.');
+            return;
+        }
+
+        $matkuls = [
+            ['nama_matkul' => 'Matematika', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Fisika', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Kimia', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Biologi', 'id_dosen' => $dosen->id]
         ];
 
-        foreach ($matkul_kelas as $mk) {
-            MatkulKelas::create($mk);
+        MataKuliah::truncate();
+        MatkulKelas::truncate();
+
+        // Tambah data mata kuliah dan hubungkan dengan kelas
+        foreach ($matkuls as $index => $matkulData) {
+            $matkul = MataKuliah::create($matkulData);
+            
+            // Hubungkan dengan kelas
+            MatkulKelas::create([
+                'id_matkul' => $matkul->id,
+                'id_kelas' => $kelas->id
+            ]);
         }
     }
 }
