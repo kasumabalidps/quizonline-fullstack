@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -14,8 +15,14 @@ class MataKuliah extends Model
     protected $table = 'mata_kuliah';
     
     protected $fillable = [
-        'nama_matkul'
+        'nama_matkul',
+        'id_dosen'
     ];
+
+    public function dosen(): BelongsTo
+    {
+        return $this->belongsTo(Dosen::class, 'id_dosen');
+    }
 
     public function kelas(): BelongsToMany
     {

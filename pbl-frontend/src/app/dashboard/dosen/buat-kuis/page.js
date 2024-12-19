@@ -12,7 +12,7 @@ export default function BuatKuisPage() {
     const router = useRouter();
     const { createKuis } = useKuisData();
     const { kelas, getKelas } = useKelasData();
-    const { matkul, getMatkul } = useMatkulData();
+    const { matkul, getMatkul, loading: matkulLoading, errors: matkulErrors } = useMatkulData();
     
     const [formData, setFormData] = useState({
         judul: '',
@@ -38,11 +38,19 @@ export default function BuatKuisPage() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                await Promise.all([
+                const [kelasResult, matkulResult] = await Promise.all([
                     getKelas(),
                     getMatkul()
                 ]);
+                
+                if (!kelasResult) {
+                    setError('Gagal memuat data kelas');
+                }
+                if (!matkulResult) {
+                    setError(prev => prev ? `${prev}, gagal memuat data mata kuliah` : 'Gagal memuat data mata kuliah');
+                }
             } catch (error) {
+                console.error('Error loading data:', error);
                 setError('Gagal memuat data. Silakan muat ulang halaman.');
             }
         };
@@ -110,6 +118,7 @@ export default function BuatKuisPage() {
                 setError('Gagal membuat kuis. Silakan coba lagi.');
             }
         } catch (error) {
+            console.error('Error creating kuis:', error);
             setError('Terjadi kesalahan. Silakan coba lagi.');
         } finally {
             setLoading(false);
@@ -141,6 +150,16 @@ export default function BuatKuisPage() {
                         <div className="mt-6">
                             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                                 <p className="text-red-600 text-sm">{error}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {matkulErrors.length > 0 && (
+                        <div className="mt-6">
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                {matkulErrors.map((err, index) => (
+                                    <p key={index} className="text-red-600 text-sm">{err}</p>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -185,7 +204,8 @@ export default function BuatKuisPage() {
                                             value={formData.id_matkul}
                                             onChange={handleChange}
                                             className="mt-1 block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
-                                            required>
+                                            required
+                                            disabled={matkulLoading}>
                                             <option value="">Pilih Mata Kuliah</option>
                                             {matkul?.map((item) => (
                                                 <option key={item.id} value={item.id}>

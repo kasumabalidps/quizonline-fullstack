@@ -43,9 +43,9 @@ class Dosen extends Authenticatable
         return $this->hasMany(Kuis::class, 'id_dosen');
     }
 
-    public function matkul(): BelongsToMany
+    public function mataKuliah(): HasMany
     {
-        return $this->belongsToMany(Matkul::class, 'dosen_matkul', 'id_dosen', 'id_matkul');
+        return $this->hasMany(MataKuliah::class, 'id_dosen');
     }
 
     /**

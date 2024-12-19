@@ -5,7 +5,7 @@ import { Search, BookOpen } from 'lucide-react'
 import { useMatkulData } from '@/hooks/dosen/matkulManagement'
 
 const MatkulPage = () => {
-  const { matkul, loading, error, getDosenMatkul } = useMatkulData()
+  const { matkul, loading, errors, getMatkul } = useMatkulData()
   const [filteredMatkul, setFilteredMatkul] = useState([])
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -19,7 +19,7 @@ const MatkulPage = () => {
   }, [search])
 
   useEffect(() => {
-    getDosenMatkul()
+    getMatkul()
   }, [])
 
   useEffect(() => {
@@ -27,14 +27,17 @@ const MatkulPage = () => {
       setFilteredMatkul(matkul)
     } else {
       const searchLower = debouncedSearch.toLowerCase()
-      const filtered = matkul.filter(
-        matkul =>
-          matkul.nama_matkul.toLowerCase().includes(searchLower) ||
-          matkul.kelas?.nama_kelas.toLowerCase().includes(searchLower)
+      const filtered = matkul.filter(matkul =>
+        matkul.nama_matkul.toLowerCase().includes(searchLower) ||
+        (matkul.kelas && matkul.kelas[0]?.nama_kelas.toLowerCase().includes(searchLower))
       )
       setFilteredMatkul(filtered)
     }
   }, [debouncedSearch, matkul])
+
+  useEffect(() => {
+    setFilteredMatkul(matkul)
+  }, [matkul])
 
   return (
     <div className="min-h-screen bg-gray-50/30">
@@ -67,9 +70,11 @@ const MatkulPage = () => {
         </div>
 
         <div className="space-y-2">
-          {error && (
+          {errors && errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-600 text-sm">{error}</p>
+              {errors.map((error, index) => (
+                <p key={index} className="text-red-600 text-sm">{error}</p>
+              ))}
             </div>
           )}
         </div>
@@ -102,16 +107,30 @@ const MatkulPage = () => {
                       <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Kelas
                       </th>
+                      <th className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Program Studi
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredMatkul.map((item, index) => (
-                      <tr key={index} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {item.nama_matkul}
+                    {filteredMatkul.map((matkul, index) => (
+                      <tr key={index} className="hover:bg-gray-50/50 transition-colors duration-150">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {matkul.nama_matkul}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {item.kelas?.nama_kelas}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {matkul.kelas && matkul.kelas[0] ? (
+                            matkul.kelas[0].nama_kelas
+                          ) : (
+                            <span className="text-gray-400 italic">Belum ada kelas</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {matkul.kelas && matkul.kelas[0] && matkul.kelas[0].prodi ? (
+                            matkul.kelas[0].prodi.nama_prodi
+                          ) : (
+                            <span className="text-gray-400 italic">-</span>
+                          )}
                         </td>
                       </tr>
                     ))}

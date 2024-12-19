@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Dosen\DosenDataEditRequest;
 use App\Models\Dosen;
+use App\Models\MataKuliah;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -91,6 +93,50 @@ class DosenDataController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Terjadi kesalahan saat menghapus dosen'], 500);
+        }
+    }
+
+    public function getMatkulByDosen(): JsonResponse
+    {
+        try {
+            $dosen = Auth::user();
+            if (!$dosen) {
+                return response()->json(['message' => 'User tidak terautentikasi'], 401);
+            }
+
+            $matkul = $dosen->matkul()->with(['kelas', 'jurusan'])->get();
+
+            return response()->json([
+                'message' => 'Berhasil mengambil data mata kuliah',
+                'data' => $matkul
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Terjadi kesalahan saat mengambil data mata kuliah'], 500);
+        }
+    }
+
+    public function getDosenMatkul(): JsonResponse
+    {
+        try {
+            $dosen = Auth::user();
+            \Log::info('Response data:', ['dosen' => $dosen->id]);
+            
+            $matkul = $dosen->mataKuliah()
+                ->with(['kelas.prodi.jurusan'])
+                ->get();
+                
+            \Log::info('Response data:', ['matkul' => $matkul->toArray()]);
+
+            return response()->json([
+                'message' => 'Berhasil mengambil data mata kuliah',
+                'data' => $matkul
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getDosenMatkul: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengambil data mata kuliah',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
