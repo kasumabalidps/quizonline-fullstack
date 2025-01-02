@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/mahasiswa/auth'
 import axios from '@/lib/axios'
-import { BookOpen, Clock, Users, Trophy, ChevronRight, ChevronLeft, AlertCircle, Loader2, GraduationCap, ListChecks, CheckCircle, BookmarkCheck } from 'lucide-react'
+import { BookOpen, Clock, Users, Trophy, ChevronRight, ChevronLeft, AlertCircle, GraduationCap, ListChecks, CheckCircle } from 'lucide-react'
 
 export default function KuisDetail() {
   const params = useParams()
