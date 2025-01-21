@@ -26,7 +26,7 @@ Route::middleware(['auth:admin'])->group(function () {
 // Mahasiswa Routes
 Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('/mahasiswa/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->load('kelas:id,nama_kelas');
     });
 
     Route::prefix('mahasiswa')->group(function () {

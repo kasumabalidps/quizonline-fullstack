@@ -57,7 +57,7 @@ export default function Navbar() {
                         <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
                           <p className="text-sm font-medium text-gray-900">{user?.nama}</p>
                           <p className="text-xs text-gray-500 mt-0.5">NIM: {user?.nim}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">Kelas: {user?.kelas}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Kelas: {user?.kelas?.nama_kelas || 'Tidak Ditemukan'}</p>
                         </div>
                         <div className="p-1">
                           <button
