@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\DosenDataEditRequest;
+use App\Http\Requests\Dosen\DosenDataEditRequest;
 use App\Models\Dosen;
+use App\Models\MataKuliah;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DosenDataController extends Controller
 {
@@ -13,17 +16,11 @@ class DosenDataController extends Controller
     {
         $search = request()->query('search');
         $limit = request()->query('limit', 10);
-
-        $query = Dosen::with('jurusan')
-            ->select('id', 'nidn', 'nama', 'email', 'id_jurusan', 'created_at')
-            ->orderBy('created_at', 'desc');
+        
+        $query = Dosen::with(['jurusan:id,nama_jurusan']);
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nidn', 'like', "%{$search}%")
-                    ->orWhere('nama', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
+            $query->where('nama', 'like', '%' . $search . '%');
         }
 
         $dosen = $query->paginate($limit);
@@ -42,21 +39,18 @@ class DosenDataController extends Controller
         try {
             DB::beginTransaction();
 
-            $dosen = Dosen::create([
-                'nidn' => $request->nidn,
-                'nama' => $request->nama,
-                'email' => $request->email,
-                'id_jurusan' => $request->id_jurusan,
-                'password' => bcrypt($request->password),
-            ]);
+            $validatedData = $request->validated();
+            if (isset($validatedData['password'])) {
+                $validatedData['password'] = Hash::make($validatedData['password']);
+            }
 
-            $dosen->load('jurusan');
+            $dosen = Dosen::create($validatedData);
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Dosen berhasil ditambahkan',
-                'data' => $dosen
+                'data' => $dosen->load('jurusan:id,nama_jurusan')
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -64,31 +58,23 @@ class DosenDataController extends Controller
         }
     }
 
-    public function update(DosenDataEditRequest $request, $id): JsonResponse
+    public function update(DosenDataEditRequest $request, Dosen $dosen): JsonResponse
     {
         try {
             DB::beginTransaction();
 
-            $dosen = Dosen::findOrFail($id);
-            $updateData = [
-                'nidn' => $request->nidn,
-                'nama' => $request->nama,
-                'email' => $request->email,
-                'id_jurusan' => $request->id_jurusan,
-            ];
-
-            if ($request->filled('password')) {
-                $updateData['password'] = bcrypt($request->password);
+            $validatedData = $request->validated();
+            if (isset($validatedData['password'])) {
+                $validatedData['password'] = Hash::make($validatedData['password']);
             }
 
-            $dosen->update($updateData);
-            $dosen->load('jurusan');
+            $dosen->update($validatedData);
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Dosen berhasil diperbarui',
-                'data' => $dosen
+                'data' => $dosen->load('jurusan:id,nama_jurusan')
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -96,14 +82,11 @@ class DosenDataController extends Controller
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(Dosen $dosen): JsonResponse
     {
         try {
             DB::beginTransaction();
-
-            $dosen = Dosen::findOrFail($id);
             $dosen->delete();
-
             DB::commit();
 
             return response()->json(['message' => 'Dosen berhasil dihapus']);
@@ -113,14 +96,47 @@ class DosenDataController extends Controller
         }
     }
 
-    public function getDosenData(): JsonResponse
+    public function getMatkulByDosen(): JsonResponse
     {
-        $dosen = Dosen::select('id', 'nidn', 'nama', 'email', 'id_jurusan')
-            ->with('jurusan:id,nama_jurusan')
-            ->get();
+        try {
+            $dosen = Auth::user();
+            if (!$dosen) {
+                return response()->json(['message' => 'User tidak terautentikasi'], 401);
+            }
 
-        return response()->json([
-            'dosen' => $dosen
-        ]);
+            $matkul = $dosen->matkul()->with(['kelas', 'jurusan'])->get();
+
+            return response()->json([
+                'message' => 'Berhasil mengambil data mata kuliah',
+                'data' => $matkul
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Terjadi kesalahan saat mengambil data mata kuliah'], 500);
+        }
+    }
+
+    public function getDosenMatkul(): JsonResponse
+    {
+        try {
+            $dosen = Auth::user();
+            \Log::info('Response data:', ['dosen' => $dosen->id]);
+            
+            $matkul = $dosen->mataKuliah()
+                ->with(['kelas.prodi.jurusan'])
+                ->get();
+                
+            \Log::info('Response data:', ['matkul' => $matkul->toArray()]);
+
+            return response()->json([
+                'message' => 'Berhasil mengambil data mata kuliah',
+                'data' => $matkul
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getDosenMatkul: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengambil data mata kuliah',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

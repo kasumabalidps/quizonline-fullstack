@@ -1,32 +1,23 @@
-'use client'
-import { useState } from 'react'
-import { useAuth } from '@/hooks/admin/auth'
-import Loading from '@/components/Loading'
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
+import AdminDashboardClient from './components/AdminDashboardClient'
+import { Quicksand } from 'next/font/google'
+
+const quicksandFont = Quicksand({
+    subsets: ['latin'],
+    display: 'swap',
+})
+
+export const metadata = {
+    title: 'Dashboard Admin - Quiz Online',
+    description: 'Dashboard admin untuk mengelola data akademik Quiz Online',
+}
 
 const AdminDashboardLayout = ({ children }) => {
-    const { user } = useAuth({ middleware: 'auth' })
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
-    if (!user) {
-        return <Loading />
-    }
-
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Navbar 
-                user={user} 
-                onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-            />
-            <Sidebar 
-                isOpen={isSidebarOpen} 
-                onClose={() => setIsSidebarOpen(false)} 
-            />
-            <main className="p-4 lg:ml-64 pt-20">
-                {children}
-            </main>
-        </div>
+        <html lang="en" className={quicksandFont.className}>
+            <body>
+                <AdminDashboardClient>{children}</AdminDashboardClient>
+            </body>
+        </html>
     )
 }
 

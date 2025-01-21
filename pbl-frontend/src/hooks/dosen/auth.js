@@ -10,33 +10,53 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const { data: user, error, mutate } = useSWR('/api/dosen/user', () =>
         axios
             .get('/api/dosen/user')
-            .then(res => res.data)
+            .then(res => {
+                const data = res.data
+                if (typeof data === 'string' && data.includes('<br />')) {
+                    try {
+                        const jsonStr = data.substring(data.lastIndexOf('}') - 1)
+                        return JSON.parse(jsonStr + '}')
+                    } catch (e) {
+                        console.error('Error parsing user data:', e)
+                        return null
+                    }
+                }
+                return data
+            })
             .catch(error => {
-                if (error.response.status !== 409) throw error
+                if (error.response?.status === 401) {
+                    return null
+                }
+                throw error
             }),
+        {
+            revalidateOnFocus: false,
+            revalidateIfStale: false,
+        }
     )
 
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
     const login = async ({ setErrors, setStatus, ...props }) => {
-        await csrf()
+        try {
+            await csrf()
+            setErrors([])
+            setStatus(null)
 
-        setErrors([])
-        setStatus(null)
+            await axios.post('/dosen/login', props)
+            await mutate()
 
-        axios
-            .post('/dosen/login', props)
-            .then(() => {
-                mutate()
-                if (redirectIfAuthenticated) {
-                    router.push(redirectIfAuthenticated)
-                }
-            })
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-
+            if (redirectIfAuthenticated) {
+                router.push(redirectIfAuthenticated)
+            }
+        } catch (error) {
+            if (error.response?.status === 422) {
                 setErrors(error.response.data.errors)
-            })
+            } else {
+                console.error('Login error:', error)
+                setErrors({ nidn: ['An error occurred during login. Please try again.'] })
+            }
+        }
     }
 
     const logout = async () => {
@@ -53,15 +73,19 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     useEffect(() => {
-        if (middleware === 'guest' && redirectIfAuthenticated && user)
+        if (middleware === 'guest' && redirectIfAuthenticated && user) {
             router.push(redirectIfAuthenticated)
-        if (middleware === 'auth' && error) router.push('/login/dosen')
-    }, [user, error])
+        }
+        if (middleware === 'auth' && error) {
+            router.push('/login/dosen')
+        }
+    }, [user, error, middleware, redirectIfAuthenticated, router])
 
     return {
         user,
         login,
         logout,
+        error,
     }
 }
 

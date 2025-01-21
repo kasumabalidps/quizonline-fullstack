@@ -1,21 +1,16 @@
-import { Nunito } from 'next/font/google'
-import '@/app/global.css'
+import { Inter } from 'next/font/google'
 
-const nunitoFont = Nunito({
-    subsets: ['latin'],
-    display: 'swap',
-})
-
-const RootLayout = ({ children }) => {
-    return (
-        <html lang="en" className={nunitoFont.className}>
-            <body className="antialiased">{children}</body>
-        </html>
-    )
-}
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-    title: 'Laravel',
+  title: 'Quiz Online',
+  description: 'Sistem Kuis Online untuk Mahasiswa',
 }
 
-export default RootLayout
+export default function RootLayout({ children }) {
+  return (
+    <html lang="id">
+      <body suppressHydrationWarning={true}>{children}</body>
+    </html>
+  )
+}

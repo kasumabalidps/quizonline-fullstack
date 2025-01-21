@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, GraduationCap, ChevronDown, X } from 'lucide-react'
-import NavigationLinks from './NavigationLinks'
+import { Home, GraduationCap, ChevronDown } from 'lucide-react'
 
 const Sidebar = ({ isOpen, onClose }) => {
     const pathname = usePathname()
@@ -32,7 +31,6 @@ const Sidebar = ({ isOpen, onClose }) => {
                         onClick={onClose}
                         className="lg:hidden absolute top-4 right-4 p-2 rounded-lg text-gray-600 hover:bg-gray-100"
                     >
-                        <X className="w-5 h-5" />
                     </button>
 
                     {/* Navigation */}

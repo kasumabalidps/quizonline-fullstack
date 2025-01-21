@@ -85,17 +85,26 @@ const DosenPage = () => {
         setFormMode('add')
         setSelectedDosen(null)
         setIsFormModalOpen(true)
+        resetStates()
     }
 
     const handleEdit = (dosen) => {
         setFormMode('edit')
-        setSelectedDosen(dosen)
+        setSelectedDosen({
+            id: dosen.id,
+            nip: dosen.nip || '',
+            nama: dosen.nama || '',
+            email: dosen.email || '',
+            id_jurusan: dosen.id_jurusan || ''
+        })
         setIsFormModalOpen(true)
+        resetStates()
     }
 
     const handleDelete = (dosen) => {
         setSelectedDosen(dosen)
         setIsDeleteModalOpen(true)
+        resetStates()
     }
 
     const handleSubmit = async (formData) => {
@@ -104,9 +113,8 @@ const DosenPage = () => {
                 await createDosen(formData)
             } else {
                 const dataToSubmit = { ...formData }
-                if (!dataToSubmit.password) {
-                    delete dataToSubmit.password
-                }
+                if (!dataToSubmit.nip) delete dataToSubmit.nip
+                if (!dataToSubmit.password) delete dataToSubmit.password
                 await updateDosen(selectedDosen.id, dataToSubmit)
             }
             setIsFormModalOpen(false)
@@ -282,10 +290,10 @@ const DosenPage = () => {
                 title={formMode === 'add' ? 'Tambah Dosen' : 'Edit Dosen'}
                 fields={[
                     {
-                        name: 'nidn',
-                        label: 'NIDN',
+                        name: 'nip',
+                        label: 'NIP',
                         type: 'text',
-                        required: true
+                        required: formMode === 'add'
                     },
                     {
                         name: 'nama',
@@ -304,7 +312,7 @@ const DosenPage = () => {
                         label: 'Password',
                         type: 'password',
                         required: formMode === 'add',
-                        placeholder: formMode === 'add' ? 'Masukkan password' : 'Kosongkan jika tidak ingin mengubah password'
+                        placeholder: formMode === 'edit' ? 'Kosongkan jika tidak ingin mengubah password' : undefined
                     },
                     {
                         name: 'id_jurusan',
@@ -314,7 +322,7 @@ const DosenPage = () => {
                         options: jurusan.map(j => ({
                             value: j.id,
                             label: j.nama_jurusan
-                        })) || []
+                        }))
                     }
                 ]}
                 initialData={selectedDosen}
