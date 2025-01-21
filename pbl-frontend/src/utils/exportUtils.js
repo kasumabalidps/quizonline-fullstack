@@ -15,10 +15,21 @@ export const exportToPDF = (data, fileName, kuisInfo) => {
   
   doc.autoTable({
     startY: 52,
-    head: [['NIM', 'Nama', 'Nilai']],
-    body: data.map(item => [item.nim, item.nama, item.nilai]),
+    head: [['No', 'NIM', 'Nama', 'Nilai']],
+    body: data.map((item, index) => [
+      index + 1,
+      item.nim,
+      item.nama,
+      item.nilai
+    ]),
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [66, 139, 202] }
+    headStyles: { fillColor: [66, 139, 202] },
+    columnStyles: {
+      0: { cellWidth: 10 },
+      1: { cellWidth: 30 },
+      2: { cellWidth: 90 },
+      3: { cellWidth: 20 }
+    }
   });
 
   doc.save(`${fileName}.pdf`);
