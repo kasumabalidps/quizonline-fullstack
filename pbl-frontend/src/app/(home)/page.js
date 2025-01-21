@@ -60,16 +60,17 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 h-[150px] overflow-hidden">
+                <div className="absolute bottom-0 left-0 right-0 h-[100px] overflow-hidden">
                     <svg
                         viewBox="0 0 1440 320"
-                        className="absolute bottom-0 w-full h-auto"
+                        className="absolute bottom-0 w-full h-auto translate-y-[2px]"
                         preserveAspectRatio="none"
-                        style={{ transform: 'scale(1.5)', transformOrigin: 'bottom' }}
+                        style={{ transform: 'scale(1.5) translateY(2px)', transformOrigin: 'bottom' }}
                     >
                         <path
                             fill="#ffffff"
-                            d="M0,160L48,165.3C96,171,192,181,288,181.3C384,181,480,171,576,165.3C672,160,768,160,864,165.3C960,171,1056,181,1152,181.3C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                            fillOpacity="1"
+                            d="M0,128L40,133.3C80,139,160,149,240,144C320,139,400,117,480,112C560,107,640,117,720,138.7C800,160,880,192,960,186.7C1040,181,1120,139,1200,122.7C1280,107,1360,117,1400,122.7L1440,128L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"
                         />
                     </svg>
                 </div>
