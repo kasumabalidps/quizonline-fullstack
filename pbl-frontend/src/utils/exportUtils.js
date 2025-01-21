@@ -1,26 +1,20 @@
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
-export const exportToExcel = (data, fileName) => {
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Nilai");
-  XLSX.writeFile(workbook, `${fileName}.xlsx`);
-};
-
-export const exportToCSV = (data, fileName) => {
-  // Convert data to CSV format
+export const exportToCSV = (data, fileName, kuisInfo) => {
   const csvContent = [
-    // Header
+    ['Laporan Nilai Mahasiswa'],
+    [''],
+    ['Kuis:', kuisInfo.judul],
+    ['Kelas:', kuisInfo.kelas],
+    ['Mata Kuliah:', kuisInfo.matkul],
+    ['Dosen Pengajar:', kuisInfo.dosen],
+    [''],
     ['NIM', 'Nama', 'Nilai'],
-    // Data rows
-    ...data.map(item => [
-      item.nim,
-      item.nama,
-      item.nilai
-    ])
+    ...data.map(item => [item.nim, item.nama, item.nilai])
   ].map(row => row.join(',')).join('\n');
 
-  // Create blob and download
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
@@ -32,62 +26,24 @@ export const exportToCSV = (data, fileName) => {
 };
 
 export const exportToPDF = (data, fileName, kuisInfo) => {
-  // Create HTML content
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; }
-        .header { margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f5f5f5; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h2>Laporan Nilai Mahasiswa</h2>
-        <p>Kuis: ${kuisInfo.judul}</p>
-        <p>Kelas: ${kuisInfo.kelas}</p>
-        <p>Mata Kuliah: ${kuisInfo.matkul}</p>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>NIM</th>
-            <th>Nama</th>
-            <th>Nilai</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.map(item => `
-            <tr>
-              <td>${item.nim}</td>
-              <td>${item.nama}</td>
-              <td>${item.nilai}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
-
-  // Open in new window for printing
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
-  printWindow.focus();
-
-  // Add filename to the print dialog
-  const style = printWindow.document.createElement('style');
-  style.textContent = '@page { size: auto; margin: 20mm; }';
-  printWindow.document.head.appendChild(style);
+  const doc = new jsPDF();
   
-  // Print
-  setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
-  }, 250);
+  doc.setFontSize(16);
+  doc.text("Laporan Nilai Mahasiswa", 14, 15);
+  
+  doc.setFontSize(11);
+  doc.text(`Kuis: ${kuisInfo.judul}`, 14, 25);
+  doc.text(`Kelas: ${kuisInfo.kelas}`, 14, 32);
+  doc.text(`Mata Kuliah: ${kuisInfo.matkul}`, 14, 39);
+  doc.text(`Dosen Pengajar: ${kuisInfo.dosen}`, 14, 46);
+  
+  doc.autoTable({
+    startY: 52,
+    head: [['NIM', 'Nama', 'Nilai']],
+    body: data.map(item => [item.nim, item.nama, item.nilai]),
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [66, 139, 202] }
+  });
+
+  doc.save(`${fileName}.pdf`);
 };

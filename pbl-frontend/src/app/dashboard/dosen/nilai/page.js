@@ -5,11 +5,13 @@ import { useKuisData } from '@/hooks/dosen/kuisManagement';
 import { useNilaiData } from '@/hooks/dosen/nilaiManagement';
 import { Trophy, Search, FileSpreadsheet, FileText } from 'lucide-react';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
+import { useAuth } from '@/hooks/dosen/auth';
 
 export default function NilaiPage() {
   // State untuk kuis
   const { kuis, loading: kuisLoading, getKuis } = useKuisData();
   const [selectedKuis, setSelectedKuis] = useState('');
+  const { user } = useAuth({ middleware: 'auth' });
 
   // State untuk pencarian nilai
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,33 +55,44 @@ export default function NilaiPage() {
   const meta = nilai?.meta || {};
 
   const handleExportCSV = () => {
-    if (data.length === 0) {
-      alert('Tidak ada data untuk diekspor');
+    if (data.length === 0 || !user) {
+      alert('Tidak ada data untuk diekspor atau data dosen belum tersedia');
       return;
     }
+
     const exportData = data.map(item => ({
       nim: item.mahasiswa.nim,
       nama: item.mahasiswa.nama,
       nilai: item.nilai_total
     }));
-    exportToCSV(exportData, `nilai_${selectedKuis}`);
+
+    const selectedKuisData = kuis.find(k => k.id === parseInt(selectedKuis));
+    exportToCSV(exportData, `nilai_${selectedKuisData.judul}`, {
+      judul: selectedKuisData.judul,
+      kelas: selectedKuisData.kelas?.nama_kelas,
+      matkul: selectedKuisData.matkul?.nama_matkul,
+      dosen: user.nama
+    });
   };
 
   const handleExportPDF = () => {
-    if (data.length === 0) {
-      alert('Tidak ada data untuk diekspor');
+    if (data.length === 0 || !user) {
+      alert('Tidak ada data untuk diekspor atau data dosen belum tersedia');
       return;
     }
+
     const exportData = data.map(item => ({
       nim: item.mahasiswa.nim,
       nama: item.mahasiswa.nama,
       nilai: item.nilai_total
     }));
+
     const selectedKuisData = kuis.find(k => k.id === parseInt(selectedKuis));
     exportToPDF(exportData, `nilai_${selectedKuisData.judul}`, {
       judul: selectedKuisData.judul,
       kelas: selectedKuisData.kelas?.nama_kelas,
-      matkul: selectedKuisData.matkul?.nama_matkul
+      matkul: selectedKuisData.matkul?.nama_matkul,
+      dosen: user.nama
     });
   };
 
