@@ -67,7 +67,7 @@ export default function NilaiPage() {
     }));
 
     const selectedKuisData = kuis.find(k => k.id === parseInt(selectedKuis));
-    exportToCSV(exportData, `nilai_${selectedKuisData.judul}`, {
+    exportToCSV(exportData, `export_nilai_${selectedKuisData.judul}`, {
       judul: selectedKuisData.judul,
       kelas: selectedKuisData.kelas?.nama_kelas,
       matkul: selectedKuisData.matkul?.nama_matkul,
@@ -88,7 +88,7 @@ export default function NilaiPage() {
     }));
 
     const selectedKuisData = kuis.find(k => k.id === parseInt(selectedKuis));
-    exportToPDF(exportData, `nilai_${selectedKuisData.judul}`, {
+    exportToPDF(exportData, `export_nilai_${selectedKuisData.judul}`, {
       judul: selectedKuisData.judul,
       kelas: selectedKuisData.kelas?.nama_kelas,
       matkul: selectedKuisData.matkul?.nama_matkul,

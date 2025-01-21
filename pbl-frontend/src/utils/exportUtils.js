@@ -4,7 +4,7 @@ import 'jspdf-autotable';
 
 export const exportToCSV = (data, fileName, kuisInfo) => {
   const csvContent = [
-    ['Laporan Nilai Mahasiswa'],
+    ['Laporan Nilai Mahasiswa - Kuis Online PNB'],
     [''],
     ['Kuis:', kuisInfo.judul],
     ['Kelas:', kuisInfo.kelas],
@@ -29,7 +29,7 @@ export const exportToPDF = (data, fileName, kuisInfo) => {
   const doc = new jsPDF();
   
   doc.setFontSize(16);
-  doc.text("Laporan Nilai Mahasiswa", 14, 15);
+  doc.text("Laporan Nilai Mahasiswa - Kuis Online PNB", 14, 15);
   
   doc.setFontSize(11);
   doc.text(`Kuis: ${kuisInfo.judul}`, 14, 25);
