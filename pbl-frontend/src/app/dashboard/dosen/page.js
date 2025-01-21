@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { BookOpen, Users, ClipboardList, Sparkles, Activity } from 'lucide-react'
 import { useAuth } from '@/hooks/dosen/auth'
 import { useDosenStats } from '@/hooks/dosen/statsManagement'
@@ -9,25 +10,60 @@ const DosenDashboard = () => {
     const { stats, loading, error, getDosenStats } = useDosenStats()
 
     useEffect(() => {
-        getDosenStats()
-    }, [])
+        if (user) {
+            getDosenStats()
+        }
+    }, [user])
+
+    if (!user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+                    <p className="text-gray-500">Mohon tunggu sebentar</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+                    <p className="text-gray-500">Mohon tunggu sebentar</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Error</h2>
+                    <p className="text-gray-500">{error}</p>
+                </div>
+            </div>
+        )
+    }
 
     const statsConfig = [
         {
             title: 'Total Kelas',
-            value: loading ? '-' : stats?.total_kelas || '0',
+            value: stats?.total_kelas || '0',
             icon: BookOpen,
             gradient: 'from-blue-500 to-blue-600',
         },
         {
             title: 'Total Mahasiswa',
-            value: loading ? '-' : stats?.total_mahasiswa || '0',
+            value: stats?.total_mahasiswa || '0',
             icon: Users,
             gradient: 'from-emerald-500 to-emerald-600',
         },
         {
             title: 'Quiz Aktif',
-            value: loading ? '-' : stats?.total_kuis_aktif || '0',
+            value: stats?.total_kuis_aktif || '0',
             icon: ClipboardList,
             gradient: 'from-amber-500 to-amber-600',
         }
@@ -63,18 +99,21 @@ const DosenDashboard = () => {
             gradient: 'from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800',
             textColor: 'text-white',
             icon: ClipboardList,
+            href: '/dashboard/dosen/buat-kuis',
         },
         {
             title: 'Lihat Nilai Mahasiswa',
             gradient: 'from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200',
             textColor: 'text-emerald-700',
             icon: BookOpen,
+            href: '/dashboard/dosen/nilai',
         },
         {
-            title: 'Kelola Kelas',
+            title: 'Lihat Kelas',
             gradient: 'from-violet-50 to-violet-100 hover:from-violet-100 hover:to-violet-200',
             textColor: 'text-violet-700',
             icon: Users,
+            href: '/dashboard/dosen/kelas',
         },
     ]
 
@@ -120,7 +159,7 @@ const DosenDashboard = () => {
                     <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                         <div className="flex items-center gap-3">
                             <Activity className="w-5 h-5 text-gray-600" />
-                            <h2 className="text-lg font-semibold text-gray-900">Aktivitas Terbaru</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">Aktivitas Terbaru [Dalam Pengembangan]</h2>
                         </div>
                     </div>
                     <div className="divide-y divide-gray-100">
@@ -151,24 +190,18 @@ const DosenDashboard = () => {
                     </div>
                     <div className="p-6 space-y-3">
                         {quickActions.map((action, index) => (
-                            <button
+                            <Link
                                 key={index}
+                                href={action.href}
                                 className={`w-full px-4 py-3 text-sm font-medium bg-gradient-to-r ${action.gradient} ${action.textColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 shadow-sm flex items-center justify-center gap-2`}
                             >
                                 <action.icon className="w-4 h-4" />
                                 {action.title}
-                            </button>
+                            </Link>
                         ))}
                     </div>
                 </div>
             </div>
-            {error && (
-                <div className="max-w-7xl mx-auto mt-4">
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                        <p className="text-red-600 text-sm">{error}</p>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

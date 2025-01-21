@@ -7,7 +7,7 @@ import { useMatkulData } from '@/hooks/dosen/matkulManagement';
 
 export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
     const { kelas, loading: kelasLoading, getKelas } = useKelasData();
-    const { matkul, loading: matkulLoading, getDosenMatkul } = useMatkulData();
+    const { matkul, loading: matkulLoading, getMatkul } = useMatkulData();
     const [formData, setFormData] = useState({
         judul: '',
         id_kelas: '',
@@ -23,7 +23,7 @@ export default function EditKuisModal({ isOpen, onClose, kuis, onSave }) {
     useEffect(() => {
         if (isOpen) {
             getKelas();
-            getDosenMatkul();
+            getMatkul();
             setDeletedSoalIds([]); 
             if (kuis) {
                 const formattedData = {

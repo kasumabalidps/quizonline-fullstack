@@ -10,7 +10,19 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const { data: user, error, mutate } = useSWR('/api/dosen/user', () =>
         axios
             .get('/api/dosen/user')
-            .then(res => res.data)
+            .then(res => {
+                const data = res.data
+                if (typeof data === 'string' && data.includes('<br />')) {
+                    try {
+                        const jsonStr = data.substring(data.lastIndexOf('}') - 1)
+                        return JSON.parse(jsonStr + '}')
+                    } catch (e) {
+                        console.error('Error parsing user data:', e)
+                        return null
+                    }
+                }
+                return data
+            })
             .catch(error => {
                 if (error.response?.status === 401) {
                     return null
@@ -65,14 +77,15 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             router.push(redirectIfAuthenticated)
         }
         if (middleware === 'auth' && error) {
-            logout()
+            router.push('/login/dosen')
         }
-    }, [user, error])
+    }, [user, error, middleware, redirectIfAuthenticated, router])
 
     return {
         user,
         login,
         logout,
+        error,
     }
 }
 

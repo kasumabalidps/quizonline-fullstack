@@ -13,11 +13,9 @@ export const metadata = {
 
 const DosenDashboardLayout = ({ children }) => {
     return (
-        <html lang="en" className={quicksandFont.className}>
-            <body>
-                <DosenDashboardClient>{children}</DosenDashboardClient>
-            </body>
-        </html>
+        <div className={quicksandFont.className}>
+            <DosenDashboardClient>{children}</DosenDashboardClient>
+        </div>
     )
 }
 
