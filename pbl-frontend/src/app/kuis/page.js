@@ -90,7 +90,7 @@ export default function KuisPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Daftar Kuis</h1>
-              <p className="text-gray-600">Selamat datang, {user?.nama}! Pilih kuis yang ingin Anda kerjakan.</p>
+              <p className="text-gray-600">Selamat datang, <span className="font-bold">{user?.nama}</span>! Pilih kuis yang ingin Anda kerjakan.</p>
             </div>
           </div>
 
