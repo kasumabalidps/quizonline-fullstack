@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useKuisData } from '@/hooks/dosen/kuisManagement';
 import { useNilaiData } from '@/hooks/dosen/nilaiManagement';
-import { Trophy, Search, FileSpreadsheet, FileText } from 'lucide-react';
-import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
+import { Trophy, Search, FileText } from 'lucide-react';
+import { exportToPDF } from '@/utils/exportUtils';
 import { useAuth } from '@/hooks/dosen/auth';
 
 export default function NilaiPage() {
@@ -53,27 +53,6 @@ export default function NilaiPage() {
 
   const data = nilai?.data || [];
   const meta = nilai?.meta || {};
-
-  const handleExportCSV = () => {
-    if (data.length === 0 || !user) {
-      alert('Tidak ada data untuk diekspor atau data dosen belum tersedia');
-      return;
-    }
-
-    const exportData = data.map(item => ({
-      nim: item.mahasiswa.nim,
-      nama: item.mahasiswa.nama,
-      nilai: item.nilai_total
-    }));
-
-    const selectedKuisData = kuis.find(k => k.id === parseInt(selectedKuis));
-    exportToCSV(exportData, `export_nilai_${selectedKuisData.judul}`, {
-      judul: selectedKuisData.judul,
-      kelas: selectedKuisData.kelas?.nama_kelas,
-      matkul: selectedKuisData.matkul?.nama_matkul,
-      dosen: user.nama
-    });
-  };
 
   const handleExportPDF = () => {
     if (data.length === 0 || !user) {
@@ -131,13 +110,6 @@ export default function NilaiPage() {
 
               {selectedKuis && data.length > 0 && (
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleExportCSV}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <FileSpreadsheet className="h-4 w-4 mr-2" />
-                    Export CSV
-                  </button>
                   <button
                     onClick={handleExportPDF}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

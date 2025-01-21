@@ -1,29 +1,5 @@
-import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
-export const exportToCSV = (data, fileName, kuisInfo) => {
-  const csvContent = [
-    ['Laporan Nilai Mahasiswa - Kuis Online PNB'],
-    [''],
-    ['Kuis:', kuisInfo.judul],
-    ['Kelas:', kuisInfo.kelas],
-    ['Mata Kuliah:', kuisInfo.matkul],
-    ['Dosen Pengajar:', kuisInfo.dosen],
-    [''],
-    ['NIM', 'Nama', 'Nilai'],
-    ...data.map(item => [item.nim, item.nama, item.nilai])
-  ].map(row => row.join(',')).join('\n');
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `${fileName}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 
 export const exportToPDF = (data, fileName, kuisInfo) => {
   const doc = new jsPDF();
