@@ -143,14 +143,14 @@ const Home = () => {
                             </p>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Link
-                                    href="/register"
+                                    href="/"
                                     className="w-full sm:w-auto inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
                                 >
-                                    Daftar Sekarang
+                                    Kuy Kerjain Kuis Sekarang
                                     <ArrowRight className="ml-2" />
                                 </Link>
                                 <Link
-                                    href="/about"
+                                    href="/"
                                     className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold border-2 border-white/20 hover:bg-white/10 transition-all duration-300"
                                 >
                                     Pelajari Lebih Lanjut

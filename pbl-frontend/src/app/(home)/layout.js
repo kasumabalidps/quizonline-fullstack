@@ -7,14 +7,14 @@ const quicksandFont = Quicksand({
     display: 'swap',
 })
 
-const RootLayout = ({ children }) => {
+const HomeLayout = ({ children }) => {
     return (
-        <html lang="en" className={quicksandFont.className}>
-            <body className="antialiased">
-                <Navbar />
+        <div className={quicksandFont.className}>
+            <Navbar />
+            <main className="antialiased">
                 {children}
-            </body>
-        </html>
+            </main>
+        </div>
     )
 }
 
@@ -23,4 +23,4 @@ export const metadata = {
     description: 'Platform kuis online untuk mahasiswa dan dosen Politeknik Negeri Bali',
 }
 
-export default RootLayout
+export default HomeLayout
