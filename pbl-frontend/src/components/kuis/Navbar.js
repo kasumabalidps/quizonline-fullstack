@@ -43,6 +43,7 @@ export default function Navbar() {
                     <div className="flex flex-col items-start">
                       <span className="font-medium text-gray-900">{user?.nama || 'User'}</span>
                       <span className="text-xs text-gray-500">{user?.nim || 'NIM'}</span>
+                      <span className="text-xs text-gray-500">{user?.kelas?.nama_kelas || 'Kelas'}</span>
                     </div>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
