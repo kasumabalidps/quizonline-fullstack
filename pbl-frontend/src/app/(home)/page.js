@@ -1,7 +1,16 @@
+"use client"
+
 import Link from 'next/link';
+import { useCountData } from '@/hooks/countDataHome';
 import { BookOpen, Users, Clock, Award, ArrowRight, Star, Sparkles } from 'lucide-react';
 
 const Home = () => {
+    const { countData, error } = useCountData();
+    const isLoading = !error && !countData;
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message || 'Terjadi kesalahan'}</div>;
+
     return (
         <div className="min-h-screen">
             <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
@@ -28,7 +37,7 @@ const Home = () => {
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                 <Link
-                                    href="/register"
+                                    href="/login/mahasiswa"
                                     className="group w-full sm:w-auto inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
                                 >
                                     Mulai Sekarang
@@ -44,15 +53,15 @@ const Home = () => {
 
                             <div className="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
                                 <div className="rounded-2xl p-6">
-                                    <div className="text-3xl font-bold mb-2">1000+</div>
+                                    <div className="text-3xl font-bold mb-2">{countData.mahasiswa}+</div>
                                     <div className="text-blue-100">Mahasiswa Aktif</div>
                                 </div>
                                 <div className="rounded-2xl p-6">
-                                    <div className="text-3xl font-bold mb-2">50+</div>
+                                    <div className="text-3xl font-bold mb-2">{countData.dosen}+</div>
                                     <div className="text-blue-100">Dosen</div>
                                 </div>
                                 <div className="rounded-2xl p-6 col-span-2 md:col-span-1">
-                                    <div className="text-3xl font-bold mb-2">100+</div>
+                                    <div className="text-3xl font-bold mb-2">{countData.kuis}+</div>
                                     <div className="text-blue-100">Kuis Tersedia</div>
                                 </div>
                             </div>
