@@ -304,7 +304,7 @@ export default function KuisDetail() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-6">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              <h2 className="text-lg font-semibold">Papan Peringkat</h2>
+              <h2 className="text-lg font-semibold">Papan Peringkat <span className="text-sm font-medium text-gray-500">(Menampilkan 3 peserta teratas)</span></h2>
             </div>
 
             <div className="space-y-3">
@@ -313,7 +313,7 @@ export default function KuisDetail() {
                   <p className="text-gray-500">Belum ada peserta yang mengerjakan kuis ini</p>
                 </div>
               ) : (
-                leaderboard.map((item, index) => (
+                leaderboard.slice(0, 3).map((item, index) => (
                   <div
                     key={`${params.id}-${item.nama_mahasiswa}-${index}`}
                     className={`flex items-center gap-4 p-4 rounded-lg ${
@@ -340,6 +340,11 @@ export default function KuisDetail() {
                   </div>
                 ))
               )}
+              {/* {leaderboard.length > 3 && (
+                <div className="text-center pt-2">
+                  <p className="text-sm text-gray-500">Menampilkan 3 peserta teratas</p>
+                </div>
+              )} */}
             </div>
           </div>
         </div>
