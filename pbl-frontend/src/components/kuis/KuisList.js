@@ -32,7 +32,7 @@ export default function KuisList({ kuisList }) {
               <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
                 <Trophy className="h-4 w-4 text-blue-500" />
                 <span className="font-medium text-blue-700">
-                  Nilai: {kuis.nilai}
+                {kuis.nilai}
                 </span>
               </div>
             )}
