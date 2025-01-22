@@ -260,47 +260,23 @@ const ProdiPage = () => {
                                     </table>
                                 </div>
 
-                                {totalPages > 1 && (
-                                    <div className="flex justify-center py-4 px-6 border-t border-gray-200 bg-white">
-                                        <nav className="flex gap-1" aria-label="Pagination">
-                                            <button
-                                                onClick={() => handlePageChange(Math.max(1, page - 1))}
-                                                disabled={page === 1}
-                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                                    page === 1
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : 'text-gray-700 hover:bg-gray-100'
-                                                }`}
-                                            >
-                                                Previous
-                                            </button>
-
-                                            {[...Array(totalPages)].map((_, index) => (
+                                {prodiList.length > 0 && totalPages > 1 && (
+                                    <div className="flex justify-center mt-4">
+                                        <div className="flex space-x-2">
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                                                 <button
-                                                    key={index + 1}
-                                                    onClick={() => handlePageChange(index + 1)}
-                                                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                                        page === index + 1
-                                                            ? 'bg-blue-50 text-blue-600'
-                                                            : 'text-gray-700 hover:bg-gray-100'
-                                                    }`}
+                                                    key={pageNum}
+                                                    onClick={() => setPage(pageNum)}
+                                                    className={`px-3 py-1 rounded-md ${
+                                                        pageNum === page
+                                                            ? 'bg-blue-600 text-white'
+                                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                    } transition-colors duration-200`}
                                                 >
-                                                    {index + 1}
+                                                    {pageNum}
                                                 </button>
                                             ))}
-
-                                            <button
-                                                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
-                                                disabled={page === totalPages}
-                                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                                                    page === totalPages
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : 'text-gray-700 hover:bg-gray-100'
-                                                }`}
-                                            >
-                                                Next
-                                            </button>
-                                        </nav>
+                                        </div>
                                     </div>
                                 )}
                             </>

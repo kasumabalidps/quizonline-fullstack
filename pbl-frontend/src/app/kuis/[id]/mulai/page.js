@@ -144,11 +144,22 @@ export default function KuisMulai() {
                 soal={soalList[currentSoalIndex]}
                 jawaban={jawaban[soalList[currentSoalIndex]?.id]}
                 currentSoalIndex={currentSoalIndex}
+                totalSoal={soalList.length}
                 setJawaban={(value) => {
                   setJawaban(prev => ({
                     ...prev,
                     [soalList[currentSoalIndex].id]: value
                   }))
+                }}
+                onPrevious={() => {
+                  if (currentSoalIndex > 0) {
+                    setCurrentSoalIndex(currentSoalIndex - 1)
+                  }
+                }}
+                onNext={() => {
+                  if (currentSoalIndex < soalList.length - 1) {
+                    setCurrentSoalIndex(currentSoalIndex + 1)
+                  }
                 }}
               />
             </div>

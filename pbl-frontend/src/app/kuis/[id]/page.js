@@ -315,7 +315,7 @@ export default function KuisDetail() {
               ) : (
                 leaderboard.map((item, index) => (
                   <div
-                    key={item.id}
+                    key={`${params.id}-${item.nama_mahasiswa}-${index}`}
                     className={`flex items-center gap-4 p-4 rounded-lg ${
                       item.nim === user?.nim
                         ? 'bg-blue-50 border border-blue-100'

@@ -2,17 +2,20 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
-const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData = null }) => {
+const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData = null, isLoading = false }) => {
     const [formData, setFormData] = useState({})
     const [errors, setErrors] = useState({})
 
     useEffect(() => {
-        // Initialize form data when modal opens
         if (isOpen) {
-            setFormData(initialData || {})
-            setErrors({}) // Reset errors when modal opens
+            const defaultData = {}
+            fields.forEach(field => {
+                defaultData[field.name] = field.value || ''
+            })
+            setFormData(initialData || defaultData)
+            setErrors({})
         }
-    }, [isOpen, initialData])
+    }, [isOpen, initialData, fields])
 
     if (!isOpen) return null
 
@@ -42,10 +45,9 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
 
         try {
             await onSubmit(formData)
-            setErrors({}) // Clear errors on successful submit
+            setErrors({})
             onClose()
         } catch (error) {
-            // Handle validation errors from backend
             if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors)
             } else if (error.response?.data?.message) {
@@ -61,7 +63,6 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
             [name]: value
         }))
 
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -69,7 +70,6 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
             }))
         }
 
-        // Validate on change for password and email
         if (name === 'password' && value && value.length < 8) {
             setErrors(prev => ({
                 ...prev,
@@ -85,7 +85,7 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
     }
 
     const renderField = (field) => {
-        const value = formData[field.name] || ''
+        const value = formData[field.name] || field.value || ''
         const error = errors[field.name]
 
         const baseInputClasses = "mt-1 block w-full rounded-md border py-2 px-3 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -111,7 +111,23 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
                         required={field.required}
                         className={inputClasses}
                     >
-                        <option value="">Pilih {field.label}</option>
+                        <option value="">{field.placeholder || `Pilih ${field.label}`}</option>
+                        {field.options?.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                ) : field.type === 'multiselect' ? (
+                    <select
+                        id={field.name}
+                        name={field.name}
+                        value={value}
+                        onChange={handleChange}
+                        required={field.required}
+                        multiple
+                        className={inputClasses}
+                    >
                         {field.options?.map(option => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
@@ -169,14 +185,20 @@ const FormModal = ({ isOpen, onClose, onSubmit, title, fields = [], initialData 
                         <div className="bg-gray-50 px-4 py-3 flex flex-row-reverse">
                             <button
                                 type="submit"
-                                className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                disabled={isLoading}
+                                className={`ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                             >
-                                Simpan
+                                {isLoading ? 'Menyimpan...' : 'Simpan'}
                             </button>
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                disabled={isLoading}
+                                className={`inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
                             >
                                 Batal
                             </button>

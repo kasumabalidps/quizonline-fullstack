@@ -86,13 +86,24 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         </li>
                                         <li>
                                             <Link
-                                                href="/dashboard/admin/mahasiswa"
+                                                href="/dashboard/admin/kelas"
                                                 className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                    isActive('/dashboard/admin/mahasiswa') ? 'bg-blue-50 text-blue-600' : ''
+                                                    isActive('/dashboard/admin/kelas') ? 'bg-blue-50 text-blue-600' : ''
                                                 }`}
                                                 onClick={() => onClose()}
                                             >
-                                                Mahasiswa
+                                                Kelas
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                href="/dashboard/admin/matakuliah"
+                                                className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
+                                                    isActive('/dashboard/admin/matakuliah') ? 'bg-blue-50 text-blue-600' : ''
+                                                }`}
+                                                onClick={() => onClose()}
+                                            >
+                                                Matakuliah
                                             </Link>
                                         </li>
                                         <li>
@@ -108,13 +119,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                                         </li>
                                         <li>
                                             <Link
-                                                href="/dashboard/admin/kelas"
+                                                href="/dashboard/admin/mahasiswa"
                                                 className={`flex items-center p-2.5 pl-11 text-gray-900 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 ${
-                                                    isActive('/dashboard/admin/kelas') ? 'bg-blue-50 text-blue-600' : ''
+                                                    isActive('/dashboard/admin/mahasiswa') ? 'bg-blue-50 text-blue-600' : ''
                                                 }`}
                                                 onClick={() => onClose()}
                                             >
-                                                Kelas
+                                                Mahasiswa
                                             </Link>
                                         </li>
                                     </ul>

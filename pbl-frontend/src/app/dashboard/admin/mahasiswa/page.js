@@ -270,20 +270,20 @@ const MahasiswaPage = () => {
                                 </table>
                             </div>
 
-                            {totalPages > 1 && (
-                                <div className="flex justify-center py-4 px-6 border-t border-gray-200 bg-white">
-                                    <div className="flex gap-2">
-                                        {[...Array(totalPages)].map((_, index) => (
+                            {mahasiswaList.length > 0 && totalPages > 1 && (
+                                <div className="flex justify-center mt-4">
+                                    <div className="flex space-x-2">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                                             <button
-                                                key={index + 1}
-                                                onClick={() => handlePageChange(index + 1)}
-                                                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                                    page === index + 1
-                                                        ? 'bg-blue-600 text-white shadow-sm'
-                                                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                                                }`}
+                                                key={pageNum}
+                                                onClick={() => setPage(pageNum)}
+                                                className={`px-3 py-1 rounded-md ${
+                                                    pageNum === page
+                                                        ? 'bg-blue-600 text-white'
+                                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                } transition-colors duration-200`}
                                             >
-                                                {index + 1}
+                                                {pageNum}
                                             </button>
                                         ))}
                                     </div>

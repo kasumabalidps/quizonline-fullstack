@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('mata_kuliah', function (Blueprint $table) {
             $table->id();
             $table->string('nama_matkul');
-            $table->foreignId('id_dosen')->constrained('dosen')->onDelete('cascade');
+            $table->foreignId('id_dosen')->nullable()->constrained('dosen')->onDelete('cascade');
             $table->timestamps();
         });
     }

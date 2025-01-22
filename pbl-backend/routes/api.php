@@ -16,6 +16,7 @@ use App\Http\Controllers\KuisController;
 use App\Http\Controllers\Auth\MahasiswaAuthenticatedSessionController;
 use App\Http\Controllers\NilaiMahasiswaController;
 use App\Http\Controllers\HomePageCountController;
+use App\Http\Controllers\MataKuliahDataController;
 
 Route::get('/home/count', [HomePageCountController::class, 'countDataHome']);
 
@@ -123,4 +124,11 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/mahasiswa', [MahasiswaDataController::class, 'store']);
     Route::put('/mahasiswa/{mahasiswa}', [MahasiswaDataController::class, 'update']);
     Route::delete('/mahasiswa/{mahasiswa}', [MahasiswaDataController::class, 'destroy']);
+
+    // Mata Kuliah routes
+    Route::get('/matakuliah', [MataKuliahDataController::class, 'index']);
+    Route::post('/matakuliah', [MataKuliahDataController::class, 'store']);
+    Route::put('/matakuliah/{id}', [MataKuliahDataController::class, 'update']);
+    Route::delete('/matakuliah/{id}', [MataKuliahDataController::class, 'destroy']);
+    Route::get('/matakuliah-data', [MataKuliahDataController::class, 'index']);
 });

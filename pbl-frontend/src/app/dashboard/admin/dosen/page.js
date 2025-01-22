@@ -92,7 +92,7 @@ const DosenPage = () => {
         setFormMode('edit')
         setSelectedDosen({
             id: dosen.id,
-            nip: dosen.nip || '',
+            nidn: dosen.nidn || '',
             nama: dosen.nama || '',
             email: dosen.email || '',
             id_jurusan: dosen.id_jurusan || ''
@@ -145,6 +145,8 @@ const DosenPage = () => {
         d.nama?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         d.email?.toLowerCase().includes(debouncedSearch.toLowerCase())
     )
+
+    const totalPages = Math.ceil(filteredDosen.length / 10)
 
     if (error) {
         return (
@@ -271,6 +273,26 @@ const DosenPage = () => {
                         )}
                     </div>
                 </div>
+
+                {filteredDosen.length > 10 && totalPages > 1 && (
+                    <div className="flex justify-center mt-4">
+                        <div className="flex space-x-2">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => console.log(pageNum)}
+                                    className={`px-3 py-1 rounded-md ${
+                                        pageNum === 1
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    } transition-colors duration-200`}
+                                >
+                                    {pageNum}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <DeleteModal
@@ -290,8 +312,8 @@ const DosenPage = () => {
                 title={formMode === 'add' ? 'Tambah Dosen' : 'Edit Dosen'}
                 fields={[
                     {
-                        name: 'nip',
-                        label: 'NIP',
+                        name: 'nidn',
+                        label: 'NIDN',
                         type: 'text',
                         required: formMode === 'add'
                     },

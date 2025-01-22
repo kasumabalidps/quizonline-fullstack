@@ -13,11 +13,9 @@ export const metadata = {
 
 const AdminDashboardLayout = ({ children }) => {
     return (
-        <html lang="en" className={quicksandFont.className}>
-            <body>
-                <AdminDashboardClient>{children}</AdminDashboardClient>
-            </body>
-        </html>
+        <div className={quicksandFont.className}>
+            <AdminDashboardClient>{children}</AdminDashboardClient>
+        </div>
     )
 }
 

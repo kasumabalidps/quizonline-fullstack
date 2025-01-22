@@ -19,18 +19,19 @@ class MataKuliah extends Model
         'id_dosen'
     ];
 
-    public function dosen(): BelongsTo
-    {
-        return $this->belongsTo(Dosen::class, 'id_dosen');
-    }
-
     public function kelas(): BelongsToMany
     {
-        return $this->belongsToMany(Kelas::class, 'matkul_kelas', 'id_matkul', 'id_kelas');
+        return $this->belongsToMany(Kelas::class, 'matkul_kelas', 'id_matkul', 'id_kelas')
+                    ->withTimestamps();
     }
 
     public function kuis(): HasMany
     {
         return $this->hasMany(Kuis::class, 'id_matkul');
+    }
+
+    public function dosen(): BelongsTo
+    {
+        return $this->belongsTo(Dosen::class, 'id_dosen');
     }
 }

@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Kelas extends Model
 {
+    use HasFactory;
+
     protected $table = 'kelas';
     
     protected $fillable = [
@@ -22,18 +24,9 @@ class Kelas extends Model
         return $this->belongsTo(Prodi::class, 'id_prodi');
     }
 
-    public function mahasiswa(): HasMany
+    public function matakuliah(): BelongsToMany
     {
-        return $this->hasMany(Mahasiswa::class, 'id_kelas');
-    }
-
-    public function mataKuliah(): BelongsToMany
-    {
-        return $this->belongsToMany(MataKuliah::class, 'matkul_kelas', 'id_kelas', 'id_matkul');
-    }
-
-    public function dosen(): BelongsToMany
-    {
-        return $this->belongsToMany(Dosen::class, 'dosen_kelas', 'id_kelas', 'id_dosen');
+        return $this->belongsToMany(MataKuliah::class, 'matkul_kelas', 'id_kelas', 'id_matkul')
+                    ->withTimestamps();
     }
 }

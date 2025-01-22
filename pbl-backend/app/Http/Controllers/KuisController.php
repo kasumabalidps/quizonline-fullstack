@@ -336,7 +336,14 @@ class KuisController extends Controller
 
             return $this->successResponse([
                 'id_kuis' => $id,
-                'nama_kuis' => $kuis->judul,
+                'kuis' => [
+                    'id' => $kuis->id,
+                    'judul' => $kuis->judul,
+                    'kelas' => [
+                        'id' => optional($kuis->kelas)->id,
+                        'nama_kelas' => optional($kuis->kelas)->nama_kelas
+                    ]
+                ],
                 'nilai' => $nilaiMhs->nilai_total,
                 'jawaban_benar' => $jawabanBenar,
                 'jawaban_salah' => $kuis->soal->count() - $jawabanBenar,
@@ -400,7 +407,7 @@ class KuisController extends Controller
             return $this->successResponse($expiredKuisList);
         } catch (\Exception $e) {
             Log::error('Error in expiredList:', ['error' => $e->getMessage()]);
-            return $this->errorResponse('Gagal menampilkan daftar kuis yang sudah expired');
+            return $this->errorResponse('Gagal menampilkan daftar kuis kadaluarsa');
         }
     }
 }
