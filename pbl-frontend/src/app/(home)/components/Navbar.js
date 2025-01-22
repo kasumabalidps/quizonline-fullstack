@@ -67,7 +67,7 @@ const Navbar = () => {
                                         <p className="text-xs text-gray-500 group-hover:text-blue-600">Login sebagai dosen</p>
                                     </div>
                                 </Link>
-                                <Link
+                                {/* <Link
                                     href="/login/admin"
                                     className="group flex items-center px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all duration-300 last:rounded-b-xl"
                                 >
@@ -76,7 +76,7 @@ const Navbar = () => {
                                         <p className="font-semibold group-hover:text-blue-700">Admin</p>
                                         <p className="text-xs text-gray-500 group-hover:text-blue-600">Login sebagai admin</p>
                                     </div>
-                                </Link>
+                                </Link> */}
                             </div>
                         )}
                     </div>

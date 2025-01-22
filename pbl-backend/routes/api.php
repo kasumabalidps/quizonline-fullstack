@@ -15,6 +15,9 @@ use App\Http\Controllers\DosenStatsController;
 use App\Http\Controllers\KuisController;
 use App\Http\Controllers\Auth\MahasiswaAuthenticatedSessionController;
 use App\Http\Controllers\NilaiMahasiswaController;
+use App\Http\Controllers\HomePageCountController;
+
+Route::get('/home/count', [HomePageCountController::class, 'countDataHome']);
 
 // Admin Routes
 Route::middleware(['auth:admin'])->group(function () {

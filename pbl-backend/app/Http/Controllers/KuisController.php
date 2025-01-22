@@ -17,15 +17,12 @@ use Illuminate\Http\JsonResponse;
 
 class KuisController extends Controller
 {
-    // Konstanta
-    protected const DEFAULT_DURASI = 60;
+    // Constants
     protected const DEFAULT_LIMIT = 10;
     protected const NILAI_BENAR = 100;
     protected const NILAI_SALAH = 0;
 
-    /**
-     * Response helper untuk sukses
-     */
+    // Helper Methods for Response
     protected function successResponse($data, $message = null): JsonResponse 
     {
         return response()->json([
@@ -35,9 +32,6 @@ class KuisController extends Controller
         ]);
     }
 
-    /**
-     * Response helper untuk error
-     */
     protected function errorResponse($message = 'Terjadi kesalahan', $code = 500): JsonResponse 
     {
         return response()->json([
@@ -46,17 +40,12 @@ class KuisController extends Controller
         ], $code);
     }
 
-    /**
-     * Mendapatkan data mahasiswa yang sedang login
-     */
+    // Helper Methods for Data Retrieval
     protected function getMahasiswa(Request $request) 
     {
         return Auth::user() ?? $request->user();
     }
 
-    /**
-     * Mendapatkan nilai mahasiswa untuk kuis tertentu
-     */
     protected function getNilaiMahasiswa($mahasiswaId, $kuisId) 
     {
         return NilaiMahasiswa::where('id_mhs', $mahasiswaId)
@@ -64,17 +53,11 @@ class KuisController extends Controller
             ->first();
     }
 
-    /**
-     * Membersihkan kuis yang sudah expired
-     */
     protected function checkAndDeleteExpiredQuizzes() 
     {
         return Kuis::where('waktu_selesai', '<', now())->delete();
     }
 
-    /**
-     * Mendapatkan data kuis dengan relasi yang dibutuhkan
-     */
     protected function getKuisWithRelations($id, $mahasiswaId) 
     {
         return Kuis::with([
@@ -91,15 +74,12 @@ class KuisController extends Controller
         ->findOrFail($id);
     }
 
-    /**
-     * Mendapatkan leaderboard kuis
-     */
     protected function getLeaderboard($kuisId, $limit = self::DEFAULT_LIMIT) 
     {
         return Leaderboard::where('id_kuis', $kuisId)
             ->with('mahasiswa:id,nama')
-            ->orderBy('jumlah_total', 'desc') // Pertama urut berdasarkan nilai
-            ->orderBy('waktu', 'asc')         // Kemudian berdasarkan waktu tercepat
+            ->orderBy('jumlah_total', 'desc')
+            ->orderBy('waktu', 'asc')
             ->limit($limit)
             ->get()
             ->map(function ($item) {
@@ -111,9 +91,7 @@ class KuisController extends Controller
             });
     }
 
-    /**
-     * Menampilkan daftar kuis untuk mahasiswa yang login
-     */
+    // Main Controller Methods
     public function index(GetKuisRequest $request): JsonResponse
     {
         try {
@@ -130,7 +108,7 @@ class KuisController extends Controller
                         'id' => $kuis->id,
                         'nama_kuis' => $kuis->judul,
                         'deskripsi' => $kuis->deskripsi ?? '',
-                        'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
+                        'durasi' => $kuis->durasi,
                         'jumlah_soal' => $kuis->soal->count(),
                         'status' => $nilaiMhs ? 'selesai' : 'belum',
                         'nilai' => $nilaiMhs?->nilai_total,
@@ -145,9 +123,6 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menampilkan detail kuis
-     */
     public function detail(Request $request, $id): JsonResponse
     {
         try {
@@ -183,9 +158,6 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menampilkan soal kuis untuk dikerjakan
-     */
     public function show(Request $request, $id): JsonResponse
     {
         try {
@@ -197,13 +169,13 @@ class KuisController extends Controller
             }
 
             $waktuMulai = now();
-            $waktuSelesai = $waktuMulai->copy()->addMinutes($kuis->durasi ?? self::DEFAULT_DURASI);
+            $waktuSelesai = $waktuMulai->copy()->addMinutes($kuis->durasi);
 
             return $this->successResponse([
                 'id' => $kuis->id,
                 'nama_kuis' => $kuis->judul,
                 'deskripsi' => $kuis->deskripsi ?? '',
-                'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
+                'durasi' => $kuis->durasi,
                 'waktu_mulai' => $waktuMulai,
                 'waktu_selesai' => $waktuSelesai,
                 'soal' => $kuis->soal->map(fn($soal) => [
@@ -223,23 +195,18 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menyimpan jawaban kuis
-     */
     public function submit(SubmitKuisRequest $request, $id): JsonResponse
     {
         try {
             $mahasiswa = $this->getMahasiswa($request);
             $kuis = $this->getKuisWithRelations($id, $mahasiswa->id);
             
-            // Debug: Log jawaban yang diterima
             Log::info('Jawaban yang diterima:', [
                 'jawaban' => $request->jawaban,
                 'kuis_id' => $id,
                 'mahasiswa_id' => $mahasiswa->id
             ]);
 
-            // Validasi semua soal sudah dijawab
             foreach ($kuis->soal as $soal) {
                 if (!isset($request->jawaban[$soal->id])) {
                     return $this->errorResponse('Semua soal harus dijawab terlebih dahulu', 422);
@@ -251,7 +218,6 @@ class KuisController extends Controller
 
             DB::beginTransaction();
             try {
-                // Hapus jawaban dan nilai lama jika ada
                 JawabanMhs::where('id_mhs', $mahasiswa->id)
                     ->where('id_kuis', $id)
                     ->delete();
@@ -260,19 +226,16 @@ class KuisController extends Controller
                     ->where('id_kuis', $id)
                     ->delete();
 
-                // Simpan jawaban dan hitung nilai
                 foreach ($kuis->soal as $soal) {
                     $jawabanMhs = strtolower(trim($request->jawaban[$soal->id]));
                     $kunciJawaban = strtolower(trim($soal->jawaban));
                     
-                    // Debug: Log perbandingan jawaban
                     Log::info('Perbandingan jawaban:', [
                         'soal_id' => $soal->id,
                         'jawaban_mhs' => $jawabanMhs,
                         'kunci_jawaban' => $kunciJawaban
                     ]);
 
-                    // Pastikan jawaban valid
                     if (!in_array($jawabanMhs, ['a', 'b', 'c', 'd'])) {
                         throw new \Exception('Jawaban tidak valid');
                     }
@@ -280,7 +243,6 @@ class KuisController extends Controller
                     $nilai = $jawabanMhs === $kunciJawaban ? self::NILAI_BENAR : self::NILAI_SALAH;
                     $nilaiTotal += $nilai;
 
-                    // Simpan detail jawaban untuk debugging
                     $detailJawaban[] = [
                         'soal_id' => $soal->id,
                         'pertanyaan' => $soal->soal,
@@ -298,21 +260,17 @@ class KuisController extends Controller
                     ]);
                 }
 
-                // Debug: Log detail jawaban
                 Log::info('Detail semua jawaban:', ['detail' => $detailJawaban]);
 
-                // Hitung rata-rata nilai
                 $nilaiRata = $kuis->soal->count() > 0 ? 
                     round($nilaiTotal / $kuis->soal->count(), 2) : 0;
 
-                // Simpan nilai total
                 NilaiMahasiswa::create([
                     'id_mhs' => $mahasiswa->id,
                     'id_kuis' => $id,
                     'nilai_total' => $nilaiRata
                 ]);
 
-                // Update atau buat leaderboard
                 Leaderboard::updateOrCreate(
                     [
                         'id_kuis' => $id,
@@ -326,7 +284,6 @@ class KuisController extends Controller
 
                 DB::commit();
 
-                // Hitung statistik jawaban
                 $jawabanBenar = $nilaiTotal / self::NILAI_BENAR;
                 $totalSoal = $kuis->soal->count();
 
@@ -335,7 +292,7 @@ class KuisController extends Controller
                     'jawaban_benar' => $jawabanBenar,
                     'jawaban_salah' => $totalSoal - $jawabanBenar,
                     'total_soal' => $totalSoal,
-                    'detail_jawaban' => $detailJawaban, // Tambahkan detail jawaban ke response
+                    'detail_jawaban' => $detailJawaban,
                     'leaderboard' => $this->getLeaderboard($id)
                 ], 'Kuis berhasil diselesaikan');
 
@@ -359,9 +316,6 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menampilkan hasil kuis
-     */
     public function hasil(Request $request, $id): JsonResponse
     {
         try {
@@ -406,9 +360,6 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menampilkan leaderboard kuis
-     */
     public function leaderboard($id): JsonResponse
     {
         try {
@@ -419,9 +370,6 @@ class KuisController extends Controller
         }
     }
 
-    /**
-     * Menampilkan daftar kuis yang sudah expired
-     */
     public function expiredList(Request $request): JsonResponse
     {
         try {
@@ -439,7 +387,7 @@ class KuisController extends Controller
                         'id' => $kuis->id,
                         'nama_kuis' => $kuis->judul,
                         'deskripsi' => $kuis->deskripsi ?? '',
-                        'durasi' => $kuis->durasi ?? self::DEFAULT_DURASI,
+                        'durasi' => $kuis->durasi,
                         'jumlah_soal' => $kuis->soal->count(),
                         'waktu_mulai' => $kuis->waktu_mulai,
                         'waktu_selesai' => $kuis->waktu_selesai,
