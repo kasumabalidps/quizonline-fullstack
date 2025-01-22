@@ -54,15 +54,15 @@ const Home = () => {
                             <div className="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
                                 <div className="rounded-2xl p-6">
                                     <div className="text-3xl font-bold mb-2">{countData.mahasiswa}+</div>
-                                    <div className="text-blue-100">Mahasiswa Aktif</div>
+                                    <div className="text-blue-100">Mahasiswa Terdaftar</div>
                                 </div>
                                 <div className="rounded-2xl p-6">
                                     <div className="text-3xl font-bold mb-2">{countData.dosen}+</div>
-                                    <div className="text-blue-100">Dosen</div>
+                                    <div className="text-blue-100">Dosen Terdaftar</div>
                                 </div>
                                 <div className="rounded-2xl p-6 col-span-2 md:col-span-1">
                                     <div className="text-3xl font-bold mb-2">{countData.kuis}+</div>
-                                    <div className="text-blue-100">Kuis Tersedia</div>
+                                    <div className="text-blue-100">Kuis Terdaftar</div>
                                 </div>
                             </div>
                         </div>
