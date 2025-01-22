@@ -304,7 +304,7 @@ export default function KuisDetail() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center gap-2 mb-6">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              <h2 className="text-lg font-semibold">Papan Peringkat <span className="text-sm font-medium text-gray-500">(Menampilkan 3 peserta teratas)</span></h2>
+              <h2 className="text-lg font-semibold">Peringkat 3 Teratas</h2>
             </div>
 
             <div className="space-y-3">
