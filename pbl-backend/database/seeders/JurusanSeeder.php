@@ -11,12 +11,12 @@ class JurusanSeeder extends Seeder
     {
         $jurusans = [
             [
-                'code_jurusan' => 'TI',
-                'nama_jurusan' => 'Teknik Informatika'
+                'code_jurusan' => 'PR',
+                'nama_jurusan' => 'Pariwisata'
             ],
             [
-                'code_jurusan' => 'TE',
-                'nama_jurusan' => 'Teknik Elektro'
+                'code_jurusan' => 'AB',
+                'nama_jurusan' => 'Administrasi Bisnis'
             ],
             [
                 'code_jurusan' => 'TM',
@@ -25,6 +25,18 @@ class JurusanSeeder extends Seeder
             [
                 'code_jurusan' => 'TS',
                 'nama_jurusan' => 'Teknik Sipil'
+            ],
+            [
+                'code_jurusan' => 'AK',
+                'nama_jurusan' => 'Akutansi'
+            ],
+            [
+                'code_jurusan' => 'TI',
+                'nama_jurusan' => 'Teknologi Informasi'
+            ],
+            [
+                'code_jurusan' => 'TE',
+                'nama_jurusan' => 'Teknik Elektro'
             ]
         ];
 

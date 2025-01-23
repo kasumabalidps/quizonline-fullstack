@@ -11,25 +11,40 @@ class KelasSeeder extends Seeder
     {
         $kelas = [
             [
-                'code_kelas' => 'TI-1A',
-                'nama_kelas' => 'Teknik Informatika 1A',
+                'code_kelas' => 'PR-3A',
+                'nama_kelas' => 'Perhotalan 3A',
                 'id_prodi' => 1
             ],
             [
-                'code_kelas' => 'TI-1B',
-                'nama_kelas' => 'Teknik Informatika 1B',
-                'id_prodi' => 1
+                'code_kelas' => 'AB-3B',
+                'nama_kelas' => 'Adminitrasi Bisnis 3B',
+                'id_prodi' => 2
             ],
             [
-                'code_kelas' => 'TE-1A',
-                'nama_kelas' => 'Teknik Elektro 1A',
+                'code_kelas' => 'TM-3A',
+                'nama_kelas' => 'Teknik Mesin 3A',
                 'id_prodi' => 3
             ],
             [
-                'code_kelas' => 'TE-1B',
-                'nama_kelas' => 'Teknik Elektro 1B',
-                'id_prodi' => 3
-            ]
+                'code_kelas' => 'TS-3C',
+                'nama_kelas' => 'Teknik Sipil 3C',
+                'id_prodi' => 4
+            ],
+            [
+                'code_kelas' => 'AK-3B',
+                'nama_kelas' => 'Akuntasi 3B',
+                'id_prodi' => 5
+            ],
+            [
+                'code_kelas' => 'TL-3B',
+                'nama_kelas' => 'Teknik Listrik 3B',
+                'id_prodi' => 6
+            ],
+            [
+                'code_kelas' => 'TRL-3C',
+                'nama_kelas' => 'Teknologi Rekayasa Perangkat Lunak 3C',
+                'id_prodi' => 7
+            ],
         ];
 
         foreach ($kelas as $k) {

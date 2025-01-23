@@ -30,10 +30,14 @@ class MatkulSeeder extends Seeder
         }
 
         $matkuls = [
-            ['nama_matkul' => 'Matematika', 'id_dosen' => $dosen->id],
-            ['nama_matkul' => 'Fisika', 'id_dosen' => $dosen->id],
-            ['nama_matkul' => 'Kimia', 'id_dosen' => $dosen->id],
-            ['nama_matkul' => 'Biologi', 'id_dosen' => $dosen->id]
+            ['nama_matkul' => 'Analisa dan Desain Perangkat Lunak', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Basis Data', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Pemrogramman Berorientasi Objek II', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Pemrogramman Web Lanjut', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Bahasa Indonesia', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Statisika dan Probalitas', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Pemrogramman Web Lanjut', 'id_dosen' => $dosen->id],
+
         ];
 
         MataKuliah::truncate();
