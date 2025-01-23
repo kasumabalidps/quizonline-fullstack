@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCountData } from '@/hooks/countDataHome';
-import { BookOpen, Users, Clock, Award, ArrowRight, Star, Sparkles } from 'lucide-react';
+import { BookOpen, Users, Clock, Award, ArrowRight, Star, Sparkles, Smartphone, Tablet } from 'lucide-react';
 
 const Home = () => {
     const { countData, error, isLoading } = useCountData();
@@ -39,14 +39,24 @@ const Home = () => {
                                     className="group w-full sm:w-auto inline-flex items-center justify-center bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
                                 >
                                     Mulai Sekarang
-                                    <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </Link>
-                                <Link
-                                    href="#features"
-                                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold border-2 border-white/20 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
-                                >
-                                    Pelajari Lebih Lanjut
-                                </Link>
+                                <div className="flex gap-4 w-full sm:w-auto">
+                                    <Link
+                                        href="#"
+                                        className="group flex-1 sm:flex-none inline-flex items-center justify-center bg-blue-500/20 backdrop-blur-sm text-white px-6 py-4 rounded-xl font-semibold hover:bg-blue-500/30 transition-all duration-300"
+                                    >
+                                        <Smartphone className="mr-2 w-5 h-5" />
+                                        iOS App
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="group flex-1 sm:flex-none inline-flex items-center justify-center bg-white text-blue-600 px-6 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+                                    >
+                                        <Tablet className="mr-2 w-5 h-5" />
+                                        Android App
+                                    </Link>
+                                </div>
                             </div>
 
                             <div className="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto">

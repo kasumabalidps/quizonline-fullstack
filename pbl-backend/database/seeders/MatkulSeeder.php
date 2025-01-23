@@ -35,8 +35,7 @@ class MatkulSeeder extends Seeder
             ['nama_matkul' => 'Pemrogramman Berorientasi Objek II', 'id_dosen' => $dosen->id],
             ['nama_matkul' => 'Pemrogramman Web Lanjut', 'id_dosen' => $dosen->id],
             ['nama_matkul' => 'Bahasa Indonesia', 'id_dosen' => $dosen->id],
-            ['nama_matkul' => 'Statisika dan Probalitas', 'id_dosen' => $dosen->id],
-            ['nama_matkul' => 'Pemrogramman Web Lanjut', 'id_dosen' => $dosen->id],
+            ['nama_matkul' => 'Statisika dan Probalitas', 'id_dosen' => $dosen->id]
 
         ];
 
