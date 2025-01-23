@@ -44,7 +44,7 @@ class KelasSeeder extends Seeder
                 'code_kelas' => 'TRL-3C',
                 'nama_kelas' => 'Teknologi Rekayasa Perangkat Lunak 3C',
                 'id_prodi' => 7
-            ],
+            ]
         ];
 
         foreach ($kelas as $k) {
